@@ -16,9 +16,10 @@ namespace SQRT.Models
         /// </summary>
         /// <param name="slots"></param>
         public delegate void FSQ(List<int> slots);
+        public delegate void FSQAndTime(List<int> slots,double time);
         public delegate void FSQSAndSlot(List<int> slots, int slot);
-        public event FSQ Assign;
-        public event FSQSAndSlot Assigned;
+        public event FSQAndTime AssignStart;
+        public event FSQSAndSlot AssignEnd;
         public event FSQ FreeSlot;
         /// <summary>
         /// Task assigning time, in milliseconds
@@ -110,8 +111,13 @@ namespace SQRT.Models
             SortedSet<Tuple<double, int>> slotsTime = new SortedSet<Tuple<double, int>>();
             for (int i=1; i<=tasks; i++)
             {
-                Assign?.Invoke(FSQ);
+                double rndTaskTime = taskTime;
+                if (volatility > 0)
+                    rndTaskTime = normal.Sample();
+                // Getting a new task from pending queue
+                AssignStart?.Invoke(FSQ, rndTaskTime);
                 double freeSlotTime = time;
+                // Free all slots that end while assigning the new task
                 while (slotsTime.First().Item1 < time + q)
                 {
                     freeSlotTime = slotsTime.First().Item1;
@@ -120,13 +126,23 @@ namespace SQRT.Models
                     FreeSlot?.Invoke(FSQ);
                 }
                 time += q;
-                //Getting a new task from pending queue
                 ms = (int) (time - freeSlotTime);
                 await Task.Delay(ms > 0 ? ms : 1);
-                double rndTaskTime = taskTime;
-                if (volatility > 0)
-                    rndTaskTime = normal.Sample();
-
+                int assignedSlot = FSQ[0];
+                FSQ.RemoveAt(0);
+                //Assign to an active slot
+                AssignEnd?.Invoke(FSQ, assignedSlot);
+                slotsTime.Add(Tuple.Create(time + rndTaskTime, assignedSlot));
+                if (FSQ.Count == 0)
+                {
+                    double timeBefore = time;
+                    time = slotsTime.First().Item1;
+                    FSQ.Add(slotsTime.First().Item2);
+                    slotsTime.Remove(slotsTime.First());
+                    ms = (int)(time - timeBefore);
+                    await Task.Delay(ms > 0 ? ms : 1);
+                    FreeSlot?.Invoke(FSQ);
+                }
             }
         }
     }

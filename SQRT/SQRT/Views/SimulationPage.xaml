@@ -23,23 +23,10 @@
         </Grid>
         <Label Text="Free Slots Queue" FontSize="Medium" />
         <Grid x:Name="fsq">
-            <BoxView BackgroundColor="Accent" Grid.Column="0"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="1"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="2"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="3"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="4"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="5"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="6"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="0" Grid.Row="1"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="1" Grid.Row="1"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="2" Grid.Row="1"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="3" Grid.Row="1"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="4" Grid.Row="1"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="5" Grid.Row="1"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="6" Grid.Row="1"/>
         </Grid>
         <Label Text="Active Slots" FontSize="Medium" />
-        <Grid x:Name="slots"/>
+        <Grid x:Name="slots">
+        </Grid>
     </StackLayout>
     
 </ContentPage>

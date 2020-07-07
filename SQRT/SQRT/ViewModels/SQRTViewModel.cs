@@ -2,13 +2,17 @@
 using System.Transactions;
 using SQRT.Models;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using Xamarin.Forms;
+using System.Collections.ObjectModel;
+using System.Dynamic;
 
 namespace SQRT.ViewModels
 {
     public class SQRTViewModel : BaseViewModel
     {
         public Models.SQRTModel Model{ get;}
-        public SQRTViewModel(Models.SQRTModel model = null)
+        public SQRTViewModel(Models.SQRTModel model)
         {
             Title = "SQRT Model";
             Model = model??new Models.SQRTModel();
@@ -77,6 +81,8 @@ namespace SQRT.ViewModels
             OnPropertyChanged("RealTaskTime");
             OnPropertyChanged("TaskNumber");
         }
-
+        public Color SlotColor(int slot, bool active) {
+            return Color.FromHsla(slot*0.7 / Model.Slots, 1, active? 0.75: 0.25);
+        }
     }
 }

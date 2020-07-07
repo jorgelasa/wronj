@@ -14,12 +14,21 @@ namespace SQRT.Views
     public partial class SimulationPage : ContentPage
     {
         SQRTViewModel viewModel;
-
+        const int MaxColumns = 64;
         public SimulationPage(SQRTViewModel viewModel)
         {
             InitializeComponent();
-
             BindingContext = this.viewModel = viewModel;
+            int slot = 0;
+            for (int row=0; row <= viewModel.Slots/MaxColumns; row++)
+            {
+                for (int col=0; col < MaxColumns && slot < viewModel.Slots; col++)
+                {
+                    slot++;
+                    fsq.Children.Add(new BoxView { BackgroundColor = viewModel.SlotColor(slot, false) }, col, row);
+                    slots.Children.Add(new BoxView { BackgroundColor = viewModel.SlotColor(slot, false) }, col, row);
+                }
+            }
         }
 
         public SimulationPage()
