@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="SQRT.Views.SimulationPage"
+             Title="{Binding Title}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Cancel" Clicked="Cancel_Clicked" />
+    </ContentPage.ToolbarItems>
+
+    <StackLayout Spacing="20" Padding="15">
+        <Label Text="Pending tasks" FontSize="Medium" />
+        <Grid x:Name="pending" ColumnSpacing="3">
+            <BoxView BackgroundColor="Accent" Grid.Column="0"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="1"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="2"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="3"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="4"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="5"/>
+        </Grid>
+        <Label Text="Free Slots Queue" FontSize="Medium" />
+        <Grid x:Name="fsq">
+            <BoxView BackgroundColor="Accent" Grid.Column="0"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="1"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="2"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="3"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="4"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="5"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="6"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="0" Grid.Row="1"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="1" Grid.Row="1"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="2" Grid.Row="1"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="3" Grid.Row="1"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="4" Grid.Row="1"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="5" Grid.Row="1"/>
+            <BoxView BackgroundColor="Accent" Grid.Column="6" Grid.Row="1"/>
+        </Grid>
+        <Label Text="Active Slots" FontSize="Medium" />
+        <Grid x:Name="slots"/>
+    </StackLayout>
+    
+</ContentPage>

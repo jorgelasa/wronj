@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="SQRT.Views.ItemsPage"
+             Title="{Binding Title}"
+             x:Name="BrowseItemsPage">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Calculate" Clicked="Calculate_Clicked" />
+        <ToolbarItem Text="Simulate" Clicked="Simulate_Clicked" />
+    </ContentPage.ToolbarItems>
+
+    <StackLayout Padding="10">
+        <Label Text="Q (milliseconds)" 
+                d:Text="Q (milliseconds)"
+                LineBreakMode="NoWrap" 
+                Style="{DynamicResource ListItemTextStyle}" 
+                FontSize="16" />
+        <Entry Text="{Binding Q, Mode=OneWayToSource}" 
+                d:Text="Q"
+                Style="{DynamicResource ListItemDetailTextStyle}"
+                FontSize="13" />
+        <Label Text="Slots" 
+                LineBreakMode="NoWrap" 
+                Style="{DynamicResource ListItemTextStyle}" 
+                FontSize="16" />
+        <Entry Text="{Binding Slots, Mode=OneWayToSource}" 
+                Style="{DynamicResource ListItemDetailTextStyle}"
+                FontSize="13" />
+        <Label Text="Task Time (seconds)" 
+                LineBreakMode="NoWrap" 
+                Style="{DynamicResource ListItemTextStyle}" 
+                FontSize="16" />
+        <Entry Text="{Binding TaskTime, Mode=OneWayToSource}" 
+                Style="{DynamicResource ListItemDetailTextStyle}"
+                FontSize="13" />
+        <Label Text="Model Time (seconds)" 
+                LineBreakMode="NoWrap" 
+                Style="{DynamicResource ListItemTextStyle}" 
+                FontSize="16" />
+        <Entry Text="{Binding ModelTime}" 
+                Style="{DynamicResource ListItemDetailTextStyle}"
+                FontSize="13" />
+        <Label Text="Real Task Time (seconds)" 
+                Style="{DynamicResource ListItemTextStyle}" 
+                FontSize="16" />
+        <Entry Text="{Binding RealTaskTime}" 
+                FontSize="13" />
+        <Label Text="Task Number" 
+                Style="{DynamicResource ListItemTextStyle}" 
+                FontSize="16" />
+        <Entry Text="{Binding TaskNumber}" 
+                FontSize="13" />
+    </StackLayout>
+</ContentPage>
