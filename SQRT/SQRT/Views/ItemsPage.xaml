@@ -14,13 +14,13 @@
     </ContentPage.ToolbarItems>
 
     <StackLayout Padding="10">
-        <Label Text="Q (milliseconds)" 
-                d:Text="Q (milliseconds)"
+        <Label Text="Assignment time (milliseconds)" 
+                d:Text="Assignment time (milliseconds)"
                 LineBreakMode="NoWrap" 
                 Style="{DynamicResource ListItemTextStyle}" 
                 FontSize="16" />
-        <Entry Text="{Binding Q, Mode=OneWayToSource}" 
-                d:Text="Q"
+        <Entry Text="{Binding AssignmentTime, Mode=OneWayToSource}" 
+                d:Text="Assignment Time"
                 Style="{DynamicResource ListItemDetailTextStyle}"
                 FontSize="13" />
         <Label Text="Slots" 
@@ -30,11 +30,25 @@
         <Entry Text="{Binding Slots, Mode=OneWayToSource}" 
                 Style="{DynamicResource ListItemDetailTextStyle}"
                 FontSize="13" />
-        <Label Text="Task Time (seconds)" 
+        <Label Text="Task time (seconds)" 
                 LineBreakMode="NoWrap" 
                 Style="{DynamicResource ListItemTextStyle}" 
                 FontSize="16" />
         <Entry Text="{Binding TaskTime, Mode=OneWayToSource}" 
+                Style="{DynamicResource ListItemDetailTextStyle}"
+                FontSize="13" />
+        <Label Text="Assignment time volatility" 
+                LineBreakMode="NoWrap" 
+                Style="{DynamicResource ListItemTextStyle}" 
+                FontSize="16" />
+        <Entry Text="{Binding AssignmentTimeVolatility, Mode=OneWayToSource}" 
+                Style="{DynamicResource ListItemDetailTextStyle}"
+                FontSize="13" />
+        <Label Text="Task time volatility" 
+                LineBreakMode="NoWrap" 
+                Style="{DynamicResource ListItemTextStyle}" 
+                FontSize="16" />
+        <Entry Text="{Binding TaskTimeVolatility, Mode=OneWayToSource}" 
                 Style="{DynamicResource ListItemDetailTextStyle}"
                 FontSize="13" />
         <Label Text="Model Time (seconds)" 
@@ -52,7 +66,7 @@
         <Label Text="Task Number" 
                 Style="{DynamicResource ListItemTextStyle}" 
                 FontSize="16" />
-        <Entry Text="{Binding TaskNumber}" 
+        <Entry Text="{Binding TaskNumber, Mode=OneWayToSource}" 
                 FontSize="13" />
     </StackLayout>
 </ContentPage>

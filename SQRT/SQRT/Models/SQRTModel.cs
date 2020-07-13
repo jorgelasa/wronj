@@ -18,23 +18,25 @@ namespace SQRT.Models
         public delegate void FSQ(List<int> slots);
         public delegate void FSQAndTime(List<int> slots,double time);
         public delegate void FSQSAndSlot(List<int> slots, int slot);
-        public event FSQAndTime AssignStart;
-        public event FSQSAndSlot AssignEnd;
+        public event FSQAndTime AssignmentStart;
+        public event FSQSAndSlot AssignmentEnd;
         public event FSQ FreeSlot;
         /// <summary>
-        /// Task assigning time, in milliseconds
+        /// Task assignment time, in milliseconds
         /// </summary>
-        public double Q { get; set; }
+        public double AssignmentTime { get; set; }
+        public double AssignmentTimeVolatility { get; set; }
         /// <summary>
         ///  Average task time, in seconds
         /// </summary>
         public double TaskTime { get; set; }
+        public double TaskTimeVolatility { get; set; }
         public int Slots { get; set; }
         public double ModelTime
         {
             get
             {
-                return Q * (Slots - 1) / 1000 > TaskTime ? Q * Slots / 1000 : TaskTime + Q / 1000;
+                return AssignmentTime * (Slots - 1) / 1000 > TaskTime ? AssignmentTime * Slots / 1000 : TaskTime + AssignmentTime / 1000;
             }
         }
         public double RealTaskTime { get; private set; }
@@ -54,7 +56,8 @@ namespace SQRT.Models
         }
         Task<Tuple<double, int>> CalculateUntilConvergenceAsync()
         {
-            double q = Q / 1000, taskTime = TaskTime, modelTime = ModelTime, volatility = 0;
+            double assignmentTime = AssignmentTime / 1000, taskTime = TaskTime, modelTime = ModelTime, 
+                assignmentVolatility = AssignmentTimeVolatility, taskTimeVolatility = TaskTimeVolatility;
             int slots = Slots, topTasks = TaskNumber;
             return Task<Tuple<double, int>>.Run(() =>
             {
@@ -69,7 +72,8 @@ namespace SQRT.Models
                 const int topTasksWithinRange = 1000;
                 double convergenceDiff = 0.00001;
                 int lastTasksWithinRange = 0;
-                MathNet.Numerics.Distributions.Normal normal = new MathNet.Numerics.Distributions.Normal(taskTime, volatility);
+                MathNet.Numerics.Distributions.Normal taskDist = new MathNet.Numerics.Distributions.Normal(taskTime, taskTimeVolatility);
+                MathNet.Numerics.Distributions.Normal assignmentDist = new MathNet.Numerics.Distributions.Normal(taskTime, assignmentVolatility);
                 while (topTasks == 0 && lastTasksWithinRange < topTasksWithinRange
                 || tasks < topTasks)
                 {
@@ -82,10 +86,10 @@ namespace SQRT.Models
                             time = lastSlotEndTime;
                         slotsTime.Remove(firstSlot);
                     }
-                    time += q;
+                    time += assignmentTime;
                     double rndTaskTime = taskTime;
-                    if (volatility > 0)
-                        rndTaskTime = normal.Sample();
+                    if (taskTimeVolatility > 0)
+                        rndTaskTime = taskDist.Sample();
                     double slotEndTime = time + rndTaskTime;
                     slotsTime.Add(Tuple.Create(slotEndTime, lastSlotEndTime));
                     lastTaskTime = realTaskTime;
@@ -102,12 +106,12 @@ namespace SQRT.Models
         public async void Simulate()
         {
             //All times in milliseconds
-            double q = Q , taskTime = TaskTime*1000, modelTime = ModelTime*1000, volatility = 0;
+            double q = AssignmentTime , taskTime = TaskTime*1000, modelTime = ModelTime*1000, volatility = 0;
             int slots = Slots, tasks = TaskNumber;
             double time = 0;
             int ms = 0;
             MathNet.Numerics.Distributions.Normal normal = new MathNet.Numerics.Distributions.Normal(taskTime, volatility);
-            List<int> FSQ= Enumerable.Range(1, slots).ToList();
+            List<int> FSQ= Enumerable.Range(0, slots-1).ToList();
             SortedSet<Tuple<double, int>> slotsTime = new SortedSet<Tuple<double, int>>();
             for (int i=1; i<=tasks; i++)
             {
@@ -115,10 +119,10 @@ namespace SQRT.Models
                 if (volatility > 0)
                     rndTaskTime = normal.Sample();
                 // Getting a new task from pending queue
-                AssignStart?.Invoke(FSQ, rndTaskTime);
+                AssignmentStart?.Invoke(FSQ, rndTaskTime);
                 double freeSlotTime = time;
                 // Free all slots that end while assigning the new task
-                while (slotsTime.First().Item1 < time + q)
+                while (slotsTime.Count > 0 &&  slotsTime.First().Item1 < time + q)
                 {
                     freeSlotTime = slotsTime.First().Item1;
                     FSQ.Add(slotsTime.First().Item2);
@@ -131,7 +135,7 @@ namespace SQRT.Models
                 int assignedSlot = FSQ[0];
                 FSQ.RemoveAt(0);
                 //Assign to an active slot
-                AssignEnd?.Invoke(FSQ, assignedSlot);
+                AssignmentEnd?.Invoke(FSQ, assignedSlot);
                 slotsTime.Add(Tuple.Create(time + rndTaskTime, assignedSlot));
                 if (FSQ.Count == 0)
                 {

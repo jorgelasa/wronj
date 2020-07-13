@@ -25,7 +25,7 @@
         <Grid x:Name="fsq">
         </Grid>
         <Label Text="Active Slots" FontSize="Medium" />
-        <Grid x:Name="slots">
+        <Grid x:Name="activeSlots">
         </Grid>
     </StackLayout>
     

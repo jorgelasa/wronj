@@ -17,17 +17,30 @@ namespace SQRT.ViewModels
             Title = "SQRT Model";
             Model = model??new Models.SQRTModel();
         }
-        public double Q
+        public double AssignmentTime
         {
-            get { return Model.Q; }
+            get { return Model.AssignmentTime; }
             set {
-                double v=Model.Q;
+                double v=Model.AssignmentTime;
                 if (SetProperty(ref v, value))
                 {
-                    Model.Q = v;
+                    Model.AssignmentTime = v;
                     OnPropertyChanged("ModelTime");
                 }
             }                
+        }
+        public double AssignmentTimeVolatility
+        {
+            get { return Model.AssignmentTimeVolatility; }
+            set
+            {
+                double v = Model.AssignmentTimeVolatility;
+                if (SetProperty(ref v, value))
+                {
+                    Model.AssignmentTimeVolatility = v;
+                    OnPropertyChanged("ModelTime");
+                }
+            }
         }
         public double TaskTime
         {
@@ -38,6 +51,19 @@ namespace SQRT.ViewModels
                 if (SetProperty(ref v, value))
                 {
                     Model.TaskTime = v;
+                    OnPropertyChanged("ModelTime");
+                }
+            }
+        }
+        public double TaskTimeVolatility
+        {
+            get { return Model.TaskTimeVolatility; }
+            set
+            {
+                double v = Model.TaskTimeVolatility;
+                if (SetProperty(ref v, value))
+                {
+                    Model.TaskTimeVolatility = v;
                     OnPropertyChanged("ModelTime");
                 }
             }
@@ -81,8 +107,8 @@ namespace SQRT.ViewModels
             OnPropertyChanged("RealTaskTime");
             OnPropertyChanged("TaskNumber");
         }
-        public Color SlotColor(int slot, bool active) {
-            return Color.FromHsla(slot*0.7 / Model.Slots, 1, active? 0.75: 0.25);
+        public Color SlotColor(int slot, bool active, bool fsq) {
+            return Color.FromHsla(slot*0.7 / Model.Slots, active? 0.85: 0.15,0.5);
         }
     }
 }
