@@ -7,8 +7,8 @@
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TemplateGuid>{9AA2D3C6-3393-45F1-8E7C-5A9901728795}</TemplateGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>SQRT.Droid</RootNamespace>
-    <AssemblyName>SQRT.Android</AssemblyName>
+    <RootNamespace>WRONG.Droid</RootNamespace>
+    <AssemblyName>WRONG.Android</AssemblyName>
     <Deterministic>True</Deterministic>
     <AndroidApplication>True</AndroidApplication>
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
@@ -87,9 +87,9 @@
     <AndroidResource Include="Resources\drawable\xamarin_logo.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SQRT\SQRT.csproj">
+    <ProjectReference Include="..\WRONG\WRONG.csproj">
       <Project>{4480DDE7-66B0-4ABF-B2FB-254767D0DBC1}</Project>
-      <Name>SQRT</Name>
+      <Name>WRONG</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />

@@ -8,8 +8,8 @@
     <TemplateGuid>{98C37F10-6541-44BE-B1E6-7EB3EB8C08F1}</TemplateGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SQRT.UWP</RootNamespace>
-    <AssemblyName>SQRT.UWP</AssemblyName>
+    <RootNamespace>WRONG.UWP</RootNamespace>
+    <AssemblyName>WRONG.UWP</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.17763.0</TargetPlatformVersion>
@@ -153,9 +153,9 @@
     <PackageReference Include="Xamarin.Essentials" Version="1.3.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SQRT\SQRT.csproj">
+    <ProjectReference Include="..\WRONG\WRONG.csproj">
       <Project>{4480DDE7-66B0-4ABF-B2FB-254767D0DBC1}</Project>
-      <Name>SQRT</Name>
+      <Name>WRONG</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

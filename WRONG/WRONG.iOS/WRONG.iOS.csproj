@@ -9,9 +9,9 @@
     <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TemplateGuid>{65C0771A-452F-423B-995C-F0AE46E643BA}</TemplateGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>SQRT.iOS</RootNamespace>
+    <RootNamespace>WRONG.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
-    <AssemblyName>SQRT.iOS</AssemblyName>
+    <AssemblyName>WRONG.iOS</AssemblyName>
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
     <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
     <ProvisioningType>automatic</ProvisioningType>
@@ -137,9 +137,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\SQRT\SQRT.csproj">
+    <ProjectReference Include="..\WRONG\WRONG.csproj">
       <Project>{4480DDE7-66B0-4ABF-B2FB-254767D0DBC1}</Project>
-      <Name>SQRT</Name>
+      <Name>WRONG</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>
