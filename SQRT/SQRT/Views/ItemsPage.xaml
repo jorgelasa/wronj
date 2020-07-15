@@ -4,7 +4,7 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             x:Class="SQRT.Views.ItemsPage"
+             x:Class="WRONG.Views.ItemsPage"
              Title="{Binding Title}"
              x:Name="BrowseItemsPage">
 
@@ -23,11 +23,11 @@
                 d:Text="Assignment Time"
                 Style="{DynamicResource ListItemDetailTextStyle}"
                 FontSize="13" />
-        <Label Text="Slots" 
+        <Label Text="Workers" 
                 LineBreakMode="NoWrap" 
                 Style="{DynamicResource ListItemTextStyle}" 
                 FontSize="16" />
-        <Entry Text="{Binding Slots, Mode=OneWayToSource}" 
+        <Entry Text="{Binding Workers, Mode=OneWayToSource}" 
                 Style="{DynamicResource ListItemDetailTextStyle}"
                 FontSize="13" />
         <Label Text="Task time (seconds)" 

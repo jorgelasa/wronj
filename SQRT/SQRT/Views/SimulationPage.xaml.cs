@@ -3,107 +3,126 @@ using System.ComponentModel;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-using SQRT.Models;
-using SQRT.ViewModels;
+using WRONG.Models;
+using WRONG.ViewModels;
+using System.Threading;
+using System.Collections.Generic;
 
-namespace SQRT.Views
+namespace WRONG.Views
 {
     // Learn more about making custom code visible in the Xamarin.Forms previewer
     // by visiting https://aka.ms/xamarinforms-previewer
     [DesignTimeVisible(false)]
     public partial class SimulationPage : ContentPage
     {
-        SQRTViewModel viewModel;
-        const int FSQMaxColumns = 64;
-        public SimulationPage(SQRTViewModel viewModel)
+        WRONGViewModel viewModel;
+        const int FWQMaxColumns = 64;
+        CancellationTokenSource cancelTokenSource;        
+        public SimulationPage(WRONGViewModel viewModel)
         {
             InitializeComponent();
             BindingContext = this.viewModel = viewModel;
-            if (viewModel.Slots <= 0)
+            if (viewModel.Workers <= 0)
                 return;
-            for (int row=0, slot=0; row <= viewModel.Slots/ FSQMaxColumns; row++)
+            for (int row=0, worker=0; row <= viewModel.Workers/ FWQMaxColumns; row++)
             {
-                for (int col=0; col < FSQMaxColumns && slot < viewModel.Slots; col++, slot++)
+                for (int col=0; col < FWQMaxColumns && worker < viewModel.Workers; col++, worker++)
                 {
-                    fsq.Children.Add(new BoxView { BackgroundColor = viewModel.SlotColor(slot, false, true) }, col, row);
+                    fsq.Children.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker, false, true) }, col, row);
                 }
             }
-            int slotsColumns = (int)Math.Sqrt(viewModel.Slots);
-            for (int row = 0, slot=0; row <= viewModel.Slots / slotsColumns; row++)
+            int workersColumns = (int)Math.Sqrt(viewModel.Workers);
+            for (int row = 0, worker=0; row <= viewModel.Workers / workersColumns; row++)
             {
-                for (int col = 0; col < slotsColumns && slot < viewModel.Slots; col++, slot++)
+                for (int col = 0; col < workersColumns && worker < viewModel.Workers; col++, worker++)
                 {
-                    activeSlots.Children.Add(new BoxView { BackgroundColor = viewModel.SlotColor(slot, false,false) }, col, row);
+                    activeWorkers.Children.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker, false,false) }, col, row);
                 }
             }
-            viewModel.Model.AssignmentStart += (slots, time) =>
-            {
-                int s = 0;
-                foreach (View view in fsq.Children)
-                {
-                    if (s < slots.Count)
-                    {
-                        view.BackgroundColor = viewModel.SlotColor(slots[s++], s == 0, true);
-                    }
-                    else
-                    {
-                        view.BackgroundColor = Color.DarkGray;
-                    }
-                }
-            };
-            viewModel.Model.AssignmentEnd += (slots, slot) =>
-            {
-                int s = 0;
-                foreach (View view in fsq.Children)
-                {
-                    if (s < slots.Count)
-                    {
-                        view.BackgroundColor = viewModel.SlotColor(slots[s++], false, true);
-                    }
-                    else
-                    {
-                        view.BackgroundColor = Color.DarkGray;
-                    }
-                }
-                activeSlots.Children[slot].BackgroundColor = viewModel.SlotColor(slot, true, false);
-            };
-            viewModel.Model.FreeSlot += (slots) =>
-            {
-                int s = 0;
-                foreach (View view in fsq.Children)
-                {
-                    if (s < slots.Count)
-                    {
-                        view.BackgroundColor = viewModel.SlotColor(slots[s++], false, true);
-                    }
-                    else
-                    {
-                        view.BackgroundColor = Color.DarkGray;
-                    }
-                }
-                activeSlots.Children[slots[s - 1]].BackgroundColor = viewModel.SlotColor(slots[s - 1], false, false);
-            };
-            viewModel.Model.Simulate();
+            viewModel.Model.AssignmentStart += AssignmentStart;
+            viewModel.Model.AssignmentEnd += AssignmentEnd;
+            viewModel.Model.FreeWorker += FreeWorker;
+            cancelTokenSource = new CancellationTokenSource();
+            viewModel.Model.Simulate(cancelTokenSource.Token);
         }
 
         public SimulationPage()
         {
             InitializeComponent();
 
-            var model = new Models.SQRTModel
+            var model = new Models.WRONGModel
             {
                 AssignmentTime = 0.001,
-                Slots = 10
+                Workers = 10
             };
 
-            viewModel = new SQRTViewModel(model);
+            viewModel = new WRONGViewModel(model);
             BindingContext = viewModel;
         }
 
+        public delegate void FWQ(List<int> workers);
+        public delegate void FWQAndTime(List<int> workers, double time);
+        public delegate void FWQSAndWorker(List<int> workers, int worker);
+
+        private void AssignmentStart(List<int> workers, double time)
+        {
+            int s = 0;
+            foreach (View view in fsq.Children)
+            {
+                if (s < workers.Count)
+                {
+                    view.BackgroundColor = viewModel.WorkerColor(workers[s++], s == 0, true);
+                }
+                else
+                {
+                    view.BackgroundColor = Color.DarkGray;
+                }
+            }
+        }
+        private void AssignmentEnd(List<int> workers, int worker)
+        {
+            int s = 0;
+            foreach (View view in fsq.Children)
+            {
+                if (s < workers.Count)
+                {
+                    view.BackgroundColor = viewModel.WorkerColor(workers[s++], false, true);
+                }
+                else
+                {
+                    view.BackgroundColor = Color.DarkGray;
+                }
+            }
+            activeWorkers.Children[worker].BackgroundColor = viewModel.WorkerColor(worker, true, false);
+        }
+        private void FreeWorker(List<int> workers)
+        {
+            int s = 0;
+            foreach (View view in fsq.Children)
+            {
+                if (s < workers.Count)
+                {
+                    view.BackgroundColor = viewModel.WorkerColor(workers[s++], false, true);
+                }
+                else
+                {
+                    view.BackgroundColor = Color.DarkGray;
+                }
+            }
+            activeWorkers.Children[workers[s - 1]].BackgroundColor = viewModel.WorkerColor(workers[s - 1], false, false);
+        }
         async void Cancel_Clicked(object sender, EventArgs e)
         {
             await Navigation.PopModalAsync();
         }
 
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            viewModel.Model.AssignmentStart -= AssignmentStart;
+            viewModel.Model.AssignmentEnd -= AssignmentEnd;
+            viewModel.Model.FreeWorker -= FreeWorker;
+            cancelTokenSource.Cancel();
+        }
     }
 }

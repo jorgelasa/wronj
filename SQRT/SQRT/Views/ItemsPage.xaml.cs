@@ -7,24 +7,24 @@ using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-using SQRT.Models;
-using SQRT.Views;
-using SQRT.ViewModels;
+using WRONG.Models;
+using WRONG.Views;
+using WRONG.ViewModels;
 
-namespace SQRT.Views
+namespace WRONG.Views
 {
     // Learn more about making custom code visible in the Xamarin.Forms previewer
     // by visiting https://aka.ms/xamarinforms-previewer
     [DesignTimeVisible(false)]
     public partial class ItemsPage : ContentPage
     {
-        SQRTViewModel viewModel;
+        WRONGViewModel viewModel;
 
         public ItemsPage()
         {
             InitializeComponent();
 
-            BindingContext = viewModel = new SQRTViewModel(new SQRTModel());
+            BindingContext = viewModel = new WRONGViewModel(new WRONGModel());
         }
 
 

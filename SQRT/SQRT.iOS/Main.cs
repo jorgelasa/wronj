@@ -5,7 +5,7 @@ using System.Linq;
 using Foundation;
 using UIKit;
 
-namespace SQRT.iOS
+namespace WRONG.iOS
 {
     public class Application
     {

@@ -6,21 +6,22 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Xamarin.Forms;
 using MathNet.Numerics;
+using System.Threading;
 
-namespace SQRT.Models
+namespace WRONG.Models
 {
-    public class SQRTModel
+    public class WRONGModel
     {
         /// <summary>
-        /// Delegate used with a Free Slot Queue
+        /// Delegate used with a Free Worker Queue
         /// </summary>
-        /// <param name="slots"></param>
-        public delegate void FSQ(List<int> slots);
-        public delegate void FSQAndTime(List<int> slots,double time);
-        public delegate void FSQSAndSlot(List<int> slots, int slot);
-        public event FSQAndTime AssignmentStart;
-        public event FSQSAndSlot AssignmentEnd;
-        public event FSQ FreeSlot;
+        /// <param name="workers"></param>
+        public delegate void FWQ(List<int> workers);
+        public delegate void FWQAndTime(List<int> workers,double time);
+        public delegate void FWQSAndWorker(List<int> workers, int worker);
+        public event FWQAndTime AssignmentStart;
+        public event FWQSAndWorker AssignmentEnd;
+        public event FWQ FreeWorker;
         /// <summary>
         /// Task assignment time, in milliseconds
         /// </summary>
@@ -31,12 +32,12 @@ namespace SQRT.Models
         /// </summary>
         public double TaskTime { get; set; }
         public double TaskTimeVolatility { get; set; }
-        public int Slots { get; set; }
+        public int Workers { get; set; }
         public double ModelTime
         {
             get
             {
-                return AssignmentTime * (Slots - 1) / 1000 > TaskTime ? AssignmentTime * Slots / 1000 : TaskTime + AssignmentTime / 1000;
+                return AssignmentTime * (Workers - 1) / 1000 > TaskTime ? AssignmentTime * Workers / 1000 : TaskTime + AssignmentTime / 1000;
             }
         }
         public double RealTaskTime { get; private set; }
@@ -45,7 +46,7 @@ namespace SQRT.Models
         {
             get
             {
-                return TaskNumber * TaskTime / Slots;
+                return TaskNumber * TaskTime / Workers;
             }
         }
         public async Task CalculateUntilConvergence()
@@ -58,7 +59,7 @@ namespace SQRT.Models
         {
             double assignmentTime = AssignmentTime / 1000, taskTime = TaskTime, modelTime = ModelTime, 
                 assignmentVolatility = AssignmentTimeVolatility, taskTimeVolatility = TaskTimeVolatility;
-            int slots = Slots, topTasks = TaskNumber;
+            int workers = Workers, topTasks = TaskNumber;
             return Task<Tuple<double, int>>.Run(() =>
             {
                 //Average of real task times
@@ -66,9 +67,9 @@ namespace SQRT.Models
                 double lastTaskTime;
                 double time = 0;
                 int tasks = 0;
-                //The first item is the time when the slot ends the task. 
+                //The first item is the time when the worker ends the task. 
                 //The second is the time when the task was assigned
-                SortedSet<Tuple<double, double>> slotsTime = new SortedSet<Tuple<double, double>>();
+                SortedSet<Tuple<double, double>> workersTime = new SortedSet<Tuple<double, double>>();
                 const int topTasksWithinRange = 1000;
                 double convergenceDiff = 0.00001;
                 int lastTasksWithinRange = 0;
@@ -77,23 +78,23 @@ namespace SQRT.Models
                 while (topTasks == 0 && lastTasksWithinRange < topTasksWithinRange
                 || tasks < topTasks)
                 {
-                    double lastSlotEndTime = time;
-                    if (slotsTime.Count == slots)
+                    double lastWorkerEndTime = time;
+                    if (workersTime.Count == workers)
                     {
-                        var firstSlot = slotsTime.First();
-                        lastSlotEndTime = firstSlot.Item1;
-                        if (lastSlotEndTime > time)
-                            time = lastSlotEndTime;
-                        slotsTime.Remove(firstSlot);
+                        var firstWorker = workersTime.First();
+                        lastWorkerEndTime = firstWorker.Item1;
+                        if (lastWorkerEndTime > time)
+                            time = lastWorkerEndTime;
+                        workersTime.Remove(firstWorker);
                     }
                     time += assignmentTime;
                     double rndTaskTime = taskTime;
                     if (taskTimeVolatility > 0)
                         rndTaskTime = taskDist.Sample();
-                    double slotEndTime = time + rndTaskTime;
-                    slotsTime.Add(Tuple.Create(slotEndTime, lastSlotEndTime));
+                    double workerEndTime = time + rndTaskTime;
+                    workersTime.Add(Tuple.Create(workerEndTime, lastWorkerEndTime));
                     lastTaskTime = realTaskTime;
-                    realTaskTime = (tasks * realTaskTime + (slotEndTime - lastSlotEndTime)) / ++tasks;
+                    realTaskTime = (tasks * realTaskTime + (workerEndTime - lastWorkerEndTime)) / ++tasks;
                     //if (Math.Abs(realTaskTime - lastTaskTime) < convergenceDiff)
                     if (Math.Abs(realTaskTime - modelTime) < convergenceDiff)
                         lastTasksWithinRange++;
@@ -103,49 +104,51 @@ namespace SQRT.Models
                 return Tuple.Create(realTaskTime, tasks);
             });
         }
-        public async void Simulate()
+        public async void Simulate(CancellationToken cancelToken)
         {
             //All times in milliseconds
             double q = AssignmentTime , taskTime = TaskTime*1000, modelTime = ModelTime*1000, volatility = 0;
-            int slots = Slots, tasks = TaskNumber;
+            int workers = Workers, tasks = TaskNumber;
             double time = 0;
             int ms = 0;
             MathNet.Numerics.Distributions.Normal normal = new MathNet.Numerics.Distributions.Normal(taskTime, volatility);
-            List<int> FSQ= Enumerable.Range(0, slots-1).ToList();
-            SortedSet<Tuple<double, int>> slotsTime = new SortedSet<Tuple<double, int>>();
+            List<int> FWQ= Enumerable.Range(0, workers-1).ToList();
+            SortedSet<Tuple<double, int>> workersTime = new SortedSet<Tuple<double, int>>();
             for (int i=1; i<=tasks; i++)
             {
+                if (cancelToken.IsCancellationRequested)
+                    return;
                 double rndTaskTime = taskTime;
                 if (volatility > 0)
                     rndTaskTime = normal.Sample();
                 // Getting a new task from pending queue
-                AssignmentStart?.Invoke(FSQ, rndTaskTime);
-                double freeSlotTime = time;
-                // Free all slots that end while assigning the new task
-                while (slotsTime.Count > 0 &&  slotsTime.First().Item1 < time + q)
+                AssignmentStart?.Invoke(FWQ, rndTaskTime);
+                double freeWorkerTime = time;
+                // Free all workers that end while assigning the new task
+                while (workersTime.Count > 0 &&  workersTime.First().Item1 < time + q)
                 {
-                    freeSlotTime = slotsTime.First().Item1;
-                    FSQ.Add(slotsTime.First().Item2);
-                    slotsTime.Remove(slotsTime.First());
-                    FreeSlot?.Invoke(FSQ);
+                    freeWorkerTime = workersTime.First().Item1;
+                    FWQ.Add(workersTime.First().Item2);
+                    workersTime.Remove(workersTime.First());
+                    FreeWorker?.Invoke(FWQ);
                 }
                 time += q;
-                ms = (int) (time - freeSlotTime);
+                ms = (int) (time - freeWorkerTime);
                 await Task.Delay(ms > 0 ? ms : 1);
-                int assignedSlot = FSQ[0];
-                FSQ.RemoveAt(0);
-                //Assign to an active slot
-                AssignmentEnd?.Invoke(FSQ, assignedSlot);
-                slotsTime.Add(Tuple.Create(time + rndTaskTime, assignedSlot));
-                if (FSQ.Count == 0)
+                int assignedWorker = FWQ[0];
+                FWQ.RemoveAt(0);
+                //Assign to an active worker
+                AssignmentEnd?.Invoke(FWQ, assignedWorker);
+                workersTime.Add(Tuple.Create(time + rndTaskTime, assignedWorker));
+                if (FWQ.Count == 0)
                 {
                     double timeBefore = time;
-                    time = slotsTime.First().Item1;
-                    FSQ.Add(slotsTime.First().Item2);
-                    slotsTime.Remove(slotsTime.First());
+                    time = workersTime.First().Item1;
+                    FWQ.Add(workersTime.First().Item2);
+                    workersTime.Remove(workersTime.First());
                     ms = (int)(time - timeBefore);
                     await Task.Delay(ms > 0 ? ms : 1);
-                    FreeSlot?.Invoke(FSQ);
+                    FreeWorker?.Invoke(FWQ);
                 }
             }
         }

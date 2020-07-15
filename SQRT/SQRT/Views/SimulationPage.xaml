@@ -4,7 +4,7 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             x:Class="SQRT.Views.SimulationPage"
+             x:Class="WRONG.Views.SimulationPage"
              Title="{Binding Title}">
 
     <ContentPage.ToolbarItems>
@@ -21,11 +21,11 @@
             <BoxView BackgroundColor="Accent" Grid.Column="4"/>
             <BoxView BackgroundColor="Accent" Grid.Column="5"/>
         </Grid>
-        <Label Text="Free Slots Queue" FontSize="Medium" />
+        <Label Text="Free Workers Queue" FontSize="Medium" />
         <Grid x:Name="fsq">
         </Grid>
-        <Label Text="Active Slots" FontSize="Medium" />
-        <Grid x:Name="activeSlots">
+        <Label Text="Active Workers" FontSize="Medium" />
+        <Grid x:Name="activeWorkers">
         </Grid>
     </StackLayout>
     

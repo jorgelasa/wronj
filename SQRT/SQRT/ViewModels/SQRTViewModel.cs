@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Transactions;
-using SQRT.Models;
+using WRONG.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Xamarin.Forms;
 using System.Collections.ObjectModel;
 using System.Dynamic;
 
-namespace SQRT.ViewModels
+namespace WRONG.ViewModels
 {
-    public class SQRTViewModel : BaseViewModel
+    public class WRONGViewModel : BaseViewModel
     {
-        public Models.SQRTModel Model{ get;}
-        public SQRTViewModel(Models.SQRTModel model)
+        public Models.WRONGModel Model{ get;}
+        public WRONGViewModel(Models.WRONGModel model)
         {
-            Title = "SQRT Model";
-            Model = model??new Models.SQRTModel();
+            Title = "WRONG Model";
+            Model = model??new Models.WRONGModel();
         }
         public double AssignmentTime
         {
@@ -68,15 +68,15 @@ namespace SQRT.ViewModels
                 }
             }
         }
-        public int Slots
+        public int Workers
         {
-            get { return Model.Slots; }
+            get { return Model.Workers; }
             set
             {
-                int v = Model.Slots;
+                int v = Model.Workers;
                 if (SetProperty(ref v, value))
                 {
-                    Model.Slots = v;
+                    Model.Workers = v;
                     OnPropertyChanged("ModelTime");
                 }
             }
@@ -107,8 +107,9 @@ namespace SQRT.ViewModels
             OnPropertyChanged("RealTaskTime");
             OnPropertyChanged("TaskNumber");
         }
-        public Color SlotColor(int slot, bool active, bool fsq) {
-            return Color.FromHsla(slot*0.7 / Model.Slots, active? 0.85: 0.15,0.5);
+        public Color WorkerColor(int worker, bool active, bool fsq) {
+            //return Color.FromHsla(worker*0.7 / Model.Workers, active? 0.85: 0.15,0.5);
+            return Color.FromHsla(worker * 0.7 / Model.Workers, 0.8, 0.5);
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SQRT.Models
+namespace WRONG.Models
 {
     public enum MenuItemType
     {

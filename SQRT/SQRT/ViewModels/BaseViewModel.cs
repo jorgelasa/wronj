@@ -5,9 +5,9 @@ using System.Runtime.CompilerServices;
 
 using Xamarin.Forms;
 
-using SQRT.Models;
+using WRONG.Models;
 
-namespace SQRT.ViewModels
+namespace WRONG.ViewModels
 {
     public class BaseViewModel : INotifyPropertyChanged
     {

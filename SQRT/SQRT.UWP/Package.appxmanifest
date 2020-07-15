@@ -14,7 +14,7 @@
   <mp:PhoneIdentity PhoneProductId="ec0cc741-fd3e-485c-81be-68815c480690" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>SQRT.UWP</DisplayName>
+    <DisplayName>WRONG.UWP</DisplayName>
     <PublisherDisplayName>9c2ee5cd-e653-43e0-95ae-9b4aa30fb93f</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -30,12 +30,12 @@
   <Applications>
     <Application Id="App"
       Executable="$targetnametoken$.exe"
-      EntryPoint="SQRT.UWP.App">
+      EntryPoint="WRONG.UWP.App">
       <uap:VisualElements
-        DisplayName="SQRT.UWP"
+        DisplayName="WRONG.UWP"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
-        Description="SQRT.UWP"
+        Description="WRONG.UWP"
         BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square310x310Logo="Assets\LargeTile.png" Square71x71Logo="Assets\SmallTile.png">
           <uap:ShowNameOnTiles>

@@ -4,8 +4,8 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             x:Class="SQRT.Views.AboutPage"
-             xmlns:vm="clr-namespace:SQRT.ViewModels"
+             x:Class="WRONG.Views.AboutPage"
+             xmlns:vm="clr-namespace:WRONG.ViewModels"
              Title="{Binding Title}">
     
     <ContentPage.BindingContext>

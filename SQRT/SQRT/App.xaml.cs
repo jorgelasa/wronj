@@ -1,9 +1,9 @@
 ﻿using System;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
-using SQRT.Views;
+using WRONG.Views;
 
-namespace SQRT
+namespace WRONG
 {
     public partial class App : Application
     {
