@@ -30,11 +30,11 @@
         <Entry Text="{Binding Workers, Mode=OneWayToSource}" 
                 Style="{DynamicResource ListItemDetailTextStyle}"
                 FontSize="13" />
-        <Label Text="Task time (seconds)" 
+        <Label Text="Job time (seconds)" 
                 LineBreakMode="NoWrap" 
                 Style="{DynamicResource ListItemTextStyle}" 
                 FontSize="16" />
-        <Entry Text="{Binding TaskTime, Mode=OneWayToSource}" 
+        <Entry Text="{Binding JobTime, Mode=OneWayToSource}" 
                 Style="{DynamicResource ListItemDetailTextStyle}"
                 FontSize="13" />
         <Label Text="Assignment time volatility" 
@@ -44,11 +44,11 @@
         <Entry Text="{Binding AssignmentTimeVolatility, Mode=OneWayToSource}" 
                 Style="{DynamicResource ListItemDetailTextStyle}"
                 FontSize="13" />
-        <Label Text="Task time volatility" 
+        <Label Text="Job time volatility" 
                 LineBreakMode="NoWrap" 
                 Style="{DynamicResource ListItemTextStyle}" 
                 FontSize="16" />
-        <Entry Text="{Binding TaskTimeVolatility, Mode=OneWayToSource}" 
+        <Entry Text="{Binding JobTimeVolatility, Mode=OneWayToSource}" 
                 Style="{DynamicResource ListItemDetailTextStyle}"
                 FontSize="13" />
         <Label Text="Model Time (seconds)" 
@@ -58,15 +58,15 @@
         <Entry Text="{Binding ModelTime}" 
                 Style="{DynamicResource ListItemDetailTextStyle}"
                 FontSize="13" />
-        <Label Text="Real Task Time (seconds)" 
+        <Label Text="Real Job Time (seconds)" 
                 Style="{DynamicResource ListItemTextStyle}" 
                 FontSize="16" />
-        <Entry Text="{Binding RealTaskTime}" 
+        <Entry Text="{Binding RealJobTime}" 
                 FontSize="13" />
-        <Label Text="Task Number" 
+        <Label Text="Job Number" 
                 Style="{DynamicResource ListItemTextStyle}" 
                 FontSize="16" />
-        <Entry Text="{Binding TaskNumber, Mode=OneWayToSource}" 
+        <Entry Text="{Binding JobNumber, Mode=OneWayToSource}" 
                 FontSize="13" />
     </StackLayout>
 </ContentPage>

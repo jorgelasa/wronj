@@ -16,67 +16,67 @@ namespace WRONG.Models
         /// Delegate used with a Free Worker Queue
         /// </summary>
         /// <param name="workers"></param>
-        public delegate void FWQ(List<int> workers);
-        public delegate void FWQAndTime(List<int> workers,double time);
-        public delegate void FWQSAndWorker(List<int> workers, int worker);
-        public event FWQAndTime AssignmentStart;
-        public event FWQSAndWorker AssignmentEnd;
-        public event FWQ FreeWorker;
+        public delegate void FreeWorkerEventHandler(List<int> workers);
+        public delegate void AssignmentStartEventHandler(List<int> workers,double jobTime, double assignmentTime);
+        public delegate void AssignmentEndEventHandler(List<int> workers, int worker, double jobTime);
+        public event AssignmentStartEventHandler AssignmentStart;
+        public event AssignmentEndEventHandler AssignmentEnd;
+        public event FreeWorkerEventHandler FreeWorker;
         /// <summary>
-        /// Task assignment time, in milliseconds
+        /// Job assignment time, in milliseconds
         /// </summary>
         public double AssignmentTime { get; set; }
         public double AssignmentTimeVolatility { get; set; }
         /// <summary>
-        ///  Average task time, in seconds
+        ///  Average job time, in seconds
         /// </summary>
-        public double TaskTime { get; set; }
-        public double TaskTimeVolatility { get; set; }
+        public double JobTime { get; set; }
+        public double JobTimeVolatility { get; set; }
         public int Workers { get; set; }
         public double ModelTime
         {
             get
             {
-                return AssignmentTime * (Workers - 1) / 1000 > TaskTime ? AssignmentTime * Workers / 1000 : TaskTime + AssignmentTime / 1000;
+                return AssignmentTime * (Workers - 1) / 1000 > JobTime ? AssignmentTime * Workers / 1000 : JobTime + AssignmentTime / 1000;
             }
         }
-        public double RealTaskTime { get; private set; }
-        public int TaskNumber { get; set; }
+        public double RealJobTime { get; private set; }
+        public int JobNumber { get; set; }
         public double TotalTime
         {
             get
             {
-                return TaskNumber * TaskTime / Workers;
+                return JobNumber * JobTime / Workers;
             }
         }
         public async Task CalculateUntilConvergence()
         {
             var data = await CalculateUntilConvergenceAsync();
-            RealTaskTime = data.Item1;
-            TaskNumber = data.Item2;
+            RealJobTime = data.Item1;
+            JobNumber = data.Item2;
         }
         Task<Tuple<double, int>> CalculateUntilConvergenceAsync()
         {
-            double assignmentTime = AssignmentTime / 1000, taskTime = TaskTime, modelTime = ModelTime, 
-                assignmentVolatility = AssignmentTimeVolatility, taskTimeVolatility = TaskTimeVolatility;
-            int workers = Workers, topTasks = TaskNumber;
+            double assignmentTime = AssignmentTime / 1000, jobTime = JobTime, modelTime = ModelTime, 
+                assignmentVolatility = AssignmentTimeVolatility, jobTimeVolatility = JobTimeVolatility;
+            int workers = Workers, topJobs = JobNumber;
             return Task<Tuple<double, int>>.Run(() =>
             {
-                //Average of real task times
-                double realTaskTime = 0;
-                double lastTaskTime;
+                //Average of real job times
+                double realJobTime = 0;
+                double lastJobTime;
                 double time = 0;
-                int tasks = 0;
-                //The first item is the time when the worker ends the task. 
-                //The second is the time when the task was assigned
+                int jobs = 0;
+                //The first item is the time when the worker ends the job. 
+                //The second is the time when the job was assigned
                 SortedSet<Tuple<double, double>> workersTime = new SortedSet<Tuple<double, double>>();
-                const int topTasksWithinRange = 1000;
+                const int topJobsWithinRange = 1000;
                 double convergenceDiff = 0.00001;
-                int lastTasksWithinRange = 0;
-                MathNet.Numerics.Distributions.Normal taskDist = new MathNet.Numerics.Distributions.Normal(taskTime, taskTimeVolatility);
-                MathNet.Numerics.Distributions.Normal assignmentDist = new MathNet.Numerics.Distributions.Normal(taskTime, assignmentVolatility);
-                while (topTasks == 0 && lastTasksWithinRange < topTasksWithinRange
-                || tasks < topTasks)
+                int lastJobsWithinRange = 0;
+                MathNet.Numerics.Distributions.Normal jobDist = new MathNet.Numerics.Distributions.Normal(jobTime, jobTimeVolatility);
+                MathNet.Numerics.Distributions.Normal assignmentDist = new MathNet.Numerics.Distributions.Normal(jobTime, assignmentVolatility);
+                while (topJobs == 0 && lastJobsWithinRange < topJobsWithinRange
+                || jobs < topJobs)
                 {
                     double lastWorkerEndTime = time;
                     if (workersTime.Count == workers)
@@ -88,44 +88,45 @@ namespace WRONG.Models
                         workersTime.Remove(firstWorker);
                     }
                     time += assignmentTime;
-                    double rndTaskTime = taskTime;
-                    if (taskTimeVolatility > 0)
-                        rndTaskTime = taskDist.Sample();
-                    double workerEndTime = time + rndTaskTime;
+                    double rndJobTime = jobTime;
+                    if (jobTimeVolatility > 0)
+                        rndJobTime = jobDist.Sample();
+                    double workerEndTime = time + rndJobTime;
                     workersTime.Add(Tuple.Create(workerEndTime, lastWorkerEndTime));
-                    lastTaskTime = realTaskTime;
-                    realTaskTime = (tasks * realTaskTime + (workerEndTime - lastWorkerEndTime)) / ++tasks;
-                    //if (Math.Abs(realTaskTime - lastTaskTime) < convergenceDiff)
-                    if (Math.Abs(realTaskTime - modelTime) < convergenceDiff)
-                        lastTasksWithinRange++;
+                    lastJobTime = realJobTime;
+                    realJobTime = (jobs * realJobTime + (workerEndTime - lastWorkerEndTime)) / ++jobs;
+                    //if (Math.Abs(realJobTime - lastJobTime) < convergenceDiff)
+                    if (Math.Abs(realJobTime - modelTime) < convergenceDiff)
+                        lastJobsWithinRange++;
                     else
-                        lastTasksWithinRange = 0;
+                        lastJobsWithinRange = 0;
                 }
-                return Tuple.Create(realTaskTime, tasks);
+                return Tuple.Create(realJobTime, jobs);
             });
         }
         public async void Simulate(CancellationToken cancelToken)
         {
             //All times in milliseconds
-            double q = AssignmentTime , taskTime = TaskTime*1000, modelTime = ModelTime*1000, volatility = 0;
-            int workers = Workers, tasks = TaskNumber;
+            double q = AssignmentTime , jobTime = JobTime*1000, modelTime = ModelTime*1000,
+                assignmentVolatility = AssignmentTimeVolatility * 1000, jobTimeVolatility = JobTimeVolatility * 1000;
+            int workers = Workers;
             double time = 0;
             int ms = 0;
-            MathNet.Numerics.Distributions.Normal normal = new MathNet.Numerics.Distributions.Normal(taskTime, volatility);
-            List<int> FWQ= Enumerable.Range(0, workers-1).ToList();
+            MathNet.Numerics.Distributions.Normal jobDist = new MathNet.Numerics.Distributions.Normal(jobTime, jobTimeVolatility);
+            List<int> FWQ = Enumerable.Range(0, workers).ToList();
             SortedSet<Tuple<double, int>> workersTime = new SortedSet<Tuple<double, int>>();
-            for (int i=1; i<=tasks; i++)
+            while (true)
             {
                 if (cancelToken.IsCancellationRequested)
                     return;
-                double rndTaskTime = taskTime;
-                if (volatility > 0)
-                    rndTaskTime = normal.Sample();
-                // Getting a new task from pending queue
-                AssignmentStart?.Invoke(FWQ, rndTaskTime);
+                double rndJobTime = jobTime;
+                if (jobTimeVolatility > 0)
+                    rndJobTime = jobDist.Sample();
+                // Getting a new job from pending queue
+                AssignmentStart?.Invoke(FWQ, rndJobTime, q);
                 double freeWorkerTime = time;
-                // Free all workers that end while assigning the new task
-                while (workersTime.Count > 0 &&  workersTime.First().Item1 < time + q)
+                // Free all workers that end while assigning the new job
+                while (workersTime.Count > 0 && workersTime.First().Item1 < time + q)
                 {
                     freeWorkerTime = workersTime.First().Item1;
                     FWQ.Add(workersTime.First().Item2);
@@ -133,13 +134,13 @@ namespace WRONG.Models
                     FreeWorker?.Invoke(FWQ);
                 }
                 time += q;
-                ms = (int) (time - freeWorkerTime);
+                ms = (int)(time - freeWorkerTime);
                 await Task.Delay(ms > 0 ? ms : 1);
                 int assignedWorker = FWQ[0];
                 FWQ.RemoveAt(0);
                 //Assign to an active worker
-                AssignmentEnd?.Invoke(FWQ, assignedWorker);
-                workersTime.Add(Tuple.Create(time + rndTaskTime, assignedWorker));
+                AssignmentEnd?.Invoke(FWQ, assignedWorker, rndJobTime);
+                workersTime.Add(Tuple.Create(time + rndJobTime, assignedWorker));
                 if (FWQ.Count == 0)
                 {
                     double timeBefore = time;

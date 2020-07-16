@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Xamarin.Forms;
 using System.Collections.ObjectModel;
 using System.Dynamic;
+using System.ComponentModel;
 
 namespace WRONG.ViewModels
 {
@@ -14,7 +15,7 @@ namespace WRONG.ViewModels
         public Models.WRONGModel Model{ get;}
         public WRONGViewModel(Models.WRONGModel model)
         {
-            Title = "WRONG Model";
+            Title = "The WRONG Model";
             Model = model??new Models.WRONGModel();
         }
         public double AssignmentTime
@@ -42,28 +43,28 @@ namespace WRONG.ViewModels
                 }
             }
         }
-        public double TaskTime
+        public double JobTime
         {
-            get { return Model.TaskTime; }
+            get { return Model.JobTime; }
             set
             {
-                double v = Model.TaskTime;
+                double v = Model.JobTime;
                 if (SetProperty(ref v, value))
                 {
-                    Model.TaskTime = v;
+                    Model.JobTime = v;
                     OnPropertyChanged("ModelTime");
                 }
             }
         }
-        public double TaskTimeVolatility
+        public double JobTimeVolatility
         {
-            get { return Model.TaskTimeVolatility; }
+            get { return Model.JobTimeVolatility; }
             set
             {
-                double v = Model.TaskTimeVolatility;
+                double v = Model.JobTimeVolatility;
                 if (SetProperty(ref v, value))
                 {
-                    Model.TaskTimeVolatility = v;
+                    Model.JobTimeVolatility = v;
                     OnPropertyChanged("ModelTime");
                 }
             }
@@ -81,35 +82,85 @@ namespace WRONG.ViewModels
                 }
             }
         }
+        private int lastJob = 1;
+        public int LastJob
+        {
+            get { return lastJob; }
+            set {
+                SetProperty(ref lastJob, value);
+            }
+        }
+
         public double ModelTime
         {
             get { return Model.ModelTime; }
         }
-        public double RealTaskTime
+        public double RealJobTime
         {
-            get { return Model.RealTaskTime; }
-        }
-        public int TaskNumber
+            get { return Model.RealJobTime; }
+        }        
+        public int JobNumber
         {
-            get { return Model.TaskNumber; }
+            get { return Model.JobNumber; }
             set
             {
-                int v = Model.TaskNumber;
+                int v = Model.JobNumber;
                 if (SetProperty(ref v, value))
                 {
-                    Model.TaskNumber = v;
+                    Model.JobNumber = v;
                 }
             }
         }
         public async Task CalculateDataUntilConvergence()
         {
             await Model.CalculateUntilConvergence();
-            OnPropertyChanged("RealTaskTime");
-            OnPropertyChanged("TaskNumber");
+            OnPropertyChanged("RealJobTime");
+            OnPropertyChanged("JobNumber");
         }
-        public Color WorkerColor(int worker, bool active, bool fsq) {
-            //return Color.FromHsla(worker*0.7 / Model.Workers, active? 0.85: 0.15,0.5);
+        public Color WorkerColor(int worker) {
             return Color.FromHsla(worker * 0.7 / Model.Workers, 0.8, 0.5);
         }
+        public class JobInfo : INotifyPropertyChanged
+        {
+            public event PropertyChangedEventHandler PropertyChanged;
+            private int jobNumber;
+            public int JobNumber {
+                get {
+                    return jobNumber;
+                }
+                set
+                {
+                    if (jobNumber!= value)
+                    {
+                        jobNumber = value;
+                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("JobNumber"));
+                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("JobColor"));
+                    }
+                } 
+            }
+            public Color JobColor
+            {
+                get { 
+                    return Color.FromHsla((jobNumber % 16)/16.0 , 0.8, 0.5);
+                }
+            }
+        }
+        public class JobsInfo
+        {
+            private Dictionary<int, JobInfo> jobs = new Dictionary<int, JobInfo>();
+            public JobInfo this[int jobNumber]
+            {
+                get
+                {
+                    if (!jobs.ContainsKey(jobNumber))
+                    {
+                        jobs.Add(jobNumber, new JobInfo());
+                    }
+                    return jobs[jobNumber];
+                }
+            }
+        }
+        public JobsInfo Jobs { get; set; } = new JobsInfo();
+
     }
 }

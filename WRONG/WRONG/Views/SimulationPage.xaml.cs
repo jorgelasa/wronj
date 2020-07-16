@@ -7,6 +7,7 @@ using WRONG.Models;
 using WRONG.ViewModels;
 using System.Threading;
 using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters;
 
 namespace WRONG.Views
 {
@@ -17,26 +18,29 @@ namespace WRONG.Views
     {
         WRONGViewModel viewModel;
         const int FWQMaxColumns = 64;
-        CancellationTokenSource cancelTokenSource;        
+        CancellationTokenSource cancelTokenSource;
         public SimulationPage(WRONGViewModel viewModel)
         {
             InitializeComponent();
             BindingContext = this.viewModel = viewModel;
+            viewModel.LastJob = 1;
+            moveJobQueue();
             if (viewModel.Workers <= 0)
                 return;
             for (int row=0, worker=0; row <= viewModel.Workers/ FWQMaxColumns; row++)
             {
                 for (int col=0; col < FWQMaxColumns && worker < viewModel.Workers; col++, worker++)
                 {
-                    fsq.Children.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker, false, true) }, col, row);
+                    fsq.Children.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker) }, col, row);
                 }
             }
-            int workersColumns = (int)Math.Sqrt(viewModel.Workers);
+            int workersColumns = viewModel.Workers <= 10? viewModel.Workers : (int)Math.Sqrt(viewModel.Workers);
             for (int row = 0, worker=0; row <= viewModel.Workers / workersColumns; row++)
             {
                 for (int col = 0; col < workersColumns && worker < viewModel.Workers; col++, worker++)
                 {
-                    activeWorkers.Children.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker, false,false) }, col, row);
+                    //activeWorkers.Children.Add(new BoxView { BackgroundColor = this.BackgroundColor }, col, row);
+                    activeWorkers.Children.Add(new BoxView { BackgroundColor = Color.Silver }, col, row);
                 }
             }
             viewModel.Model.AssignmentStart += AssignmentStart;
@@ -45,55 +49,46 @@ namespace WRONG.Views
             cancelTokenSource = new CancellationTokenSource();
             viewModel.Model.Simulate(cancelTokenSource.Token);
         }
-
-        public SimulationPage()
+        private void moveJobQueue()
         {
-            InitializeComponent();
-
-            var model = new Models.WRONGModel
+            int jobs = jobQueue.Children.Count;
+            for (int i=0; i < jobs; i++)
             {
-                AssignmentTime = 0.001,
-                Workers = 10
-            };
-
-            viewModel = new WRONGViewModel(model);
-            BindingContext = viewModel;
+                viewModel.Jobs[i].JobNumber = viewModel.LastJob + i + 1;
+            }
         }
-
-        public delegate void FWQ(List<int> workers);
-        public delegate void FWQAndTime(List<int> workers, double time);
-        public delegate void FWQSAndWorker(List<int> workers, int worker);
-
-        private void AssignmentStart(List<int> workers, double time)
+        private async void AssignmentStart(List<int> workers, double jobTime, double assignmentTime)
+        {
+            int s = 0;
+            viewModel.LastJob++;
+            moveJobQueue();
+            foreach (View view in fsq.Children)
+            {
+                if (s < workers.Count)
+                {
+                    view.BackgroundColor = viewModel.WorkerColor(workers[s++]);
+                }
+                else
+                {
+                    view.BackgroundColor = this.BackgroundColor;
+                }
+            }
+        }
+        private void AssignmentEnd(List<int> workers, int worker, double jobTime)
         {
             int s = 0;
             foreach (View view in fsq.Children)
             {
                 if (s < workers.Count)
                 {
-                    view.BackgroundColor = viewModel.WorkerColor(workers[s++], s == 0, true);
+                    view.BackgroundColor = viewModel.WorkerColor(workers[s++]);
                 }
                 else
                 {
-                    view.BackgroundColor = Color.DarkGray;
+                    view.BackgroundColor = this.BackgroundColor;
                 }
             }
-        }
-        private void AssignmentEnd(List<int> workers, int worker)
-        {
-            int s = 0;
-            foreach (View view in fsq.Children)
-            {
-                if (s < workers.Count)
-                {
-                    view.BackgroundColor = viewModel.WorkerColor(workers[s++], false, true);
-                }
-                else
-                {
-                    view.BackgroundColor = Color.DarkGray;
-                }
-            }
-            activeWorkers.Children[worker].BackgroundColor = viewModel.WorkerColor(worker, true, false);
+            activeWorkers.Children[worker].BackgroundColor = viewModel.WorkerColor(worker);
         }
         private void FreeWorker(List<int> workers)
         {
@@ -102,18 +97,15 @@ namespace WRONG.Views
             {
                 if (s < workers.Count)
                 {
-                    view.BackgroundColor = viewModel.WorkerColor(workers[s++], false, true);
+                    view.BackgroundColor = viewModel.WorkerColor(workers[s++]);
                 }
                 else
                 {
-                    view.BackgroundColor = Color.DarkGray;
+                    view.BackgroundColor = this.BackgroundColor;
                 }
             }
-            activeWorkers.Children[workers[s - 1]].BackgroundColor = viewModel.WorkerColor(workers[s - 1], false, false);
-        }
-        async void Cancel_Clicked(object sender, EventArgs e)
-        {
-            await Navigation.PopModalAsync();
+            //activeWorkers.Children[workers[s - 1]].BackgroundColor = this.BackgroundColor;
+            activeWorkers.Children[workers[s - 1]].BackgroundColor = Color.Silver;
         }
 
         protected override void OnDisappearing()

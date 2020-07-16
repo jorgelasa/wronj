@@ -7,19 +7,15 @@
              x:Class="WRONG.Views.SimulationPage"
              Title="{Binding Title}">
 
-    <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Cancel" Clicked="Cancel_Clicked" />
-    </ContentPage.ToolbarItems>
-
     <StackLayout Spacing="20" Padding="15">
-        <Label Text="Pending tasks" FontSize="Medium" />
-        <Grid x:Name="pending" ColumnSpacing="3">
-            <BoxView BackgroundColor="Accent" Grid.Column="0"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="1"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="2"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="3"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="4"/>
-            <BoxView BackgroundColor="Accent" Grid.Column="5"/>
+        <Label Text="Job Queue" FontSize="Medium" />
+        <Grid x:Name="jobQueue" ColumnSpacing="3">
+            <Label Text="{Binding Jobs[0].JobNumber}" HorizontalTextAlignment="Center" BackgroundColor="{Binding Jobs[0].JobColor}" Grid.Column="0"/>
+            <Label Text="{Binding Jobs[1].JobNumber}" HorizontalTextAlignment="Center" BackgroundColor="{Binding Jobs[1].JobColor}" Grid.Column="1"/>
+            <Label Text="{Binding Jobs[2].JobNumber}" HorizontalTextAlignment="Center" BackgroundColor="{Binding Jobs[2].JobColor}" Grid.Column="2"/>
+            <Label Text="{Binding Jobs[3].JobNumber}" HorizontalTextAlignment="Center" BackgroundColor="{Binding Jobs[3].JobColor}" Grid.Column="3"/>
+            <Label Text="{Binding Jobs[4].JobNumber}" HorizontalTextAlignment="Center" BackgroundColor="{Binding Jobs[4].JobColor}" Grid.Column="4"/>
+            <Label Text="{Binding Jobs[5].JobNumber}" HorizontalTextAlignment="Center" BackgroundColor="{Binding Jobs[5].JobColor}" Grid.Column="5"/>
         </Grid>
         <Label Text="Free Workers Queue" FontSize="Medium" />
         <Grid x:Name="fsq">
