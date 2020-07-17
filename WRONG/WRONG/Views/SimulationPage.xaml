@@ -18,7 +18,7 @@
             <Label Text="{Binding Jobs[5].JobNumber}" HorizontalTextAlignment="Center" BackgroundColor="{Binding Jobs[5].JobColor}" Grid.Column="5"/>
         </Grid>
         <Label Text="Free Workers Queue" FontSize="Medium" />
-        <Grid x:Name="fsq">
+        <Grid x:Name="fsq" ColumnSpacing="0">
         </Grid>
         <Label Text="Active Workers" FontSize="Medium" />
         <Grid x:Name="activeWorkers">

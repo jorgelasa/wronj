@@ -113,7 +113,7 @@ namespace WRONG.ViewModels
         }
         public async Task CalculateDataUntilConvergence()
         {
-            await Model.CalculateUntilConvergence();
+            await Model.Calculate();
             OnPropertyChanged("RealJobTime");
             OnPropertyChanged("JobNumber");
         }

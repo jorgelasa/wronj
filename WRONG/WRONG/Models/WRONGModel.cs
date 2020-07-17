@@ -37,7 +37,18 @@ namespace WRONG.Models
         {
             get
             {
-                return AssignmentTime * (Workers - 1) / 1000 > JobTime ? AssignmentTime * Workers / 1000 : JobTime + AssignmentTime / 1000;
+                //return AssignmentTime * (Workers - 1) / 1000 > JobTime ? AssignmentTime * Workers / 1000 : JobTime + AssignmentTime / 1000;
+                MathNet.Numerics.Distributions.Normal jobDist = new MathNet.Numerics.Distributions.Normal(JobTime, JobTimeVolatility);
+                double limitTime = AssignmentTime * (Workers - 1) / 1000;
+                double limitCDF = jobDist.CumulativeDistribution(limitTime);
+                // Using https://stats.stackexchange.com/questions/166273/expected-value-of-x-in-a-normal-distribution-given-that-it-is-below-a-certain-v
+                // and https://en.wikipedia.org/wiki/Mills_ratio#Inverse_Mills_ratio
+                // we can calculate the mean of the variable x that is equal to AssignmentTime * Workers / 1000) when x < limitTme
+                // and to x + AssignmentTime / 1000 when x > limitTime
+                //return limitCDF * (AssignmentTime * Workers / 1000) + (1- limitCDF)* (JobTime + AssignmentTime / 1000);
+                double millsTerm = JobTimeVolatility<=0 ? 0 : JobTimeVolatility * jobDist.Density(limitTime);
+                return limitCDF * (AssignmentTime * Workers / 1000) + 
+                    (1 - limitCDF) * (JobTime + AssignmentTime / 1000) + millsTerm;
             }
         }
         public double RealJobTime { get; private set; }
@@ -49,13 +60,13 @@ namespace WRONG.Models
                 return JobNumber * JobTime / Workers;
             }
         }
-        public async Task CalculateUntilConvergence()
+        public async Task Calculate()
         {
-            var data = await CalculateUntilConvergenceAsync();
+            var data = await CalculateAsync();
             RealJobTime = data.Item1;
             JobNumber = data.Item2;
         }
-        Task<Tuple<double, int>> CalculateUntilConvergenceAsync()
+        Task<Tuple<double, int>> CalculateAsync()
         {
             double assignmentTime = AssignmentTime / 1000, jobTime = JobTime, modelTime = ModelTime, 
                 assignmentVolatility = AssignmentTimeVolatility, jobTimeVolatility = JobTimeVolatility;
@@ -73,8 +84,8 @@ namespace WRONG.Models
                 const int topJobsWithinRange = 1000;
                 double convergenceDiff = 0.00001;
                 int lastJobsWithinRange = 0;
-                MathNet.Numerics.Distributions.Normal jobDist = new MathNet.Numerics.Distributions.Normal(jobTime, jobTimeVolatility);
-                MathNet.Numerics.Distributions.Normal assignmentDist = new MathNet.Numerics.Distributions.Normal(jobTime, assignmentVolatility);
+                var jobDist = new MathNet.Numerics.Distributions.LogNormal(Math.Log(jobTime) - jobTimeVolatility* jobTimeVolatility / 2, jobTimeVolatility);
+                var assignmentDist = new MathNet.Numerics.Distributions.LogNormal(Math.Log(jobTime) - assignmentVolatility* assignmentVolatility / 2, assignmentVolatility);
                 while (topJobs == 0 && lastJobsWithinRange < topJobsWithinRange
                 || jobs < topJobs)
                 {
@@ -106,16 +117,16 @@ namespace WRONG.Models
         }
         public async void Simulate(CancellationToken cancelToken)
         {
-            //All times in milliseconds
-            double q = AssignmentTime , jobTime = JobTime*1000, modelTime = ModelTime*1000,
-                assignmentVolatility = AssignmentTimeVolatility * 1000, jobTimeVolatility = JobTimeVolatility * 1000;
-            int workers = Workers;
+            //All times in seconds
+            double q = AssignmentTime/1000 , jobTime = JobTime, modelTime = ModelTime,
+                assignmentVolatility = AssignmentTimeVolatility, jobTimeVolatility = JobTimeVolatility;
+            int workers = Workers, jobs=JobNumber;
             double time = 0;
             int ms = 0;
-            MathNet.Numerics.Distributions.Normal jobDist = new MathNet.Numerics.Distributions.Normal(jobTime, jobTimeVolatility);
+            var jobDist = new MathNet.Numerics.Distributions.LogNormal(Math.Log(jobTime) - jobTimeVolatility * jobTimeVolatility/2, jobTimeVolatility);
             List<int> FWQ = Enumerable.Range(0, workers).ToList();
             SortedSet<Tuple<double, int>> workersTime = new SortedSet<Tuple<double, int>>();
-            while (true)
+            for (int i=0; jobs<=0 || i < jobs;i++)
             {
                 if (cancelToken.IsCancellationRequested)
                     return;
@@ -134,7 +145,7 @@ namespace WRONG.Models
                     FreeWorker?.Invoke(FWQ);
                 }
                 time += q;
-                ms = (int)(time - freeWorkerTime);
+                ms = (int)((time - freeWorkerTime)*1000);
                 await Task.Delay(ms > 0 ? ms : 1);
                 int assignedWorker = FWQ[0];
                 FWQ.RemoveAt(0);
@@ -147,7 +158,7 @@ namespace WRONG.Models
                     time = workersTime.First().Item1;
                     FWQ.Add(workersTime.First().Item2);
                     workersTime.Remove(workersTime.First());
-                    ms = (int)(time - timeBefore);
+                    ms = (int)((time - timeBefore)*1000);
                     await Task.Delay(ms > 0 ? ms : 1);
                     FreeWorker?.Invoke(FWQ);
                 }

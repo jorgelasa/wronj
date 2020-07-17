@@ -27,6 +27,11 @@ namespace WRONG.Views
             moveJobQueue();
             if (viewModel.Workers <= 0)
                 return;
+            for (int worker = 0; worker < viewModel.Workers;  worker++)
+            {
+                fsq.Children.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker) }, worker, 0);
+            }
+            /*
             for (int row=0, worker=0; row <= viewModel.Workers/ FWQMaxColumns; row++)
             {
                 for (int col=0; col < FWQMaxColumns && worker < viewModel.Workers; col++, worker++)
@@ -34,6 +39,7 @@ namespace WRONG.Views
                     fsq.Children.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker) }, col, row);
                 }
             }
+            */
             int workersColumns = viewModel.Workers <= 10? viewModel.Workers : (int)Math.Sqrt(viewModel.Workers);
             for (int row = 0, worker=0; row <= viewModel.Workers / workersColumns; row++)
             {
