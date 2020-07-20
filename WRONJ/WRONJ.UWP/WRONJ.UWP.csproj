@@ -8,8 +8,8 @@
     <TemplateGuid>{98C37F10-6541-44BE-B1E6-7EB3EB8C08F1}</TemplateGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WRONG.UWP</RootNamespace>
-    <AssemblyName>WRONG.UWP</AssemblyName>
+    <RootNamespace>WRONJ.UWP</RootNamespace>
+    <AssemblyName>WRONJ.UWP</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.17763.0</TargetPlatformVersion>
