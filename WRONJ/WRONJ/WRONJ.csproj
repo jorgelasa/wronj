@@ -23,8 +23,5 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Views\SimulationPage.xaml.cs">
-      <DependentUpon>SimulationPage.xaml</DependentUpon>
-    </Compile>
   </ItemGroup>
 </Project>

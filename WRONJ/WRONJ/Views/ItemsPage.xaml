@@ -12,61 +12,58 @@
         <ToolbarItem Text="Calculate" Clicked="Calculate_Clicked" />
         <ToolbarItem Text="Simulate" Clicked="Simulate_Clicked" />
     </ContentPage.ToolbarItems>
-
-    <StackLayout Padding="10">
-        <Label Text="Assignment time (milliseconds)" 
-                d:Text="Assignment time (milliseconds)"
-                LineBreakMode="NoWrap" 
-                Style="{DynamicResource ListItemTextStyle}" 
-                FontSize="16" />
-        <Entry Text="{Binding AssignmentTime, Mode=OneWayToSource}" 
-                d:Text="Assignment Time"
-                Style="{DynamicResource ListItemDetailTextStyle}"
-                FontSize="13" />
-        <Label Text="Workers" 
-                LineBreakMode="NoWrap" 
-                Style="{DynamicResource ListItemTextStyle}" 
-                FontSize="16" />
-        <Entry Text="{Binding Workers, Mode=OneWayToSource}" 
-                Style="{DynamicResource ListItemDetailTextStyle}"
-                FontSize="13" />
-        <Label Text="Job time (seconds)" 
-                LineBreakMode="NoWrap" 
-                Style="{DynamicResource ListItemTextStyle}" 
-                FontSize="16" />
-        <Entry Text="{Binding JobTime, Mode=OneWayToSource}" 
-                Style="{DynamicResource ListItemDetailTextStyle}"
-                FontSize="13" />
-        <Label Text="Assignment time volatility" 
-                LineBreakMode="NoWrap" 
-                Style="{DynamicResource ListItemTextStyle}" 
-                FontSize="16" />
-        <Entry Text="{Binding AssignmentTimeVolatility, Mode=OneWayToSource}" 
-                Style="{DynamicResource ListItemDetailTextStyle}"
-                FontSize="13" />
-        <Label Text="Job time volatility" 
-                LineBreakMode="NoWrap" 
-                Style="{DynamicResource ListItemTextStyle}" 
-                FontSize="16" />
-        <Entry Text="{Binding JobTimeVolatility, Mode=OneWayToSource}" 
-                Style="{DynamicResource ListItemDetailTextStyle}"
-                FontSize="13" />
-        <Label Text="Model Time (seconds)" 
-                LineBreakMode="NoWrap" 
-                Style="{DynamicResource ListItemTextStyle}" 
-                FontSize="16" />
-        <Entry Text="{Binding ModelTime}" 
-                Style="{DynamicResource ListItemDetailTextStyle}"
-                FontSize="13" />
-        <Label Text="Real Job Time (seconds)" 
-                Style="{DynamicResource ListItemTextStyle}" 
-                FontSize="16" />
-        <Entry Text="{Binding RealJobTime}" 
-                FontSize="13" />
-        <Label Text="Job Number" 
-                Style="{DynamicResource ListItemTextStyle}" 
-                FontSize="16" />
-        <Entry Text="{Binding JobNumber, Mode=OneWayToSource}" 
-                FontSize="13" />
-    </StackLayout>
+    <ScrollView>
+        <StackLayout Padding="10" Spacing="10">
+            <Label Text="Input Data" 
+                    HorizontalOptions="Center" 
+                    Style="{DynamicResource TitleStyle}" 
+                    FontAttributes="Bold"
+                    FontSize="24" />
+            <Label Text="Workers and Jobs" 
+                    HorizontalOptions="Start" 
+                    Style="{DynamicResource SubTitleStyle}" 
+                    FontAttributes="Bold"
+                    FontSize="20" />
+            <Label Text="Number of Workers: "/>
+            <Entry Text="{Binding Workers, Mode=OneWayToSource}"/>
+            <Label Text="Number of Jobs:"/>
+            <Entry Text="{Binding JobNumber, Mode=OneWayToSource}"/>
+            <Label Text="Assignment time (milliseconds)" 
+                    HorizontalOptions="Start" 
+                    Style="{DynamicResource SubTitleStyle}" 
+                    FontAttributes="Bold"
+                    FontSize="20" />
+            <Label Text="Average Time:"/>
+            <Entry Text="{Binding AssignmentTime, Mode=OneWayToSource}"/>
+            <Label Text="Volatility:"/>
+            <Entry Text="{Binding AssignmentTimeVolatility, Mode=OneWayToSource}"/>
+            <Label Text="Job time (seconds)" 
+                    HorizontalOptions="Start" 
+                    Style="{DynamicResource SubTitleStyle}" 
+                    FontAttributes="Bold"
+                    FontSize="20" />
+            <Label Text="Average Time:"/>
+            <Entry Text="{Binding JobTime, Mode=OneWayToSource}"/>
+            <Label Text="Volatility:"/>
+            <Entry Text="{Binding JobTimeVolatility, Mode=OneWayToSource}"/>
+            <BoxView HeightRequest="10"/>
+            <Label Text="Output Data" 
+                    HorizontalOptions="Center" 
+                    Style="{DynamicResource TitleStyle}" 
+                    FontAttributes="Bold"
+                    FontSize="24" />
+            <Label Text="Model Worker Time (seconds):"
+                    HorizontalOptions="Start" 
+                    Style="{DynamicResource SubTitleStyle}" 
+                    FontAttributes="Bold"
+                    FontSize="20" />
+            <Label Text="{Binding ModelTime}"/>
+            <Label Text="Calculated Worker Time (seconds):"
+                    HorizontalOptions="Start" 
+                    Style="{DynamicResource SubTitleStyle}" 
+                    FontAttributes="Bold"
+                    FontSize="20" />
+            <Label Text="{Binding RealJobTime}"/>
+        </StackLayout>
+    </ScrollView>
 </ContentPage>
