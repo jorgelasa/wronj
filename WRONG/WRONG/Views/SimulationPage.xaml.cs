@@ -3,23 +3,23 @@ using System.ComponentModel;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-using WRONG.Models;
-using WRONG.ViewModels;
+using WRONJ.Models;
+using WRONJ.ViewModels;
 using System.Threading;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters;
 
-namespace WRONG.Views
+namespace WRONJ.Views
 {
     // Learn more about making custom code visible in the Xamarin.Forms previewer
     // by visiting https://aka.ms/xamarinforms-previewer
     [DesignTimeVisible(false)]
     public partial class SimulationPage : ContentPage
     {
-        WRONGViewModel viewModel;
+        WRONJViewModel viewModel;
         const int FWQMaxColumns = 64;
         CancellationTokenSource cancelTokenSource;
-        public SimulationPage(WRONGViewModel viewModel)
+        public SimulationPage(WRONJViewModel viewModel)
         {
             InitializeComponent();
             BindingContext = this.viewModel = viewModel;

@@ -4,9 +4,8 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             x:Class="WRONG.Views.SimulationPage"
-             Title="{Binding Title}">
-
+             x:Class="WRONJ.Views.SimulationPage"
+             Title="{Binding Title, StringFormat='{0} Simulation'}">
     <StackLayout Spacing="20" Padding="15">
         <Label Text="Job Queue" FontSize="Medium" />
         <Grid x:Name="jobQueue" ColumnSpacing="3">

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Transactions;
-using WRONG.Models;
+using WRONJ.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Xamarin.Forms;
@@ -8,15 +8,14 @@ using System.Collections.ObjectModel;
 using System.Dynamic;
 using System.ComponentModel;
 
-namespace WRONG.ViewModels
+namespace WRONJ.ViewModels
 {
-    public class WRONGViewModel : BaseViewModel
+    public class WRONJViewModel : BaseViewModel
     {
-        public Models.WRONGModel Model{ get;}
-        public WRONGViewModel(Models.WRONGModel model)
+        public Models.WRONJModel Model{ get;}
+        public WRONJViewModel(Models.WRONJModel model)
         {
-            Title = "The WRONG Model";
-            Model = model??new Models.WRONGModel();
+            Model = model??new Models.WRONJModel();
         }
         public double AssignmentTime
         {

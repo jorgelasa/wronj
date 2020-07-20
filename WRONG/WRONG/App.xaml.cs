@@ -1,9 +1,9 @@
 ﻿using System;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
-using WRONG.Views;
+using WRONJ.Views;
 
-namespace WRONG
+namespace WRONJ
 {
     public partial class App : Application
     {

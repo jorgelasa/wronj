@@ -13,7 +13,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-namespace WRONG.UWP
+namespace WRONJ.UWP
 {
     public sealed partial class MainPage
     {
@@ -21,7 +21,7 @@ namespace WRONG.UWP
         {
             this.InitializeComponent();
 
-            LoadApplication(new WRONG.App());
+            LoadApplication(new WRONJ.App());
         }
     }
 }

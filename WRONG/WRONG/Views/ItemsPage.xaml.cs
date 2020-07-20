@@ -7,24 +7,23 @@ using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-using WRONG.Models;
-using WRONG.Views;
-using WRONG.ViewModels;
+using WRONJ.Models;
+using WRONJ.Views;
+using WRONJ.ViewModels;
 
-namespace WRONG.Views
+namespace WRONJ.Views
 {
     // Learn more about making custom code visible in the Xamarin.Forms previewer
     // by visiting https://aka.ms/xamarinforms-previewer
     [DesignTimeVisible(false)]
     public partial class ItemsPage : ContentPage
     {
-        WRONGViewModel viewModel;
+        WRONJViewModel viewModel;
 
         public ItemsPage()
         {
             InitializeComponent();
-
-            BindingContext = viewModel = new WRONGViewModel(new WRONGModel());
+            BindingContext = viewModel = new WRONJViewModel(new WRONJModel()) { Title = "WRONJ Model" };            
         }
 
 

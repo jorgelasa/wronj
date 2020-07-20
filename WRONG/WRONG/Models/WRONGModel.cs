@@ -9,9 +9,9 @@ using MathNet.Numerics;
 using System.Threading;
 using MathNet.Numerics.Financial;
 
-namespace WRONG.Models
+namespace WRONJ.Models
 {
-    public class WRONGModel
+    public class WRONJModel
     {
         /// <summary>
         /// Delegate used with a Free Worker Queue
@@ -43,16 +43,23 @@ namespace WRONG.Models
                 return JobNumber * JobTime / Workers;
             }
         }
-        MathNet.Numerics.Distributions.LogNormal distribution(double mean, double volatility)
+        MathNet.Numerics.Distributions.LogNormal Distribution(double mean, double volatility)
         {
-            return new MathNet.Numerics.Distributions.LogNormal(Math.Log(mean)- volatility * volatility/2, volatility);
+            if (volatility <= 0)
+                return null;
+            // According to https://en.wikipedia.org/wiki/Log-normal_distribution, we can calculate
+            // mu and sigma from actual mean and volatility this way
+            double sigma = Math.Sqrt(Math.Log(1 + Math.Pow(volatility/mean, 2)));
+            double mu = Math.Log(mean) - sigma * sigma / 2;
+            return MathNet.Numerics.Distributions.LogNormal.WithMeanVariance(mean,volatility * volatility);
         }
         public double ModelTime
         {
             get
             {
-                //return AssignmentTime * (Workers - 1) / 1000 > JobTime ? AssignmentTime * Workers / 1000 : JobTime + AssignmentTime / 1000;
-                var jobDist = distribution(JobTime, JobTimeVolatility);
+                if (JobTimeVolatility==0)
+                    return AssignmentTime * (Workers - 1) / 1000 > JobTime ? AssignmentTime * Workers / 1000 : JobTime + AssignmentTime / 1000;
+                var jobDist = Distribution(JobTime, JobTimeVolatility);
                 double limitTime = AssignmentTime * (Workers - 1) / 1000;
                 double limitCDF = jobDist.CumulativeDistribution(limitTime);
                 //Using partial expectation of a lognormal for t > limitTime: https://en.wikipedia.org/wiki/Log-normal_distribution#Partial_expectation
@@ -85,8 +92,8 @@ namespace WRONG.Models
                 const int topJobsWithinRange = 1000;
                 double convergenceDiff = 0.00001;
                 int lastJobsWithinRange = 0;
-                var jobDist = distribution(jobTime, jobTimeVolatility);
-                var assignmentDist = distribution(assignmentTime,assignmentVolatility);
+                var jobDist = Distribution(jobTime, jobTimeVolatility);
+                var assignmentDist = Distribution(assignmentTime,assignmentVolatility);
                 while (topJobs == 0 && lastJobsWithinRange < topJobsWithinRange
                 || jobs < topJobs)
                 {
@@ -99,11 +106,8 @@ namespace WRONG.Models
                             time = lastWorkerEndTime;
                         workersTime.Remove(firstWorker);
                     }
-                    time += assignmentTime;
-                    double rndJobTime = jobTime;
-                    if (jobTimeVolatility > 0)
-                        rndJobTime = jobDist.Sample();
-                    double workerEndTime = time + rndJobTime;
+                    time += (assignmentDist == null? assignmentTime : assignmentDist.Sample());
+                    double workerEndTime = time + (jobDist == null ? jobTime : jobDist.Sample());
                     workersTime.Add(Tuple.Create(workerEndTime, lastWorkerEndTime));
                     lastJobTime = realJobTime;
                     realJobTime = (jobs * realJobTime + (workerEndTime - lastWorkerEndTime)) / ++jobs;
@@ -119,33 +123,33 @@ namespace WRONG.Models
         public async void Simulate(CancellationToken cancelToken)
         {
             //All times in seconds
-            double q = AssignmentTime/1000 , jobTime = JobTime, modelTime = ModelTime,
-                assignmentVolatility = AssignmentTimeVolatility, jobTimeVolatility = JobTimeVolatility;
+            double assignmentTime = AssignmentTime/1000 , jobTime = JobTime, modelTime = ModelTime,
+                assignmentVolatility = AssignmentTimeVolatility/1000, jobTimeVolatility = JobTimeVolatility;
             int workers = Workers, jobs=JobNumber;
             double time = 0;
             int ms = 0;
-            var jobDist = distribution(jobTime, jobTimeVolatility);
+            var jobDist = Distribution(jobTime, jobTimeVolatility);
+            var assignmentDist = Distribution(assignmentTime, assignmentVolatility);
             List<int> FWQ = Enumerable.Range(0, workers).ToList();
             SortedSet<Tuple<double, int>> workersTime = new SortedSet<Tuple<double, int>>();
             for (int i=0; jobs<=0 || i < jobs;i++)
             {
                 if (cancelToken.IsCancellationRequested)
                     return;
-                double rndJobTime = jobTime;
-                if (jobTimeVolatility > 0)
-                    rndJobTime = jobDist.Sample();
+                double rndJobTime = (jobDist == null ? jobTime : jobDist.Sample());
+                double rndAssignmentTime = (assignmentDist == null ? assignmentTime : assignmentDist.Sample());
                 // Getting a new job from pending queue
-                AssignmentStart?.Invoke(FWQ, rndJobTime, q);
+                AssignmentStart?.Invoke(FWQ, rndJobTime, rndAssignmentTime);
                 double freeWorkerTime = time;
                 // Free all workers that end while assigning the new job
-                while (workersTime.Count > 0 && workersTime.First().Item1 < time + q)
+                while (workersTime.Count > 0 && workersTime.First().Item1 < time + rndAssignmentTime)
                 {
                     freeWorkerTime = workersTime.First().Item1;
                     FWQ.Add(workersTime.First().Item2);
                     workersTime.Remove(workersTime.First());
                     FreeWorker?.Invoke(FWQ);
                 }
-                time += q;
+                time += rndAssignmentTime;
                 ms = (int)((time - freeWorkerTime)*1000);
                 await Task.Delay(ms > 0 ? ms : 1);
                 int assignedWorker = FWQ[0];

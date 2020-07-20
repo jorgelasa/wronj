@@ -5,19 +5,12 @@ using System.Runtime.CompilerServices;
 
 using Xamarin.Forms;
 
-using WRONG.Models;
+using WRONJ.Models;
 
-namespace WRONG.ViewModels
+namespace WRONJ.ViewModels
 {
     public class BaseViewModel : INotifyPropertyChanged
     {
-
-        bool isBusy = false;
-        public bool IsBusy
-        {
-            get { return isBusy; }
-            set { SetProperty(ref isBusy, value); }
-        }
 
         string title = string.Empty;
         public string Title
@@ -25,7 +18,6 @@ namespace WRONG.ViewModels
             get { return title; }
             set { SetProperty(ref title, value); }
         }
-
         protected bool SetProperty<T>(ref T backingStore, T value,
             [CallerMemberName]string propertyName = "",
             Action onChanged = null)
@@ -38,7 +30,6 @@ namespace WRONG.ViewModels
             OnPropertyChanged(propertyName);
             return true;
         }
-
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "")

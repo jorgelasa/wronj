@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace WRONG.Models
+namespace WRONJ.Models
 {
     public enum MenuItemType
     {

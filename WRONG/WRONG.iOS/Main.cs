@@ -5,7 +5,7 @@ using System.Linq;
 using Foundation;
 using UIKit;
 
-namespace WRONG.iOS
+namespace WRONJ.iOS
 {
     public class Application
     {
