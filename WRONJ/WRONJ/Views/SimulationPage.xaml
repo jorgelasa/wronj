@@ -7,14 +7,21 @@
              x:Class="WRONJ.Views.SimulationPage"
              Title="{Binding Title, StringFormat='{0} Simulation'}">
     <StackLayout Spacing="20" Padding="15">
-        <Label Text="Job Queue" FontSize="Medium" />
-        <Grid x:Name="jobQueue" ColumnSpacing="3">
-            <Label Text="{Binding Jobs[0].JobNumber}" HorizontalTextAlignment="Center" BackgroundColor="{Binding Jobs[0].JobColor}" Grid.Column="0"/>
-            <Label Text="{Binding Jobs[1].JobNumber}" HorizontalTextAlignment="Center" BackgroundColor="{Binding Jobs[1].JobColor}" Grid.Column="1"/>
-            <Label Text="{Binding Jobs[2].JobNumber}" HorizontalTextAlignment="Center" BackgroundColor="{Binding Jobs[2].JobColor}" Grid.Column="2"/>
-            <Label Text="{Binding Jobs[3].JobNumber}" HorizontalTextAlignment="Center" BackgroundColor="{Binding Jobs[3].JobColor}" Grid.Column="3"/>
-            <Label Text="{Binding Jobs[4].JobNumber}" HorizontalTextAlignment="Center" BackgroundColor="{Binding Jobs[4].JobColor}" Grid.Column="4"/>
-            <Label Text="{Binding Jobs[5].JobNumber}" HorizontalTextAlignment="Center" BackgroundColor="{Binding Jobs[5].JobColor}" Grid.Column="5"/>
+        <Grid>
+            <Label Text="Job Queue" FontSize="Medium" Grid.Column="0"/>
+            <Label Text="{Binding LastJob, StringFormat='Last Job: {0}'}" FontSize="Small" Grid.Column="1"/>
+        </Grid>
+        <Grid x:Name="jobQueue" ColumnSpacing="10">
+            <BoxView  BackgroundColor="{Binding Jobs[0].JobColor}" Grid.Column="0"/>
+            <BoxView  BackgroundColor="{Binding Jobs[1].JobColor}" Grid.Column="1"/>
+            <BoxView  BackgroundColor="{Binding Jobs[2].JobColor}" Grid.Column="2"/>
+            <BoxView  BackgroundColor="{Binding Jobs[3].JobColor}" Grid.Column="3"/>
+            <BoxView  BackgroundColor="{Binding Jobs[4].JobColor}" Grid.Column="4"/>
+            <BoxView  BackgroundColor="{Binding Jobs[5].JobColor}" Grid.Column="5"/>
+            <BoxView  BackgroundColor="{Binding Jobs[6].JobColor}" Grid.Column="6"/>
+            <BoxView  BackgroundColor="{Binding Jobs[7].JobColor}" Grid.Column="7"/>
+            <BoxView  BackgroundColor="{Binding Jobs[8].JobColor}" Grid.Column="8"/>
+            <BoxView  BackgroundColor="{Binding Jobs[9].JobColor}" Grid.Column="9"/>
         </Grid>
         <Label Text="Free Workers Queue" FontSize="Medium" />
         <Grid x:Name="fsq" ColumnSpacing="0">

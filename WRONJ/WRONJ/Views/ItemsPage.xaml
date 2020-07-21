@@ -7,10 +7,9 @@
              x:Class="WRONJ.Views.ItemsPage"
              Title="{Binding Title, StringFormat='{0} Data'}"
              x:Name="BrowseItemsPage">
-
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Calculate" Clicked="Calculate_Clicked" />
-        <ToolbarItem Text="Simulate" Clicked="Simulate_Clicked" />
+        <ToolbarItem Text="Calculate" Clicked="Calculate_Clicked"/>
+        <ToolbarItem Text="Simulate" Clicked="Simulate_Clicked"/>
     </ContentPage.ToolbarItems>
     <ScrollView>
         <StackLayout Padding="10" Spacing="10">
@@ -62,8 +61,10 @@
                     HorizontalOptions="Start" 
                     Style="{DynamicResource SubTitleStyle}" 
                     FontAttributes="Bold"
-                    FontSize="20" />
-            <Label Text="{Binding RealJobTime}"/>
+                    FontSize="20" 
+                    IsVisible="{Binding ShowOutputData}"/>
+            <Label Text="{Binding WorkerTime}" 
+                    IsVisible="{Binding ShowOutputData}"/>
         </StackLayout>
     </ScrollView>
 </ContentPage>

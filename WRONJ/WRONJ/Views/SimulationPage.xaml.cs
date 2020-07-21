@@ -31,21 +31,11 @@ namespace WRONJ.Views
             {
                 fsq.Children.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker) }, worker, 0);
             }
-            /*
-            for (int row=0, worker=0; row <= viewModel.Workers/ FWQMaxColumns; row++)
-            {
-                for (int col=0; col < FWQMaxColumns && worker < viewModel.Workers; col++, worker++)
-                {
-                    fsq.Children.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker) }, col, row);
-                }
-            }
-            */
             int workersColumns = viewModel.Workers <= 10? viewModel.Workers : (int)Math.Sqrt(viewModel.Workers);
             for (int row = 0, worker=0; row <= viewModel.Workers / workersColumns; row++)
             {
                 for (int col = 0; col < workersColumns && worker < viewModel.Workers; col++, worker++)
                 {
-                    //activeWorkers.Children.Add(new BoxView { BackgroundColor = this.BackgroundColor }, col, row);
                     activeWorkers.Children.Add(new BoxView { BackgroundColor = Color.Silver }, col, row);
                 }
             }
