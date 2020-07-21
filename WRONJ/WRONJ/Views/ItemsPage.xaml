@@ -24,27 +24,30 @@
                     FontAttributes="Bold"
                     FontSize="20" />
             <Label Text="Number of Workers: "/>
-            <Entry Text="{Binding Workers, Mode=OneWayToSource}"/>
+            <Entry Text="{Binding Workers, Mode=OneWayToSource, Converter={StaticResource uintToString}}"
+                   Style="{StaticResource UintEntry}" />
             <Label Text="Number of Jobs:"/>
-            <Entry Text="{Binding JobNumber, Mode=OneWayToSource}"/>
+            <Entry Text="{Binding JobNumber, Mode=OneWayToSource, Converter={StaticResource uintToString}}"
+                   Style="{StaticResource UintEntry}"
+                   x:Name="jobNumber"/>
             <Label Text="Assignment time (milliseconds)" 
                     HorizontalOptions="Start" 
                     Style="{DynamicResource SubTitleStyle}" 
                     FontAttributes="Bold"
                     FontSize="20" />
             <Label Text="Average Time:"/>
-            <Entry Text="{Binding AssignmentTime, Mode=OneWayToSource}"/>
+            <Entry Text="{Binding AssignmentTime, Mode=OneWayToSource, Converter={StaticResource doubleToString}}"/>
             <Label Text="Volatility:"/>
-            <Entry Text="{Binding AssignmentTimeVolatility, Mode=OneWayToSource}"/>
+            <Entry Text="{Binding AssignmentTimeVolatility, Mode=OneWayToSource, Converter={StaticResource doubleToString}}"/>
             <Label Text="Job time (seconds)" 
                     HorizontalOptions="Start" 
                     Style="{DynamicResource SubTitleStyle}" 
                     FontAttributes="Bold"
                     FontSize="20" />
             <Label Text="Average Time:"/>
-            <Entry Text="{Binding JobTime, Mode=OneWayToSource}"/>
+            <Entry Text="{Binding JobTime, Mode=OneWayToSource, Converter={StaticResource doubleToString}}"/>
             <Label Text="Volatility:"/>
-            <Entry Text="{Binding JobTimeVolatility, Mode=OneWayToSource}"/>
+            <Entry Text="{Binding JobTimeVolatility, Mode=OneWayToSource, Converter={StaticResource doubleToString}}"/>
             <BoxView HeightRequest="10"/>
             <Label Text="Output Data" 
                     HorizontalOptions="Center" 
@@ -56,14 +59,14 @@
                     Style="{DynamicResource SubTitleStyle}" 
                     FontAttributes="Bold"
                     FontSize="20" />
-            <Label Text="{Binding ModelTime}"/>
+            <Label Text="{Binding ModelTime, StringFormat='{0:F4}'}"/>
             <Label Text="Calculated Worker Time (seconds):"
                     HorizontalOptions="Start" 
                     Style="{DynamicResource SubTitleStyle}" 
                     FontAttributes="Bold"
                     FontSize="20" 
                     IsVisible="{Binding ShowOutputData}"/>
-            <Label Text="{Binding WorkerTime}" 
+            <Label Text="{Binding WorkerTime, StringFormat='{0:F4}'}" 
                     IsVisible="{Binding ShowOutputData}"/>
         </StackLayout>
     </ScrollView>

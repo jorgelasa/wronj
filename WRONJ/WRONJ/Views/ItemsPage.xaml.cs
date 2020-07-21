@@ -23,7 +23,8 @@ namespace WRONJ.Views
         public ItemsPage()
         {
             InitializeComponent();
-            BindingContext = viewModel = new WRONJViewModel(new WRONJModel()) { Title = "Model" };            
+            jobNumber.Text = "100000";
+            BindingContext = viewModel = new WRONJViewModel(new WRONJModel()) { Title = "Model"};            
         }
 
 

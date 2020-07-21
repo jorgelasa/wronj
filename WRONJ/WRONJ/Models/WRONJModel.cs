@@ -33,11 +33,11 @@ namespace WRONJ.Models
         /// </summary>
         public double JobTime { get; set; }
         public double JobTimeVolatility { get; set; }
-        public int Workers { get; set; }
+        public uint Workers { get; set; }
         /// <summary>
         /// Output worker time, in seconds
         /// </summary>
-        public int JobNumber { get; set; }
+        public uint JobNumber { get; set; }
         public double TotalTime()
         {
             return JobNumber * JobTime / Workers;
@@ -71,7 +71,7 @@ namespace WRONJ.Models
         {
             double inputAssignmentTime = AssignmentTime, inputJobTime = JobTime, 
                 assignmentVolatility = AssignmentTimeVolatility, jobTimeVolatility = JobTimeVolatility;
-            int workers = Workers, jobs = JobNumber;
+            uint workers = Workers, jobs = JobNumber;
             return Task<Tuple<double, double, double>>.Run(() =>
             {
                 //Average of real job times
@@ -112,12 +112,12 @@ namespace WRONJ.Models
             //All times in seconds
             double inputAssignmentTime = AssignmentTime , inputJobTime = JobTime,
                 assignmentVolatility = AssignmentTimeVolatility, jobTimeVolatility = JobTimeVolatility;
-            int workers = Workers, jobs=JobNumber;
+            uint workers = Workers, jobs=JobNumber;
             double time = 0;
             int ms = 0;
             var jobDist = Distribution(inputJobTime, jobTimeVolatility);
             var assignmentDist = Distribution(inputAssignmentTime, assignmentVolatility);
-            List<int> FWQ = Enumerable.Range(0, workers).ToList();
+            List<int> FWQ = Enumerable.Range(0, (int)workers).ToList();
             SortedSet<Tuple<double, int>> workersTime = new SortedSet<Tuple<double, int>>();
             for (int i=0; jobs<=0 || i < jobs;i++)
             {

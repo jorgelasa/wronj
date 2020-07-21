@@ -75,12 +75,12 @@ namespace WRONJ.ViewModels
                 }
             }
         }
-        public int Workers
+        public uint Workers
         {
             get { return Model.Workers; }
             set
             {
-                int v = Model.Workers;
+                uint v = Model.Workers;
                 if (SetProperty(ref v, value))
                 {
                     Model.Workers = v;
@@ -127,12 +127,12 @@ namespace WRONJ.ViewModels
                 SetProperty(ref workerTime, value);
             }
         }
-        public int JobNumber
+        public uint JobNumber
         {
             get { return Model.JobNumber; }
             set
             {
-                int v = Model.JobNumber;
+                uint v = Model.JobNumber;
                 if (SetProperty(ref v, value))
                 {
                     Model.JobNumber = v;
