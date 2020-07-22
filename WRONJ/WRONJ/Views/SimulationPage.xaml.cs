@@ -8,6 +8,7 @@ using WRONJ.ViewModels;
 using System.Threading;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters;
+using MathNet.Numerics.Integration;
 
 namespace WRONJ.Views
 {
@@ -23,10 +24,11 @@ namespace WRONJ.Views
         {
             InitializeComponent();
             BindingContext = this.viewModel = viewModel;
-            viewModel.LastJob = 1;
+            viewModel.LastJob = 0;
             moveJobQueue();
             if (viewModel.Workers <= 0)
                 return;
+            SetFreeWorkers((uint)viewModel.Workers);
             for (int worker = 0; worker < viewModel.Workers;  worker++)
             {
                 fsq.Children.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker) }, worker, 0);
@@ -53,10 +55,17 @@ namespace WRONJ.Views
                 viewModel.Jobs[i].JobNumber = viewModel.LastJob + i + 1;
             }
         }
-        private async void AssignmentStart(List<int> workers, double jobTime, double assignmentTime)
+        private void SetFreeWorkers(uint freeWorkers)
+        {
+            viewModel.FreeWorkers = freeWorkers;
+        }
+        private void AssignmentStart(List<int> workers, double jobTime, double assignmentTime)
         {
             int s = 0;
             viewModel.LastJob++;
+            viewModel.LastJobTime = jobTime;
+            viewModel.LastAssignmentTime = assignmentTime*1000;
+            SetFreeWorkers((uint)workers.Count);
             moveJobQueue();
             foreach (View view in fsq.Children)
             {
@@ -70,9 +79,12 @@ namespace WRONJ.Views
                 }
             }
         }
-        private void AssignmentEnd(List<int> workers, int worker, double jobTime)
+        private void AssignmentEnd(List<int> workers, int worker, double modelTime, double workerTime)
         {
             int s = 0;
+            SetFreeWorkers((uint)workers.Count);
+            viewModel.ModelTime = modelTime;
+            viewModel.WorkerTime = workerTime;
             foreach (View view in fsq.Children)
             {
                 if (s < workers.Count)
@@ -89,6 +101,7 @@ namespace WRONJ.Views
         private void FreeWorker(List<int> workers)
         {
             int s = 0;
+            SetFreeWorkers((uint)workers.Count);
             foreach (View view in fsq.Children)
             {
                 if (s < workers.Count)
@@ -110,6 +123,7 @@ namespace WRONJ.Views
             viewModel.Model.AssignmentStart -= AssignmentStart;
             viewModel.Model.AssignmentEnd -= AssignmentEnd;
             viewModel.Model.FreeWorker -= FreeWorker;
+            viewModel.ShowOutputData = true;
             cancelTokenSource.Cancel();
         }
     }

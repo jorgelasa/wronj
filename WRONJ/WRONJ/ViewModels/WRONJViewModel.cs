@@ -75,6 +75,24 @@ namespace WRONJ.ViewModels
                 }
             }
         }
+        private double lastJobTime, lastAssignmentTime;
+        public double LastJobTime
+        {
+            get { return lastJobTime; }
+            set
+            {
+                SetProperty(ref lastJobTime, value);
+            }
+        }
+        public double LastAssignmentTime
+        {
+            get { return lastAssignmentTime; }
+            set
+            {
+                SetProperty(ref lastAssignmentTime, value);
+            }
+        }
+
         public uint Workers
         {
             get { return Model.Workers; }
@@ -87,6 +105,19 @@ namespace WRONJ.ViewModels
                     ChangeInputData();
                 }
             }
+        }
+        uint freeWorkers;
+        public uint FreeWorkers
+        {
+            get { return freeWorkers; }
+            set
+            {
+                if (SetProperty(ref freeWorkers, value)) OnPropertyChanged("FreeWorkersRate");
+            }
+        }
+        public double FreeWorkersRate
+        {
+            get { return Workers > 0? (double)freeWorkers / Workers : 0; }
         }
         private bool showOutputData;
         public bool ShowOutputData

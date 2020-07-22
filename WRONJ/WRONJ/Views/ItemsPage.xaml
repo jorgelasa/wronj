@@ -7,10 +7,6 @@
              x:Class="WRONJ.Views.ItemsPage"
              Title="{Binding Title, StringFormat='{0} Data'}"
              x:Name="BrowseItemsPage">
-    <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Calculate" Clicked="Calculate_Clicked"/>
-        <ToolbarItem Text="Simulate" Clicked="Simulate_Clicked"/>
-    </ContentPage.ToolbarItems>
     <ScrollView>
         <StackLayout Padding="10" Spacing="10">
             <Label Text="Input Data" 
@@ -49,11 +45,17 @@
             <Label Text="Volatility:"/>
             <Entry Text="{Binding JobTimeVolatility, Mode=OneWayToSource, Converter={StaticResource doubleToString}}"/>
             <BoxView HeightRequest="10"/>
-            <Label Text="Output Data" 
-                    HorizontalOptions="Center" 
-                    Style="{DynamicResource TitleStyle}" 
-                    FontAttributes="Bold"
-                    FontSize="24" />
+            <Grid>
+                <Label Text="Output Data" 
+                        HorizontalOptions="Center" 
+                        Style="{DynamicResource TitleStyle}" 
+                        FontAttributes="Bold"
+                        FontSize="24" />
+                <Grid Grid.Column="1">
+                    <Button Text="Calculate" FontSize="20" Clicked="Calculate_Clicked"/>
+                    <Button Text="Simulate"  FontSize="20" Clicked="Simulate_Clicked" Grid.Column="1"/>
+                </Grid>    
+            </Grid>
             <Label Text="Model Worker Time (seconds):"
                     HorizontalOptions="Start" 
                     Style="{DynamicResource SubTitleStyle}" 

@@ -19,7 +19,7 @@ namespace WRONJ.Models
         /// <param name="workers"></param>
         public delegate void FreeWorkerEventHandler(List<int> workers);
         public delegate void AssignmentStartEventHandler(List<int> workers,double jobTime, double assignmentTime);
-        public delegate void AssignmentEndEventHandler(List<int> workers, int worker, double jobTime);
+        public delegate void AssignmentEndEventHandler(List<int> workers, int worker, double modelTime, double workerTime);
         public event AssignmentStartEventHandler AssignmentStart;
         public event AssignmentEndEventHandler AssignmentEnd;
         public event FreeWorkerEventHandler FreeWorker;
@@ -72,6 +72,8 @@ namespace WRONJ.Models
             double inputAssignmentTime = AssignmentTime, inputJobTime = JobTime, 
                 assignmentVolatility = AssignmentTimeVolatility, jobTimeVolatility = JobTimeVolatility;
             uint workers = Workers, jobs = JobNumber;
+            if (workers == 0 || jobs == 0 || inputJobTime == 0)
+                return Task<Tuple<double, double, double>>.FromResult(Tuple.Create(inputAssignmentTime, 0.0,0.0));
             return Task<Tuple<double, double, double>>.Run(() =>
             {
                 //Average of real job times
@@ -97,12 +99,15 @@ namespace WRONJ.Models
                     double assignmentTime = (assignmentDist == null ? inputAssignmentTime : assignmentDist.Sample());
                     time += assignmentTime;
                     double jobTime = (jobDist == null ? inputJobTime : jobDist.Sample());
-                    double workerEndTime = time + jobTime;
-                    workersTime.Add(Tuple.Create(workerEndTime, lastWorkerEndTime));
+                    workersTime.Add(Tuple.Create(time + jobTime, lastWorkerEndTime));
+                    double workerLastTime = time + jobTime - lastWorkerEndTime;
                     lastJobTime = workerTime;
                     assignmentsTime = (j * assignmentsTime + assignmentTime) / (j + 1);
                     jobsTime = (j * jobsTime + jobTime) / (j + 1);
-                    workerTime = (j * workerTime + (workerEndTime - lastWorkerEndTime)) / (j + 1);
+                    if (j >= workers)
+                    {
+                        workerTime = ((j - workers) * workerTime + workerLastTime) / (j + 1 - workers);
+                    }
                 }
                 return Tuple.Create(assignmentsTime, jobsTime, workerTime);
             });
@@ -119,7 +124,9 @@ namespace WRONJ.Models
             var assignmentDist = Distribution(inputAssignmentTime, assignmentVolatility);
             List<int> FWQ = Enumerable.Range(0, (int)workers).ToList();
             SortedSet<Tuple<double, int>> workersTime = new SortedSet<Tuple<double, int>>();
-            for (int i=0; jobs<=0 || i < jobs;i++)
+            Dictionary<int, double> workersLastTime = new Dictionary<int, double>();
+            double workerTime = 0, assignmentsTime = 0, jobsTime = 0;
+            for (int j=0; jobs<=0 || j < jobs;j++)
             {
                 if (cancelToken.IsCancellationRequested)
                     return;
@@ -131,19 +138,35 @@ namespace WRONJ.Models
                 // Free all workers that end while assigning the new job
                 while (workersTime.Count > 0 && workersTime.First().Item1 < time + assignmentTime)
                 {
-                    freeWorkerTime = workersTime.First().Item1;
                     FWQ.Add(workersTime.First().Item2);
                     workersTime.Remove(workersTime.First());
                     FreeWorker?.Invoke(FWQ);
                 }
                 time += assignmentTime;
                 ms = (int)((time - freeWorkerTime)*1000);
-                await Task.Delay(ms > 0 ? ms : 1);
+                if (ms > 0) await Task.Delay(ms);
                 int assignedWorker = FWQ[0];
                 FWQ.RemoveAt(0);
                 //Assign to an active worker
-                AssignmentEnd?.Invoke(FWQ, assignedWorker, jobTime);
+                double workerLastTime = workersLastTime.ContainsKey(assignedWorker) ?
+                                    time + jobTime - workersLastTime[assignedWorker] :
+                                    jobTime;
+                if (workersLastTime.ContainsKey(assignedWorker))
+                {
+                    workersLastTime[assignedWorker] = time + jobTime;
+                }
+                else
+                {
+                    workersLastTime.Add(assignedWorker, time + jobTime);
+                }
                 workersTime.Add(Tuple.Create(time + jobTime, assignedWorker));
+                assignmentsTime = (j * assignmentsTime + assignmentTime) / (j + 1);
+                jobsTime = (j * jobsTime + jobTime) / (j + 1);
+                if (j >= workers)
+                {
+                    workerTime = ((j- workers) * workerTime + workerLastTime) / (j + 1 - workers);
+                }
+                AssignmentEnd?.Invoke(FWQ, assignedWorker, ModelTime(assignmentsTime, jobsTime),workerTime);
                 if (FWQ.Count == 0)
                 {
                     double timeBefore = time;
@@ -151,7 +174,7 @@ namespace WRONJ.Models
                     FWQ.Add(workersTime.First().Item2);
                     workersTime.Remove(workersTime.First());
                     ms = (int)((time - timeBefore)*1000);
-                    await Task.Delay(ms > 0 ? ms : 1);
+                    if (ms > 0) await Task.Delay(ms);
                     FreeWorker?.Invoke(FWQ);
                 }
             }
