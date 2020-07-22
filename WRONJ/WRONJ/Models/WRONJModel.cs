@@ -134,17 +134,30 @@ namespace WRONJ.Models
                 double assignmentTime = (assignmentDist == null ? inputAssignmentTime : assignmentDist.Sample());
                 // Getting a new job from pending queue
                 AssignmentStart?.Invoke(FWQ, jobTime, assignmentTime);
-                double freeWorkerTime = time;
                 // Free all workers that end while assigning the new job
+                double freeWorkerTime = time;
+                bool waited = false;
                 while (workersTime.Count > 0 && workersTime.First().Item1 < time + assignmentTime)
                 {
+                    ms = (int)((workersTime.First().Item1 - freeWorkerTime) * 1000);
+                    if (ms > 0)
+                    {
+                        await Task.Delay(ms);
+                        waited = true;
+                    }
                     FWQ.Add(workersTime.First().Item2);
                     workersTime.Remove(workersTime.First());
                     FreeWorker?.Invoke(FWQ);
+                    freeWorkerTime = workersTime.First().Item1;
                 }
                 time += assignmentTime;
                 ms = (int)((time - freeWorkerTime)*1000);
-                if (ms > 0) await Task.Delay(ms);
+                if (ms > 0 || !waited)
+                {
+                    // If ms == 0 but there hasn't been any previous call to await, just make one to ensure
+                    // the GUI is refreshed
+                    await Task.Delay(ms > 0 ? ms : 1);
+                }
                 int assignedWorker = FWQ[0];
                 FWQ.RemoveAt(0);
                 //Assign to an active worker
@@ -174,7 +187,10 @@ namespace WRONJ.Models
                     FWQ.Add(workersTime.First().Item2);
                     workersTime.Remove(workersTime.First());
                     ms = (int)((time - timeBefore)*1000);
-                    if (ms > 0) await Task.Delay(ms);
+                    if (ms > 0)
+                    {
+                        await Task.Delay(ms);
+                    }
                     FreeWorker?.Invoke(FWQ);
                 }
             }
