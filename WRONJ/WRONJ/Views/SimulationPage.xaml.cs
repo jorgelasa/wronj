@@ -19,9 +19,11 @@ namespace WRONJ.Views
             InitializeComponent();
             BindingContext = this.viewModel = viewModel;
             viewModel.LastJob = 0;
-            moveJobQueue();
+            viewModel.LastJobTime = 0;
+            viewModel.LastAssignmentTime = 0;
             if (viewModel.Workers <= 0)
                 return;
+            moveJobQueue();
             viewModel.FreeWorkers = viewModel.Workers;
             for (int worker = 0; worker < viewModel.Workers;  worker++)
             {
@@ -44,7 +46,7 @@ namespace WRONJ.Views
         private void moveJobQueue()
         {
             int jobs = jobQueue.Children.Count;
-            for (int i=0; i < jobs; i++)
+            for (int i=0; viewModel.JobsInfo!= null && i < jobs; i++)
             {
                 viewModel.JobsInfo[i].JobNumber = viewModel.LastJob + i + 1;
             }

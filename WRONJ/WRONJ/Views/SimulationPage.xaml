@@ -6,19 +6,56 @@
              mc:Ignorable="d"
              x:Class="WRONJ.Views.SimulationPage"
              Title="{Binding Title, StringFormat='{0} Simulation'}">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style TargetType="Label">
+                <Setter Property="VerticalOptions" Value="End" />
+                <Setter Property="FontSize" Value="Small" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <StackLayout Spacing="20" Padding="15">
-        <Label>
-            <Label.FormattedText>
-                <FormattedString>
-                    <FormattedString.Spans>
-                        <Span Text="Job Queue" FontSize="Medium"/>
-                        <Span Text="{Binding LastJob, StringFormat='    Last Job: {0}'}" FontSize="Small"/>
-                        <Span Text="{Binding LastJobTime, StringFormat=';  Last Job Time: {0} secs', Converter={StaticResource doubleToString2}}" FontSize="Small"/>
-                        <Span Text="{Binding LastAssignmentTime, StringFormat=';  Last Assignment Time: {0} ms', Converter={StaticResource doubleToString2}}" FontSize="Small"/>
-                    </FormattedString.Spans>
-                </FormattedString>
-            </Label.FormattedText>
-        </Label> 
+        <StackLayout Orientation="Horizontal">
+            <Label Text="Job Queue" FontSize="Medium"/>
+            <Label Text="    Last Job: ">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding LastJob}" Value="0">
+                        <Setter Property="Text" Value="" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label Text="{Binding LastJob, Converter={StaticResource intToString}}"/>
+            <Label Text=";  Last Job Time: ">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding LastJobTime}" Value="0">
+                        <Setter Property="Text" Value="" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label Text="{Binding LastJobTime, Converter={StaticResource doubleToString2}}"/>
+            <Label Text=" secs">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding LastJobTime}" Value="0">
+                        <Setter Property="Text" Value="" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label Text=";  Last Assignment Time: ">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding LastAssignmentTime}" Value="0">
+                        <Setter Property="Text" Value="" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label Text="{Binding LastAssignmentTime, Converter={StaticResource doubleToString2}}"/>
+            <Label Text=" ms">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding LastAssignmentTime}" Value="0">
+                        <Setter Property="Text" Value="" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+        </StackLayout> 
         <Grid x:Name="jobQueue" ColumnSpacing="10">
             <BoxView  BackgroundColor="{Binding JobsInfo[0].JobColor}" Grid.Column="0"/>
             <BoxView  BackgroundColor="{Binding JobsInfo[1].JobColor}" Grid.Column="1"/>
@@ -37,32 +74,48 @@
             <BoxView  BackgroundColor="{Binding JobsInfo[14].JobColor}" Grid.Column="14"/>
             <BoxView  BackgroundColor="{Binding JobsInfo[15].JobColor}" Grid.Column="15"/>
         </Grid>
-        <Label>
-            <Label.FormattedText>
-                <FormattedString>
-                    <FormattedString.Spans>
-                        <Span Text="Free Workers Queue" FontSize="Medium"/>
-                        <Span Text="{Binding FreeWorkers, StringFormat='    Free Workers Count: {0}'}" FontSize="Small"/>
-                        <Span Text="{Binding FreeWorkersRate, StringFormat=' ( {0:P0} of total workers)'}" FontSize="Small"/>
-                    </FormattedString.Spans>
-                </FormattedString>
-            </Label.FormattedText>
-        </Label>
+        <StackLayout Orientation="Horizontal">
+            <Label Text="Free Workers Queue" FontSize="Medium"/>
+            <Label Text="{Binding FreeWorkers, StringFormat='    Free Workers Count: {0}'}"/>
+            <Label Text="{Binding FreeWorkersRate, StringFormat=' ( {0:P0} of total workers)'}"/>
+        </StackLayout>
         <Grid x:Name="fsq" ColumnSpacing="0">
         </Grid>
-        <Label>
-            <Label.FormattedText>
-                <FormattedString>
-                    <FormattedString.Spans>
-                        <Span Text="Active Workers" FontSize="Medium"/>
-                        <Span Text="{Binding ModelWorkerTime, StringFormat='    Model Worker Time: {0}', Converter={StaticResource doubleToString3}}" FontSize="Small"/>
-                        <Span Text="{Binding RealWorkerTime, StringFormat=';  Real Worker Time: {0}', Converter={StaticResource doubleToString3}}" FontSize="Small"/>
-                        <Span Text="{Binding IdealTotalTime, StringFormat=';  Ideal Total Time: {0}', Converter={StaticResource doubleToString3}}" FontSize="Small"/>
-                        <Span Text="{Binding RealTotalTime, StringFormat=';  Real Total Time: {0}', Converter={StaticResource doubleToString3}}" FontSize="Small"/>
-                    </FormattedString.Spans>
-                </FormattedString>
-            </Label.FormattedText>
-        </Label>
+        <StackLayout Orientation="Horizontal">
+            <Label Text="Active Workers" FontSize="Medium"/>
+            <Label Text="    Model Worker Time: ">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding ModelWorkerTime}" Value="0">
+                        <Setter Property="Text" Value="" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label Text="{Binding ModelWorkerTime, Converter={StaticResource doubleToString3}}"/>
+            <Label Text=";  Real Worker Time: ">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding RealWorkerTime}" Value="0">
+                        <Setter Property="Text" Value="" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label Text="{Binding RealWorkerTime, Converter={StaticResource doubleToString3}}"/>
+            <Label Text=";  Ideal Total Time: ">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding IdealTotalTime}" Value="0">
+                        <Setter Property="Text" Value="" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label Text="{Binding IdealTotalTime, Converter={StaticResource doubleToString3}}"/>
+            <Label Text=";  Real Total Time: ">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding RealTotalTime}" Value="0">
+                        <Setter Property="Text" Value="" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label Text="{Binding RealTotalTime, Converter={StaticResource doubleToString3}}"/>
+        </StackLayout>
         <Grid x:Name="activeWorkers">
         </Grid>
     </StackLayout>

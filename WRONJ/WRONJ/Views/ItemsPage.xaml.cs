@@ -15,7 +15,6 @@ namespace WRONJ.Views
         public ItemsPage()
         {
             InitializeComponent();
-            jobNumber.Text = "100000";
             BindingContext = viewModel = new WRONJViewModel(new WRONJModel()) { Title = "Model"};            
         }
 
