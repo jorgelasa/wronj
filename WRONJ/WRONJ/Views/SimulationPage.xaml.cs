@@ -1,19 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-
-using WRONJ.Models;
 using WRONJ.ViewModels;
 using System.Threading;
 using System.Collections.Generic;
-using System.Runtime.Serialization.Formatters;
 using MathNet.Numerics.Integration;
 
 namespace WRONJ.Views
 {
-    // Learn more about making custom code visible in the Xamarin.Forms previewer
-    // by visiting https://aka.ms/xamarinforms-previewer
     [DesignTimeVisible(false)]
     public partial class SimulationPage : ContentPage
     {
@@ -28,12 +22,12 @@ namespace WRONJ.Views
             moveJobQueue();
             if (viewModel.Workers <= 0)
                 return;
-            SetFreeWorkers((uint)viewModel.Workers);
+            viewModel.FreeWorkers = viewModel.Workers;
             for (int worker = 0; worker < viewModel.Workers;  worker++)
             {
                 fsq.Children.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker) }, worker, 0);
             }
-            uint workersColumns = viewModel.Workers <= 10? viewModel.Workers : (uint)Math.Sqrt(viewModel.Workers);
+            int workersColumns = viewModel.Workers <= 10? viewModel.Workers : (int) Math.Sqrt(viewModel.Workers);
             for (int row = 0, worker=0; row <= viewModel.Workers / workersColumns; row++)
             {
                 for (int col = 0; col < workersColumns && worker < viewModel.Workers; col++, worker++)
@@ -52,12 +46,8 @@ namespace WRONJ.Views
             int jobs = jobQueue.Children.Count;
             for (int i=0; i < jobs; i++)
             {
-                viewModel.Jobs[i].JobNumber = viewModel.LastJob + i + 1;
+                viewModel.JobsInfo[i].JobNumber = viewModel.LastJob + i + 1;
             }
-        }
-        private void SetFreeWorkers(uint freeWorkers)
-        {
-            viewModel.FreeWorkers = freeWorkers;
         }
         private void AssignmentStart(List<int> workers, double jobTime, double assignmentTime)
         {
@@ -65,7 +55,7 @@ namespace WRONJ.Views
             viewModel.LastJob++;
             viewModel.LastJobTime = jobTime;
             viewModel.LastAssignmentTime = assignmentTime*1000;
-            SetFreeWorkers((uint)workers.Count);
+            viewModel.FreeWorkers = workers.Count;
             moveJobQueue();
             foreach (View view in fsq.Children)
             {
@@ -82,9 +72,9 @@ namespace WRONJ.Views
         private void AssignmentEnd(List<int> workers, int worker, double modelTime, double workerTime)
         {
             int s = 0;
-            SetFreeWorkers((uint)workers.Count);
-            viewModel.ModelTime = modelTime;
-            viewModel.WorkerTime = workerTime;
+            viewModel.FreeWorkers = workers.Count;
+            viewModel.ModelWorkerTime = modelTime;
+            viewModel.RealWorkerTime = workerTime;
             foreach (View view in fsq.Children)
             {
                 if (s < workers.Count)
@@ -98,10 +88,12 @@ namespace WRONJ.Views
             }
             activeWorkers.Children[worker].BackgroundColor = viewModel.WorkerColor(worker);
         }
-        private void FreeWorker(List<int> workers)
+        private void FreeWorker(List<int> workers,double idealTime, double realTime)
         {
             int s = 0;
-            SetFreeWorkers((uint)workers.Count);
+            viewModel.FreeWorkers = workers.Count;
+            viewModel.IdealTotalTime = idealTime;
+            viewModel.RealTotalTime = realTime;
             foreach (View view in fsq.Children)
             {
                 if (s < workers.Count)
@@ -113,7 +105,6 @@ namespace WRONJ.Views
                     view.BackgroundColor = this.BackgroundColor;
                 }
             }
-            //activeWorkers.Children[workers[s - 1]].BackgroundColor = this.BackgroundColor;
             activeWorkers.Children[workers[s - 1]].BackgroundColor = Color.Silver;
         }
 
@@ -123,8 +114,8 @@ namespace WRONJ.Views
             viewModel.Model.AssignmentStart -= AssignmentStart;
             viewModel.Model.AssignmentEnd -= AssignmentEnd;
             viewModel.Model.FreeWorker -= FreeWorker;
-            viewModel.ShowOutputData = true;
-            cancelTokenSource.Cancel();
+            viewModel.ShowOutputData = true;            
+            cancelTokenSource?.Cancel();
         }
     }
 }

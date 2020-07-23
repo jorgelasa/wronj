@@ -10,21 +10,22 @@
     <ScrollView>
         <StackLayout Padding="10" Spacing="10">
             <Label Text="Input Data" 
-                    HorizontalOptions="Center" 
+                    HorizontalOptions="Start" 
                     Style="{DynamicResource TitleStyle}" 
                     FontAttributes="Bold"
                     FontSize="24" />
+            <BoxView HeightRequest="10"/>
             <Label Text="Workers and Jobs" 
                     HorizontalOptions="Start" 
                     Style="{DynamicResource SubTitleStyle}" 
                     FontAttributes="Bold"
                     FontSize="20" />
             <Label Text="Number of Workers: "/>
-            <Entry Text="{Binding Workers, Mode=OneWayToSource, Converter={StaticResource uintToString}}"
-                   Style="{StaticResource UintEntry}" />
+            <Entry Text="{Binding Workers, Mode=OneWayToSource, Converter={StaticResource intToString}}"
+                   Style="{StaticResource intEntry}" />
             <Label Text="Number of Jobs:"/>
-            <Entry Text="{Binding JobNumber, Mode=OneWayToSource, Converter={StaticResource uintToString}}"
-                   Style="{StaticResource UintEntry}"
+            <Entry Text="{Binding Jobs, Mode=OneWayToSource, Converter={StaticResource intToString}}"
+                   Style="{StaticResource intEntry}"
                    x:Name="jobNumber"/>
             <Label Text="Assignment time (milliseconds)" 
                     HorizontalOptions="Start" 
@@ -45,31 +46,51 @@
             <Label Text="Volatility:"/>
             <Entry Text="{Binding JobTimeVolatility, Mode=OneWayToSource, Converter={StaticResource doubleToString}}"/>
             <BoxView HeightRequest="10"/>
+            <Label Text="Output Data" 
+                    HorizontalOptions="Start" 
+                    Style="{DynamicResource TitleStyle}" 
+                    FontAttributes="Bold"
+                    FontSize="24"
+                    Grid.Column="1"/>
+            <BoxView HeightRequest="10"/>
             <Grid>
-                <Label Text="Output Data" 
-                        HorizontalOptions="Center" 
-                        Style="{DynamicResource TitleStyle}" 
+                <StackLayout>
+                    <Label Text="Model Worker Time (seconds):"
+                        HorizontalOptions="Start" 
+                        Style="{DynamicResource SubTitleStyle}" 
                         FontAttributes="Bold"
-                        FontSize="24" />
-                <Grid Grid.Column="1">
+                        FontSize="20" />
+                    <Label Text="{Binding ModelWorkerTime, StringFormat='{0:F4}'}"/>
+                    <Label Text="Real Worker Time (seconds):"
+                        HorizontalOptions="Start" 
+                        Style="{DynamicResource SubTitleStyle}" 
+                        FontAttributes="Bold"
+                        FontSize="20" 
+                        IsVisible="{Binding ShowOutputData}"/>
+                    <Label Text="{Binding RealWorkerTime, StringFormat='{0:F4}'}" 
+                        IsVisible="{Binding ShowOutputData}"/>
+                </StackLayout>
+                <StackLayout Grid.Column="1">
+                    <Label Text="Ideal Total Time (seconds):"
+                        HorizontalOptions="Start" 
+                        Style="{DynamicResource SubTitleStyle}" 
+                        FontAttributes="Bold"
+                        FontSize="20"/>
+                    <Label Text="{Binding IdealTotalTime, StringFormat='{0:F4}'}"/>
+                    <Label Text="Real Total Time (seconds):"
+                        HorizontalOptions="Start" 
+                        Style="{DynamicResource SubTitleStyle}" 
+                        FontAttributes="Bold"
+                        FontSize="20" 
+                        IsVisible="{Binding ShowOutputData}"/>
+                    <Label Text="{Binding RealTotalTime, StringFormat='{0:F4}'}" 
+                        IsVisible="{Binding ShowOutputData}"/>
+                </StackLayout>
+                <StackLayout Grid.Column="2">
                     <Button Text="Calculate" FontSize="20" Clicked="Calculate_Clicked"/>
-                    <Button Text="Simulate"  FontSize="20" Clicked="Simulate_Clicked" Grid.Column="1"/>
-                </Grid>    
+                    <Button Text="Simulate"  FontSize="20" Clicked="Simulate_Clicked"/>
+                </StackLayout>
             </Grid>
-            <Label Text="Model Worker Time (seconds):"
-                    HorizontalOptions="Start" 
-                    Style="{DynamicResource SubTitleStyle}" 
-                    FontAttributes="Bold"
-                    FontSize="20" />
-            <Label Text="{Binding ModelTime, StringFormat='{0:F4}'}"/>
-            <Label Text="Calculated Worker Time (seconds):"
-                    HorizontalOptions="Start" 
-                    Style="{DynamicResource SubTitleStyle}" 
-                    FontAttributes="Bold"
-                    FontSize="20" 
-                    IsVisible="{Binding ShowOutputData}"/>
-            <Label Text="{Binding WorkerTime, StringFormat='{0:F4}'}" 
-                    IsVisible="{Binding ShowOutputData}"/>
         </StackLayout>
     </ScrollView>
 </ContentPage>

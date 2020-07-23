@@ -13,30 +13,36 @@
                     <FormattedString.Spans>
                         <Span Text="Job Queue" FontSize="Medium"/>
                         <Span Text="{Binding LastJob, StringFormat='    Last Job: {0}'}" FontSize="Small"/>
-                        <Span Text="{Binding LastJobTime, StringFormat=';  Last Job Time: {0:F2} secs'}" FontSize="Small"/>
-                        <Span Text="{Binding LastAssignmentTime, StringFormat=';  Last Assignment Time: {0:F2} ms'}" FontSize="Small"/>
+                        <Span Text="{Binding LastJobTime, StringFormat=';  Last Job Time: {0} secs', Converter={StaticResource doubleToString2}}" FontSize="Small"/>
+                        <Span Text="{Binding LastAssignmentTime, StringFormat=';  Last Assignment Time: {0} ms', Converter={StaticResource doubleToString2}}" FontSize="Small"/>
                     </FormattedString.Spans>
                 </FormattedString>
             </Label.FormattedText>
         </Label> 
         <Grid x:Name="jobQueue" ColumnSpacing="10">
-            <BoxView  BackgroundColor="{Binding Jobs[0].JobColor}" Grid.Column="0"/>
-            <BoxView  BackgroundColor="{Binding Jobs[1].JobColor}" Grid.Column="1"/>
-            <BoxView  BackgroundColor="{Binding Jobs[2].JobColor}" Grid.Column="2"/>
-            <BoxView  BackgroundColor="{Binding Jobs[3].JobColor}" Grid.Column="3"/>
-            <BoxView  BackgroundColor="{Binding Jobs[4].JobColor}" Grid.Column="4"/>
-            <BoxView  BackgroundColor="{Binding Jobs[5].JobColor}" Grid.Column="5"/>
-            <BoxView  BackgroundColor="{Binding Jobs[6].JobColor}" Grid.Column="6"/>
-            <BoxView  BackgroundColor="{Binding Jobs[7].JobColor}" Grid.Column="7"/>
-            <BoxView  BackgroundColor="{Binding Jobs[8].JobColor}" Grid.Column="8"/>
-            <BoxView  BackgroundColor="{Binding Jobs[9].JobColor}" Grid.Column="9"/>
+            <BoxView  BackgroundColor="{Binding JobsInfo[0].JobColor}" Grid.Column="0"/>
+            <BoxView  BackgroundColor="{Binding JobsInfo[1].JobColor}" Grid.Column="1"/>
+            <BoxView  BackgroundColor="{Binding JobsInfo[2].JobColor}" Grid.Column="2"/>
+            <BoxView  BackgroundColor="{Binding JobsInfo[3].JobColor}" Grid.Column="3"/>
+            <BoxView  BackgroundColor="{Binding JobsInfo[4].JobColor}" Grid.Column="4"/>
+            <BoxView  BackgroundColor="{Binding JobsInfo[5].JobColor}" Grid.Column="5"/>
+            <BoxView  BackgroundColor="{Binding JobsInfo[6].JobColor}" Grid.Column="6"/>
+            <BoxView  BackgroundColor="{Binding JobsInfo[7].JobColor}" Grid.Column="7"/>
+            <BoxView  BackgroundColor="{Binding JobsInfo[8].JobColor}" Grid.Column="8"/>
+            <BoxView  BackgroundColor="{Binding JobsInfo[9].JobColor}" Grid.Column="9"/>
+            <BoxView  BackgroundColor="{Binding JobsInfo[10].JobColor}" Grid.Column="10"/>
+            <BoxView  BackgroundColor="{Binding JobsInfo[11].JobColor}" Grid.Column="11"/>
+            <BoxView  BackgroundColor="{Binding JobsInfo[12].JobColor}" Grid.Column="12"/>
+            <BoxView  BackgroundColor="{Binding JobsInfo[13].JobColor}" Grid.Column="13"/>
+            <BoxView  BackgroundColor="{Binding JobsInfo[14].JobColor}" Grid.Column="14"/>
+            <BoxView  BackgroundColor="{Binding JobsInfo[15].JobColor}" Grid.Column="15"/>
         </Grid>
         <Label>
             <Label.FormattedText>
                 <FormattedString>
                     <FormattedString.Spans>
                         <Span Text="Free Workers Queue" FontSize="Medium"/>
-                        <Span Text="{Binding FreeWorkers, StringFormat='    Free workers count: {0}'}" FontSize="Small"/>
+                        <Span Text="{Binding FreeWorkers, StringFormat='    Free Workers Count: {0}'}" FontSize="Small"/>
                         <Span Text="{Binding FreeWorkersRate, StringFormat=' ( {0:P0} of total workers)'}" FontSize="Small"/>
                     </FormattedString.Spans>
                 </FormattedString>
@@ -49,8 +55,10 @@
                 <FormattedString>
                     <FormattedString.Spans>
                         <Span Text="Active Workers" FontSize="Medium"/>
-                        <Span Text="{Binding ModelTime, StringFormat='    Model time: {0:F4} secs'}" FontSize="Small"/>
-                        <Span Text="{Binding WorkerTime, StringFormat=';  Worker time: {0:F4} secs'}" FontSize="Small"/>
+                        <Span Text="{Binding ModelWorkerTime, StringFormat='    Model Worker Time: {0}', Converter={StaticResource doubleToString3}}" FontSize="Small"/>
+                        <Span Text="{Binding RealWorkerTime, StringFormat=';  Real Worker Time: {0}', Converter={StaticResource doubleToString3}}" FontSize="Small"/>
+                        <Span Text="{Binding IdealTotalTime, StringFormat=';  Ideal Total Time: {0}', Converter={StaticResource doubleToString3}}" FontSize="Small"/>
+                        <Span Text="{Binding RealTotalTime, StringFormat=';  Real Total Time: {0}', Converter={StaticResource doubleToString3}}" FontSize="Small"/>
                     </FormattedString.Spans>
                 </FormattedString>
             </Label.FormattedText>

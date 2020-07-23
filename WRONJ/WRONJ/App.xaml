@@ -11,8 +11,10 @@
         <ResourceDictionary>
             <!--Global Styles-->
             <Color x:Key="NavigationPrimary">#2196F3</Color>
-            <toolkit:DoubleToStringConverter x:Key="doubleToString" />
-            <toolkit:UintToStringConverter x:Key="uintToString" />
+            <toolkit:DoubleToStringConverter OnlyPositive="true" x:Key="doubleToString"/>
+            <toolkit:DoubleToStringConverter OnlyPositive="true" Decimals="2" x:Key="doubleToString2"/>
+            <toolkit:DoubleToStringConverter OnlyPositive="true" Decimals="3" x:Key="doubleToString3"/>
+            <toolkit:IntToStringConverter x:Key="intToString" />
             <Style TargetType="NavigationPage">
                 <Setter Property="BarBackgroundColor" Value="{StaticResource NavigationPrimary}" />
                 <Setter Property="BarTextColor" Value="White" />
@@ -28,11 +30,11 @@
                     <toolkit:PositiveDoubleValidationBehavior />
                 </Style.Behaviors> 
             </Style>
-            <Style TargetType="Entry" x:Key="UintEntry">
+            <Style TargetType="Entry" x:Key="intEntry">
                 <Setter Property="Keyboard" Value="Numeric" />
                 <Setter Property="FontSize" Value="16" />
                 <Style.Behaviors>
-                    <toolkit:UintValidationBehavior />
+                    <toolkit:IntValidationBehavior />
                 </Style.Behaviors>
             </Style>
         </ResourceDictionary>

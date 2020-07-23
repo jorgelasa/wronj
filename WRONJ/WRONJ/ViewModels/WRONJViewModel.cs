@@ -1,16 +1,71 @@
 ﻿using System;
-using System.Transactions;
-using WRONJ.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Xamarin.Forms;
-using System.Collections.ObjectModel;
-using System.Dynamic;
 using System.ComponentModel;
 using System.Security.Cryptography;
+using System.Threading;
+using MathNet.Numerics.Financial;
 
 namespace WRONJ.ViewModels
 {
+    public class JobInfo : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+        private MD5 md5Hasher = MD5.Create();
+        private int jobNumber,jobs;
+        public JobInfo(int jobs)
+        {
+            this.jobs = jobs;
+        }
+        public int JobNumber
+        {
+            get
+            {
+                return jobNumber;
+            }
+            set
+            {
+                if (jobNumber != value)
+                {
+                    jobNumber = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Jobs"));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("JobColor"));
+                }
+            }
+        }
+        public Color JobColor
+        {
+            get
+            {
+                var hashed = md5Hasher.ComputeHash(System.Text.Encoding.UTF8.GetBytes(jobNumber.ToString()));
+                var iValue = BitConverter.ToInt32(hashed, 0);
+                if (jobNumber > jobs)
+                    return Color.Transparent;
+                return Color.FromHsla((iValue % 1000) / 1000.0, 0.5, 0.5);
+            }
+        }
+    }
+    public class JobsInfo
+    {
+        private Dictionary<int, JobInfo> jobsInfo = new Dictionary<int, JobInfo>();
+        private int jobs;
+        public JobsInfo(int jobs)
+        {
+            this.jobs = jobs;
+        }
+        public JobInfo this[int jobNumber]
+        {
+            get
+            {
+                if (!jobsInfo.ContainsKey(jobNumber))
+                {
+                    jobsInfo.Add(jobNumber, new JobInfo(jobs));
+                }
+                return jobsInfo[jobNumber];
+            }
+        }
+    }
     public class WRONJViewModel : BaseViewModel
     {
         public Models.WRONJModel Model{ get;}
@@ -19,7 +74,7 @@ namespace WRONJ.ViewModels
             Model = model??new Models.WRONJModel();
         }
         /// <summary>
-        /// Convert model to milliseconds
+        /// Convert model AssignmentTime to milliseconds
         /// </summary>
         public double AssignmentTime
         {
@@ -34,7 +89,7 @@ namespace WRONJ.ViewModels
             }                
         }
         /// <summary>
-        /// Convert model to milliseconds
+        /// Convert model AssignmentTimeVolatility to milliseconds
         /// </summary>
         public double AssignmentTimeVolatility
         {
@@ -93,12 +148,12 @@ namespace WRONJ.ViewModels
             }
         }
 
-        public uint Workers
+        public int Workers
         {
             get { return Model.Workers; }
             set
             {
-                uint v = Model.Workers;
+                int v = Model.Workers;
                 if (SetProperty(ref v, value))
                 {
                     Model.Workers = v;
@@ -106,8 +161,8 @@ namespace WRONJ.ViewModels
                 }
             }
         }
-        uint freeWorkers;
-        public uint FreeWorkers
+        int freeWorkers;
+        public int FreeWorkers
         {
             get { return freeWorkers; }
             set
@@ -131,7 +186,8 @@ namespace WRONJ.ViewModels
         private void ChangeInputData()
         {
             ShowOutputData = false;
-            ModelTime = Model.ModelTime(Model.AssignmentTime, Model.JobTime);
+            ModelWorkerTime = Model.ModelWorkerTime(Model.AssignmentTime, Model.JobTime);
+            IdealTotalTime = Model.IdeallTotalTime();
         }
         private int lastJob = 1;
         public int LastJob
@@ -141,89 +197,65 @@ namespace WRONJ.ViewModels
                 SetProperty(ref lastJob, value);
             }
         }
-        public double modelTime, workerTime;
-        public double ModelTime
+        public double modelWorkerTime, realWorkerTime,idealTotalTime,realTotalTime;
+        public double ModelWorkerTime
         {
-            get { return modelTime; }
+            get { return modelWorkerTime; }
             set
             {
-                SetProperty(ref modelTime, value);
+                SetProperty(ref modelWorkerTime, value);
             }
         }
-        public double WorkerTime
+        public double RealWorkerTime
         {
-            get { return workerTime; }
+            get { return realWorkerTime; }
             set
             {
-                SetProperty(ref workerTime, value);
+                SetProperty(ref realWorkerTime, value);
             }
         }
-        public uint JobNumber
+        public double IdealTotalTime
         {
-            get { return Model.JobNumber; }
+            get { return idealTotalTime; }
             set
             {
-                uint v = Model.JobNumber;
+                SetProperty(ref idealTotalTime, value);
+            }
+        }
+        public double RealTotalTime
+        {
+            get { return realTotalTime; }
+            set
+            {
+                SetProperty(ref realTotalTime, value);
+            }
+        }
+        public int Jobs
+        {
+            get { return Model.Jobs; }
+            set
+            {
+                int v = Model.Jobs;
                 if (SetProperty(ref v, value))
                 {
-                    Model.JobNumber = v;
+                    Model.Jobs = v;
+                    this.JobsInfo = new JobsInfo(v);
+                    ChangeInputData();
                 }
             }
         }
-        public async Task CalculateDataUntilConvergence()
+        public async Task Calculate(CancellationToken cancelToken)
         {
-            var data=await Model.Calculate();
-            ModelTime = data.Item1;
-            WorkerTime = data.Item2;
+            var data =await Model.Calculate(cancelToken);
+            ModelWorkerTime = data.modelTime;
+            RealWorkerTime = data.workerTime;
+            IdealTotalTime = data.idealTotalTime;
+            RealTotalTime = data.realTotalTime;
             ShowOutputData = true;
         }
         public Color WorkerColor(int worker) {
             return Color.FromHsla(worker * 0.7 / Model.Workers, 0.8, 0.5);
         }
-        public class JobInfo : INotifyPropertyChanged
-        {
-            public event PropertyChangedEventHandler PropertyChanged;
-            private MD5 md5Hasher = MD5.Create();
-            private int jobNumber;
-            public int JobNumber {
-                get {
-                    return jobNumber;
-                }
-                set
-                {
-                    if (jobNumber!= value)
-                    {
-                        jobNumber = value;
-                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("JobNumber"));
-                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("JobColor"));
-                    }
-                } 
-            }
-            public Color JobColor
-            {
-                get {
-                    var hashed = md5Hasher.ComputeHash(System.Text.Encoding.UTF8.GetBytes(jobNumber.ToString()));
-                    var iValue=BitConverter.ToUInt32(hashed, 0);
-                    return Color.FromHsla((iValue % 1000)/ 1000.0, 0.5, 0.5);
-                }
-            }
-        }
-        public class JobsInfo
-        {
-            private Dictionary<int, JobInfo> jobs = new Dictionary<int, JobInfo>();
-            public JobInfo this[int jobNumber]
-            {
-                get
-                {
-                    if (!jobs.ContainsKey(jobNumber))
-                    {
-                        jobs.Add(jobNumber, new JobInfo());
-                    }
-                    return jobs[jobNumber];
-                }
-            }
-        }
-        public JobsInfo Jobs { get; set; } = new JobsInfo();
-
+        public JobsInfo JobsInfo { get; set; }
     }
 }
