@@ -12,13 +12,13 @@ using namespace std;
 
 int main()
 {
-    int workers = 8;
+    int workers = 36;
     int jobsNumber = 100000;
-    double assignmentTimeMean = 250;
-    double jobTimeMean = 2;
+    double assignmentTimeMean = 0.00066;
+    double jobTimeMean = 0.023;
     double jobTimeVolatility = 0;
     double assignmentTimeVolatility = 0;
-    jobTimeVolatility = 0.5;
+    jobTimeVolatility = 0.02;
     //assignmentTimeVolatility = 0.2;
     std::unique_ptr<std::lognormal_distribution<>> atDist, jtDist;
     std::mt19937 gen;
@@ -26,21 +26,21 @@ int main()
         // According to https://en.wikipedia.org/wiki/Log-normal_distribution, we can calculate
         // mu and sigma from actual mean and volatility this way
         double s = std::sqrt(std::log(1 + std::pow(assignmentTimeVolatility / assignmentTimeMean, 2)));
-        double m = std::log(assignmentTimeMean) - std::pow(assignmentTimeVolatility, 2);
+        double m = std::log(assignmentTimeMean) - std::pow(s, 2)/2;
         atDist.reset(new std::lognormal_distribution<>(m, s));
     }
     if (jobTimeVolatility > 0) {
         double s = std::sqrt(std::log(1 + std::pow(jobTimeVolatility / jobTimeMean, 2)));
-        double m = std::log(jobTimeMean) - std::pow(jobTimeVolatility, 2);
+        double m = std::log(jobTimeMean) - std::pow(s, 2)/2;
         jtDist.reset(new std::lognormal_distribution<>(m, s));
     }
     //Ending times of jobs in workers    
     multiset<double> workersTime;
     double theoreticTime = jobsNumber * jobTimeMean / workers;
-    double modelTaskDelay = assignmentTimeMean * (workers - 1) > 1000 * jobTimeMean ?
-        assignmentTimeMean * workers - 1000 * jobTimeMean : assignmentTimeMean;
-    double modelTime = assignmentTimeMean * (workers - 1) > 1000 * jobTimeMean ?
-        assignmentTimeMean * workers / 1000 : jobTimeMean + assignmentTimeMean / 1000;
+    double modelTaskDelay = assignmentTimeMean * (workers - 1) >  jobTimeMean ?
+        assignmentTimeMean * workers -  jobTimeMean : assignmentTimeMean;
+    double modelTime = assignmentTimeMean * (workers - 1) >  jobTimeMean ?
+        assignmentTimeMean * workers  : jobTimeMean + assignmentTimeMean ;
     double time = 0, workersTimeMean = 0, jobsTimeMean = 0;
     for (long j = 1; j <= jobsNumber; j++) {
         double lastWorkerEndTime = time;
@@ -51,7 +51,7 @@ int main()
                 time = lastWorkerEndTime;
             workersTime.erase(firstWorker);
         }
-        time += (atDist ? (*atDist)(gen) : assignmentTimeMean) / 1000;
+        time += (atDist ? (*atDist)(gen) : assignmentTimeMean) ;
         double workerEndTime = (jtDist ? (*jtDist)(gen) : jobTimeMean);
         jobsTimeMean = ((j - 1) * jobsTimeMean + workerEndTime) / j;
         workerEndTime += time;
@@ -59,9 +59,9 @@ int main()
         workersTime.insert(workerEndTime);
     }
     time = *(--workersTime.end());
-    double realTaskDelay = 1000 * (time - theoreticTime) * workers / jobsNumber;
-    double adjustedModelTime = assignmentTimeMean * (workers - 1) > 1000 * jobsTimeMean ?
-        assignmentTimeMean * workers / 1000 : jobsTimeMean + assignmentTimeMean / 1000;
+    double realTaskDelay =  (time - theoreticTime) * workers / jobsNumber;
+    double adjustedModelTime = assignmentTimeMean * (workers - 1) >  jobsTimeMean ?
+        assignmentTimeMean * workers  : jobsTimeMean + assignmentTimeMean ;
     cout << fixed <<
         "\nTheoretic time: " << theoreticTime <<
         "\nReal time: " << time <<
