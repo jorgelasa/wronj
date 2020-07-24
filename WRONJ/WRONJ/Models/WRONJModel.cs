@@ -37,9 +37,18 @@ namespace WRONJ.Models
         }
         public double ModelWorkerTime(double assignmentTime,double jobTime)
         {
-            return Jobs <= Workers ?
-                    0 :
-                    assignmentTime * (Workers - 1) > jobTime ? assignmentTime * Workers  : jobTime + assignmentTime;
+            if (Jobs <= Workers)
+                return 0;
+            if (JobTimeVolatility<=0)
+                    return assignmentTime * (Workers - 1) > jobTime ? assignmentTime * Workers : jobTime + assignmentTime;
+            var dist = Distribution(JobTime, JobTimeVolatility);
+            double m = dist.Mu;
+            double s = dist.Sigma;
+            var normalDist = MathNet.Numerics.Distributions.Normal.WithMeanStdDev(0, 1);
+            double cdf1 = dist.CumulativeDistribution(assignmentTime * (Workers - 1));
+            double pe2 = JobTime * normalDist.CumulativeDistribution((m + s * s - Math.Log(assignmentTime * (Workers - 1))) / s);
+
+            return cdf1 * assignmentTime * Workers + pe2 + assignmentTime*(1-cdf1);
         }
         public double IdeallTotalTime()
         {
