@@ -17,18 +17,18 @@
     <StackLayout Spacing="20" Padding="15">
         <StackLayout Orientation="Horizontal">
             <Label Text="Job Queue" FontSize="Medium"/>
-            <Label Text="    Last Job: ">
+            <Label Text="  Last Job: ">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding LastJob}" Value="0">
-                        <Setter Property="Text" Value="" />
+                        <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
             <Label Text="{Binding LastJob, Converter={StaticResource intToString}}"/>
-            <Label Text=";  Last Job Time: ">
+            <Label Text="-  Last Job Time: ">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding LastJobTime}" Value="0">
-                        <Setter Property="Text" Value="" />
+                        <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
@@ -36,14 +36,14 @@
             <Label Text=" secs">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding LastJobTime}" Value="0">
-                        <Setter Property="Text" Value="" />
+                        <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text=";  Last Assignment Time: ">
+            <Label Text="-  Last Assignment Time: ">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding LastAssignmentTime}" Value="0">
-                        <Setter Property="Text" Value="" />
+                        <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
@@ -51,7 +51,7 @@
             <Label Text=" ms">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding LastAssignmentTime}" Value="0">
-                        <Setter Property="Text" Value="" />
+                        <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
@@ -83,38 +83,38 @@
         </Grid>
         <StackLayout Orientation="Horizontal">
             <Label Text="Active Workers" FontSize="Medium"/>
-            <Label Text="    Model Worker Time: ">
-                <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding ModelWorkerTime}" Value="0">
-                        <Setter Property="Text" Value="" />
-                    </DataTrigger>
-                </Label.Triggers>
-            </Label>
-            <Label Text="{Binding ModelWorkerTime, Converter={StaticResource doubleToString3}}"/>
-            <Label Text=";  Real Worker Time: ">
-                <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding RealWorkerTime}" Value="0">
-                        <Setter Property="Text" Value="" />
-                    </DataTrigger>
-                </Label.Triggers>
-            </Label>
-            <Label Text="{Binding RealWorkerTime, Converter={StaticResource doubleToString3}}"/>
-            <Label Text=";  Ideal Total Time: ">
+            <Label Text="  Ideal Total Time: ">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding IdealTotalTime}" Value="0">
-                        <Setter Property="Text" Value="" />
+                        <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
             <Label Text="{Binding IdealTotalTime, Converter={StaticResource doubleToString3}}"/>
-            <Label Text=";  Real Total Time: ">
+            <Label Text="-  Real Total Time: ">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding RealTotalTime}" Value="0">
-                        <Setter Property="Text" Value="" />
+                        <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
             <Label Text="{Binding RealTotalTime, Converter={StaticResource doubleToString3}}"/>
+            <Label Text="-  Model Worker Time: ">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding ModelWorkerTime}" Value="0">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label Text="{Binding ModelWorkerTime, Converter={StaticResource doubleToString3}}"/>
+            <Label Text="-  Real Worker Time: ">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding RealWorkerTime}" Value="0">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label Text="{Binding RealWorkerTime, Converter={StaticResource doubleToString3}}"/>
         </StackLayout>
         <Grid x:Name="activeWorkers">
         </Grid>

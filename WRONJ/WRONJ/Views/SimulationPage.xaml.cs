@@ -116,7 +116,6 @@ namespace WRONJ.Views
             viewModel.Model.AssignmentStart -= AssignmentStart;
             viewModel.Model.AssignmentEnd -= AssignmentEnd;
             viewModel.Model.FreeWorker -= FreeWorker;
-            viewModel.ShowOutputData = true;            
             cancelTokenSource?.Cancel();
         }
     }

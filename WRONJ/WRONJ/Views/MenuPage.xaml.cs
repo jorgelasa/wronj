@@ -20,7 +20,7 @@ namespace WRONJ.Views
 
             menuItems = new List<HomeMenuItem>
             {
-                new HomeMenuItem {Id = MenuItemType.Browse, Title="Data" },
+                new HomeMenuItem {Id = MenuItemType.Browse, Title="Model" },
                 new HomeMenuItem {Id = MenuItemType.About, Title="About" }
             };
 

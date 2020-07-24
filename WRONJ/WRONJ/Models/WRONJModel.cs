@@ -37,19 +37,15 @@ namespace WRONJ.Models
         }
         public double ModelWorkerTime(double assignmentTime,double jobTime)
         {
-            return assignmentTime * (Workers - 1) > jobTime ? assignmentTime * Workers  : jobTime + assignmentTime;
+            return Jobs <= Workers ?
+                    0 :
+                    assignmentTime * (Workers - 1) > jobTime ? assignmentTime * Workers  : jobTime + assignmentTime;
         }
         public double IdeallTotalTime()
         {
             return Workers == 0 ? 0 : JobTime * (Jobs/Workers + (Jobs % Workers > 0 ? 1 : 0));
         }
-        public async Task<(double modelTime, double workerTime, double idealTotalTime, double realTotalTime)> Calculate(CancellationToken cancelToken)
-        {
-            var data = await CalculateAsync(cancelToken);
-            return (ModelWorkerTime(data.assignmentsTime, data.jobsTime), data.workerTime, data.idealTotalTime, data.realTotalTime);
-        }
-        Task<(  double assignmentsTime, 
-                double jobsTime,
+        public Task<(  double modelTime, 
                 double workerTime,
                 double idealTotalTime,
                 double realTotalTime) >  CalculateAsync(CancellationToken cancelToken)
@@ -58,10 +54,10 @@ namespace WRONJ.Models
                 assignmentVolatility = AssignmentTimeVolatility, jobTimeVolatility = JobTimeVolatility;
             int workers = Workers, jobs = Jobs;
             if (workers == 0 || jobs == 0 || inputJobTime == 0)
-                return Task<(double,double,double,double,double)>.FromResult((inputAssignmentTime,0.0,0.0,0.0, 0.0));
+                return Task<(double,double,double,double)>.FromResult((0.0,0.0,0.0, 0.0));
             return Task < (double, double, double, double, double) >.Run(() =>
             {
-                double workerTime = 0, assignmentsTime=0, jobsTime=0;
+                double workerTime = 0, modelTime=0, assignmentsTime=0, jobsTime=0;
                 double time = 0;
                 // Sorted sets to manage the ideal and real worker times 
                 SortedSet<(double endTime, int worker)> workersTime = new SortedSet<(double, int)>();
@@ -101,14 +97,16 @@ namespace WRONJ.Models
                         workersTime.Add((time + jobTime, firstWorker.worker));
                         // We start to compute the workerTime only when the grid is full
                         workerTime = ((j - workers) * workerTime + time + jobTime - firstWorker.endTime) / (j + 1 - workers);
+                        // Use the actual average values as input to the model
+                        modelTime = ModelWorkerTime(assignmentsTime, jobsTime);
                     }
                     else
                     {
                         time += assignmentTime;
-                        workersTime.Add((time + jobTime, workersIdealTime.Count));
+                        workersTime.Add((time + jobTime, workersTime.Count));
                     }
                 }
-                return (assignmentsTime, jobsTime, workerTime, workersIdealTime.Last().endTime, workersTime.Last().endTime);
+                return (modelTime, workerTime, workersIdealTime.Last().endTime, workersTime.Last().endTime);
             });
         }
     public async void Simulate(CancellationToken cancelToken)
@@ -130,7 +128,7 @@ namespace WRONJ.Models
             // - The second item is the last time when the worker ends the job 
             Dictionary<int, double> workersLastTime = new Dictionary<int, double>();
             Dictionary<int, double> workersIdealLastTime = new Dictionary<int, double>();
-            double workerTime = 0, assignmentsTime = 0, jobsTime = 0;
+            double workerTime = 0, modelWorkerTime = 0, assignmentsTime = 0, jobsTime = 0;
             Func<(double endTime, int worker), double, Task<bool>> freeWorker = async (activeWorker, timeBefore) =>
             {
                 int ms = (int)((activeWorker.endTime - timeBefore) * 1000);
@@ -154,21 +152,18 @@ namespace WRONJ.Models
                 // In the ideal grid, the assignment time is 0: the worker time 
                 // (= difference between the ending time of a job and the the ending time of the next one)
                 // always be equal to the job time
-                double lastIdealTime;
                 if (workersIdealLastTime.ContainsKey(assignedWorker))
                 {
-                    lastIdealTime = workersIdealLastTime[assignedWorker] + jobTime;
-                    workersIdealLastTime[assignedWorker] = lastIdealTime;
+                    workersIdealLastTime[assignedWorker] = workersIdealLastTime[assignedWorker] + jobTime;
                 }
                 else
                 {
-                    lastIdealTime = jobTime;
-                    workersIdealLastTime.Add(assignedWorker, lastIdealTime);
+                    workersIdealLastTime.Add(assignedWorker, jobTime);
                 }
-                if (lastIdealTime > idealTime)
+                if (workersIdealLastTime[assignedWorker] > idealTime)
                 {
-                    idealTime = lastIdealTime;
-                }                    
+                    idealTime = workersIdealLastTime[assignedWorker];
+                }
                 double assignmentTime = (assignmentDist == null ? inputAssignmentTime : assignmentDist.Sample());
                 // Getting a new job from pending queue
                 AssignmentStart?.Invoke(FWQ, jobTime, assignmentTime);
@@ -192,8 +187,7 @@ namespace WRONJ.Models
                 FWQ.RemoveAt(0);
                 double workerLastTime = workersLastTime.ContainsKey(assignedWorker) ?
                                     time + jobTime - workersLastTime[assignedWorker] :
-                                    jobTime;
-                
+                                    jobTime;                
                 //Assign to an active worker
                 if (workersLastTime.ContainsKey(assignedWorker))
                 {
@@ -203,16 +197,17 @@ namespace WRONJ.Models
                 {
                     workersLastTime.Add(assignedWorker, time + jobTime);
                 }
-                //Assign to an active worker
                 workersTime.Add((time + jobTime, assignedWorker));
                 assignmentsTime = (j * assignmentsTime + assignmentTime) / (j + 1);
                 jobsTime = (j * jobsTime + jobTime) / (j + 1);
+                // We start to compute the worker times only when the grid is full
                 if (j >= workers)
                 {
-                    // We start to compute the workerTime only when the grid is full
                     workerTime = ((j- workers) * workerTime + workerLastTime) / (j + 1 - workers);
+                    // Use the actual average values as input to the model
+                    modelWorkerTime = ModelWorkerTime(assignmentsTime, jobsTime);
                 }
-                AssignmentEnd?.Invoke(FWQ, assignedWorker, ModelWorkerTime(assignmentsTime, jobsTime),workerTime);
+                AssignmentEnd?.Invoke(FWQ, assignedWorker, modelWorkerTime,workerTime);
                 if (FWQ.Count == 0)
                 {
                     await freeWorker(workersTime.First(), time);
@@ -220,7 +215,7 @@ namespace WRONJ.Models
                     workersTime.Remove(workersTime.First());
                 }
             }
-            // Releasing active workers
+            // Releasing remaining active workers
             foreach (var activeWorker in workersTime)
             {
                 await freeWorker(activeWorker, time);

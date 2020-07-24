@@ -84,7 +84,7 @@ namespace WRONJ.ViewModels
                 if (SetProperty(ref v, value))
                 {
                     Model.AssignmentTime = v / 1000;
-                    ChangeInputData();
+                    ChangeOutputData();
                 }
             }                
         }
@@ -100,7 +100,7 @@ namespace WRONJ.ViewModels
                 if (SetProperty(ref v, value))
                 {
                     Model.AssignmentTimeVolatility = v / 1000;
-                    ChangeInputData();
+                    ChangeOutputData();
                 }
             }
         }
@@ -113,7 +113,7 @@ namespace WRONJ.ViewModels
                 if (SetProperty(ref v, value))
                 {
                     Model.JobTime = v;
-                    ChangeInputData();
+                    ChangeOutputData();
                 }
             }
         }
@@ -126,7 +126,7 @@ namespace WRONJ.ViewModels
                 if (SetProperty(ref v, value))
                 {
                     Model.JobTimeVolatility = v;
-                    ChangeInputData();
+                    ChangeOutputData();
                 }
             }
         }
@@ -157,7 +157,7 @@ namespace WRONJ.ViewModels
                 if (SetProperty(ref v, value))
                 {
                     Model.Workers = v;
-                    ChangeInputData();
+                    ChangeOutputData();
                 }
             }
         }
@@ -174,20 +174,12 @@ namespace WRONJ.ViewModels
         {
             get { return Workers > 0? (double)freeWorkers / Workers : 0; }
         }
-        private bool showOutputData;
-        public bool ShowOutputData
+        private void ChangeOutputData()
         {
-            get { return showOutputData; }
-            set
-            {
-                SetProperty(ref showOutputData, value);
-            }
-        }
-        private void ChangeInputData()
-        {
-            ShowOutputData = false;
-            ModelWorkerTime = Model.ModelWorkerTime(Model.AssignmentTime, Model.JobTime);
             IdealTotalTime = Model.IdeallTotalTime();
+            ModelWorkerTime = Model.ModelWorkerTime(Model.AssignmentTime, Model.JobTime);
+            RealTotalTime = 0;
+            RealWorkerTime = 0;
         }
         private int lastJob = 1;
         public int LastJob
@@ -240,18 +232,17 @@ namespace WRONJ.ViewModels
                 {
                     Model.Jobs = v;
                     this.JobsInfo = new JobsInfo(v);
-                    ChangeInputData();
+                    ChangeOutputData();
                 }
             }
         }
         public async Task Calculate(CancellationToken cancelToken)
         {
-            var data =await Model.Calculate(cancelToken);
+            var data =await Model.CalculateAsync(cancelToken);
             ModelWorkerTime = data.modelTime;
             RealWorkerTime = data.workerTime;
             IdealTotalTime = data.idealTotalTime;
             RealTotalTime = data.realTotalTime;
-            ShowOutputData = true;
         }
         public Color WorkerColor(int worker) {
             return Color.FromHsla(worker * 0.7 / Model.Workers, 0.8, 0.5);

@@ -55,22 +55,6 @@
             <BoxView HeightRequest="10"/>
             <Grid>
                 <StackLayout>
-                    <Label Text="Model Worker Time (seconds):"
-                        HorizontalOptions="Start" 
-                        Style="{DynamicResource SubTitleStyle}" 
-                        FontAttributes="Bold"
-                        FontSize="20" />
-                    <Label Text="{Binding ModelWorkerTime, StringFormat='{0:F4}'}"/>
-                    <Label Text="Real Worker Time (seconds):"
-                        HorizontalOptions="Start" 
-                        Style="{DynamicResource SubTitleStyle}" 
-                        FontAttributes="Bold"
-                        FontSize="20" 
-                        IsVisible="{Binding ShowOutputData}"/>
-                    <Label Text="{Binding RealWorkerTime, StringFormat='{0:F4}'}" 
-                        IsVisible="{Binding ShowOutputData}"/>
-                </StackLayout>
-                <StackLayout Grid.Column="1">
                     <Label Text="Ideal Total Time (seconds):"
                         HorizontalOptions="Start" 
                         Style="{DynamicResource SubTitleStyle}" 
@@ -81,10 +65,40 @@
                         HorizontalOptions="Start" 
                         Style="{DynamicResource SubTitleStyle}" 
                         FontAttributes="Bold"
-                        FontSize="20" 
-                        IsVisible="{Binding ShowOutputData}"/>
-                    <Label Text="{Binding RealTotalTime, StringFormat='{0:F4}'}" 
-                        IsVisible="{Binding ShowOutputData}"/>
+                        FontSize="20">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding RealTotalTime}" Value="0">
+                                <Setter Property="IsVisible" Value="False" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                    <Label Text="{Binding RealTotalTime, Converter={StaticResource doubleToString4}}"/>
+                </StackLayout>
+                <StackLayout Grid.Column="1">
+                    <Label Text="Model Worker Time (seconds):"
+                        HorizontalOptions="Start" 
+                        Style="{DynamicResource SubTitleStyle}" 
+                        FontAttributes="Bold"
+                        FontSize="20">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding ModelWorkerTime}" Value="0">
+                                <Setter Property="IsVisible" Value="False" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                    <Label Text="{Binding ModelWorkerTime, Converter={StaticResource doubleToString4}}"/>
+                    <Label Text="Real Worker Time (seconds):"
+                        HorizontalOptions="Start" 
+                        Style="{DynamicResource SubTitleStyle}" 
+                        FontAttributes="Bold"
+                        FontSize="20">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding RealWorkerTime}" Value="0">
+                                <Setter Property="IsVisible" Value="False" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                    <Label Text="{Binding RealWorkerTime, Converter={StaticResource doubleToString4}}"/>
                 </StackLayout>
                 <StackLayout Grid.Column="2">
                     <Button Text="Calculate" FontSize="20" Clicked="Calculate_Clicked"/>

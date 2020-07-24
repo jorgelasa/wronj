@@ -25,7 +25,6 @@ namespace WRONJ.Views
             {
                 viewModel.IdealTotalTime = idealTotalTime;
                 viewModel.RealTotalTime = realTotalTime;
-                viewModel.ShowOutputData = true;
             };
             viewModel.ModelWorkerTime = 0;
             viewModel.RealWorkerTime = 0;
