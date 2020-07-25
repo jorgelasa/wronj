@@ -29,11 +29,14 @@ namespace WRONJ.Models
         public double JobTimeVolatility { get; set; }
         public int Workers { get; set; }
         public int Jobs { get; set; }
-        MathNet.Numerics.Distributions.LogNormal Distribution(double mean, double volatility)
+        MathNet.Numerics.Distributions.LogNormal Distribution(double mean, double volatility, int seed=0)
         {
             if (volatility <= 0)
                 return null;
-            return MathNet.Numerics.Distributions.LogNormal.WithMeanVariance(mean,volatility * volatility);
+            var dist= MathNet.Numerics.Distributions.LogNormal.WithMeanVariance(mean,volatility * volatility);
+            if (seed != 0 )
+                dist.RandomSource= new MathNet.Numerics.Random.SystemRandomSource(seed);
+            return dist;
         }
         public double ModelWorkerTime(double assignmentTime,double jobTime)
         {
@@ -62,8 +65,8 @@ namespace WRONJ.Models
                 // Sorted sets to manage the ideal and real worker times 
                 SortedSet<(double endTime, int worker)> workersTime = new SortedSet<(double, int)>();
                 SortedSet<(double endTime, int worker)> workersIdealTime = new SortedSet<(double, int)>();
-                var jobDist = Distribution(inputJobTime, jobTimeVolatility);
-                var assignmentDist = Distribution(inputAssignmentTime,assignmentVolatility);
+                var jobDist = Distribution(inputJobTime, jobTimeVolatility,1);
+                var assignmentDist = Distribution(inputAssignmentTime,assignmentVolatility,2);
                 for (int j=0; j < jobs;j++)
                 {
                     if (cancelToken.IsCancellationRequested)
@@ -118,8 +121,8 @@ namespace WRONJ.Models
             if (workers == 0)
                 return;
             double time = 0, idealTime=0;
-            var jobDist = Distribution(inputJobTime, jobTimeVolatility);
-            var assignmentDist = Distribution(inputAssignmentTime, assignmentVolatility);
+            var jobDist = Distribution(inputJobTime, jobTimeVolatility, 1);
+            var assignmentDist = Distribution(inputAssignmentTime, assignmentVolatility, 2);
             List<int> FWQ = Enumerable.Range(0, (int)workers).ToList();
             // Sorted set to manage the real worker times 
             SortedSet<(double endTime, int position)> workersTime = new SortedSet<(double, int)>();
