@@ -12,13 +12,13 @@ using namespace std;
 
 int main()
 {
-    int workers = 36;
-    int jobsNumber = 100000;
+    int workers = 256;
+    int jobsNumber = 256000;
     double assignmentTimeMean = 0.00066;
-    double jobTimeMean = 0.023;
+    double jobTimeMean = 0.017;
     double jobTimeVolatility = 0;
     double assignmentTimeVolatility = 0;
-    jobTimeVolatility = 0.02;
+    jobTimeVolatility = 0.05;
     //assignmentTimeVolatility = 0.2;
     std::unique_ptr<std::lognormal_distribution<>> atDist, jtDist;
     std::mt19937 gen;

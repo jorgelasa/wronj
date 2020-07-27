@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using MathNet.Numerics.Integration;
+using Xamarin.Forms;
 
 namespace WRONJ.Models
 {
@@ -12,11 +13,9 @@ namespace WRONJ.Models
         public delegate void FreeWorkerEventHandler(List<int> workers, double idealTotalTime, double realTotalTime);
         public delegate void AssignmentStartEventHandler(List<int> workers,double jobTime, double assignmentTime);
         public delegate void AssignmentEndEventHandler(List<int> workers, int worker, double modelTime, double workerTime);
-        public delegate void EndSimulationEventHandler(double idealTotalTime, double realTotalTime);
         public event AssignmentStartEventHandler AssignmentStart;
         public event AssignmentEndEventHandler AssignmentEnd;
         public event FreeWorkerEventHandler FreeWorker;
-        public event EndSimulationEventHandler EndSimulation;
         /// <summary>
         /// Input average job assignment time, in seconds
         /// </summary>
@@ -224,7 +223,31 @@ namespace WRONJ.Models
                 await freeWorker(activeWorker, time);
                 time = activeWorker.endTime;
             }
-            EndSimulation?.Invoke(idealTime,time);
         }
+        readonly string[] serializableProperties = new string[] { "Workers", "Jobs",
+                        "AssignmentTime", "AssignmentTimeVolatility",
+                        "JobTime", "JobTimeVolatility"};
+        public void Save()
+        {
+            IDictionary<string, object> properties = Application.Current.Properties;
+            var modelClass = GetType();
+            foreach (var property in modelClass.GetProperties())
+            {
+                properties[property.Name] = property.GetValue(this);
+            }
+        }
+        public void Load()
+        {
+            IDictionary<string, object> properties = Application.Current.Properties;
+            var modelClass = GetType();
+            foreach (var property in modelClass.GetProperties())
+            {
+                if (properties.ContainsKey(property.Name))
+                {
+                    property.SetValue(this, properties[property.Name]);
+                }
+            }
+        }
+
     }
 }

@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Security.Cryptography;
 using System.Threading;
 using MathNet.Numerics.Financial;
+using WRONJ.Models;
 
 namespace WRONJ.ViewModels
 {
@@ -73,6 +74,28 @@ namespace WRONJ.ViewModels
         {
             Model = model??new Models.WRONJModel();
         }
+        public int Workers
+        {
+            get { return Model.Workers; }
+            set
+            {
+                if (SetProperty(Model, value))
+                {
+                    ChangeOutputData();
+                }
+            }
+        }
+        public int Jobs
+        {
+            get { return Model.Jobs; }
+            set
+            {
+                if (SetProperty(Model, value))
+                {
+                    ChangeOutputData();
+                }
+            }
+        }
         /// <summary>
         /// Convert model AssignmentTime to milliseconds
         /// </summary>
@@ -80,10 +103,8 @@ namespace WRONJ.ViewModels
         {
             get { return Model.AssignmentTime*1000; }
             set {
-                double v=Model.AssignmentTime * 1000;
-                if (SetProperty(ref v, value))
+                if (SetProperty(Model, value/1000))
                 {
-                    Model.AssignmentTime = v / 1000;
                     ChangeOutputData();
                 }
             }                
@@ -96,10 +117,8 @@ namespace WRONJ.ViewModels
             get { return Model.AssignmentTimeVolatility * 1000; }
             set
             {
-                double v = Model.AssignmentTimeVolatility * 1000;
-                if (SetProperty(ref v, value))
+                if (SetProperty(Model, value / 1000))
                 {
-                    Model.AssignmentTimeVolatility = v / 1000;
                     ChangeOutputData();
                 }
             }
@@ -109,10 +128,8 @@ namespace WRONJ.ViewModels
             get { return Model.JobTime; }
             set
             {
-                double v = Model.JobTime;
-                if (SetProperty(ref v, value))
+                if (SetProperty(Model, value))
                 {
-                    Model.JobTime = v;
                     ChangeOutputData();
                 }
             }
@@ -122,10 +139,8 @@ namespace WRONJ.ViewModels
             get { return Model.JobTimeVolatility; }
             set
             {
-                double v = Model.JobTimeVolatility;
-                if (SetProperty(ref v, value))
+                if (SetProperty(Model, value))
                 {
-                    Model.JobTimeVolatility = v;
                     ChangeOutputData();
                 }
             }
@@ -148,19 +163,6 @@ namespace WRONJ.ViewModels
             }
         }
 
-        public int Workers
-        {
-            get { return Model.Workers; }
-            set
-            {
-                int v = Model.Workers;
-                if (SetProperty(ref v, value))
-                {
-                    Model.Workers = v;
-                    ChangeOutputData();
-                }
-            }
-        }
         int freeWorkers;
         public int FreeWorkers
         {
@@ -174,7 +176,7 @@ namespace WRONJ.ViewModels
         {
             get { return Workers > 0? (double)freeWorkers / Workers : 0; }
         }
-        private void ChangeOutputData()
+        public void ChangeOutputData()
         {
             IdealTotalTime = Model.IdeallTotalTime();
             ModelWorkerTime = Model.ModelWorkerTime(Model.AssignmentTime, Model.JobTime);
@@ -222,20 +224,6 @@ namespace WRONJ.ViewModels
                 SetProperty(ref realTotalTime, value);
             }
         }
-        public int Jobs
-        {
-            get { return Model.Jobs; }
-            set
-            {
-                int v = Model.Jobs;
-                if (SetProperty(ref v, value))
-                {
-                    Model.Jobs = v;
-                    this.JobsInfo = new JobsInfo(v);
-                    ChangeOutputData();
-                }
-            }
-        }
         public async Task Calculate(CancellationToken cancelToken)
         {
             var data =await Model.CalculateAsync(cancelToken);
@@ -248,5 +236,6 @@ namespace WRONJ.ViewModels
             return Color.FromHsla(worker * 0.7 / Model.Workers, 0.8, 0.5);
         }
         public JobsInfo JobsInfo { get; set; }
+
     }
 }

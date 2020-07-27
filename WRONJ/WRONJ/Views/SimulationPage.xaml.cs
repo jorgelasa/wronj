@@ -27,7 +27,7 @@ namespace WRONJ.Views
             viewModel.FreeWorkers = viewModel.Workers;
             for (int worker = 0; worker < viewModel.Workers;  worker++)
             {
-                fsq.Children.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker) }, worker, 0);
+                fsq.Children.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(viewModel.Workers -1 - worker) }, worker, 0);
             }
             int workersColumns = viewModel.Workers <= 10? viewModel.Workers : (int) Math.Sqrt(viewModel.Workers);
             for (int row = 0, worker=0; row <= viewModel.Workers / workersColumns; row++)
@@ -48,22 +48,23 @@ namespace WRONJ.Views
             int jobs = jobQueue.Children.Count;
             for (int i=0; viewModel.JobsInfo!= null && i < jobs; i++)
             {
-                viewModel.JobsInfo[i].JobNumber = viewModel.LastJob + i + 1;
+                viewModel.JobsInfo[i].JobNumber = viewModel.LastJob + jobs - i - 1;
             }
         }
-        private void AssignmentStart(List<int> workers, double jobTime, double assignmentTime)
+        private void AssignmentStart(List<int> idleWorkers, double jobTime, double assignmentTime)
         {
             int s = 0;
             viewModel.LastJob++;
             viewModel.LastJobTime = jobTime;
             viewModel.LastAssignmentTime = assignmentTime*1000;
-            viewModel.FreeWorkers = workers.Count;
+            viewModel.FreeWorkers = idleWorkers.Count;
             moveJobQueue();
+            int workers = fsq.Children.Count;
             foreach (View view in fsq.Children)
             {
-                if (s < workers.Count)
+                if (++s > workers - idleWorkers.Count)
                 {
-                    view.BackgroundColor = viewModel.WorkerColor(workers[s++]);
+                    view.BackgroundColor = viewModel.WorkerColor(idleWorkers[workers - s]);
                 }
                 else
                 {
@@ -71,17 +72,18 @@ namespace WRONJ.Views
                 }
             }
         }
-        private void AssignmentEnd(List<int> workers, int worker, double modelTime, double workerTime)
+        private void AssignmentEnd(List<int> idleWorkers, int worker, double modelTime, double workerTime)
         {
             int s = 0;
-            viewModel.FreeWorkers = workers.Count;
+            viewModel.FreeWorkers = idleWorkers.Count;
             viewModel.ModelWorkerTime = modelTime;
             viewModel.RealWorkerTime = workerTime;
+            int workers = fsq.Children.Count;
             foreach (View view in fsq.Children)
             {
-                if (s < workers.Count)
+                if (++s > workers - idleWorkers.Count)
                 {
-                    view.BackgroundColor = viewModel.WorkerColor(workers[s++]);
+                    view.BackgroundColor = viewModel.WorkerColor(idleWorkers[workers - s]);
                 }
                 else
                 {
@@ -90,24 +92,25 @@ namespace WRONJ.Views
             }
             activeWorkers.Children[worker].BackgroundColor = viewModel.WorkerColor(worker);
         }
-        private void FreeWorker(List<int> workers,double idealTime, double realTime)
+        private void FreeWorker(List<int> idleWorkers,double idealTime, double realTime)
         {
             int s = 0;
-            viewModel.FreeWorkers = workers.Count;
+            viewModel.FreeWorkers = idleWorkers.Count;
             viewModel.IdealTotalTime = idealTime;
             viewModel.RealTotalTime = realTime;
+            int workers = fsq.Children.Count;
             foreach (View view in fsq.Children)
             {
-                if (s < workers.Count)
+                if (++s > workers - idleWorkers.Count)
                 {
-                    view.BackgroundColor = viewModel.WorkerColor(workers[s++]);
+                    view.BackgroundColor = viewModel.WorkerColor(idleWorkers[workers - s]);
                 }
                 else
                 {
                     view.BackgroundColor = this.BackgroundColor;
                 }
             }
-            activeWorkers.Children[workers[s - 1]].BackgroundColor = Color.Silver;
+            activeWorkers.Children[idleWorkers[s - 1]].BackgroundColor = Color.Silver;
         }
 
         protected override void OnDisappearing()

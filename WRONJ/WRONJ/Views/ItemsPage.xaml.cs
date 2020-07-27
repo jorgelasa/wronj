@@ -15,21 +15,13 @@ namespace WRONJ.Views
         public ItemsPage()
         {
             InitializeComponent();
-            BindingContext = viewModel = new WRONJViewModel(new WRONJModel()) { Title = "Model"};            
+            viewModel = new WRONJViewModel (new WRONJModel()){ Title = "Model" };
+            viewModel.Model.Load();
+            viewModel.ChangeOutputData();
+            BindingContext = ((App)Application.Current).ViewModel = viewModel;
         }
-
-
         async void Simulate_Clicked(object sender, EventArgs e)
         {
-            viewModel.Model.EndSimulation += (idealTotalTime, realTotalTime) =>
-            {
-                viewModel.IdealTotalTime = idealTotalTime;
-                viewModel.RealTotalTime = realTotalTime;
-            };
-            viewModel.ModelWorkerTime = 0;
-            viewModel.RealWorkerTime = 0;
-            viewModel.IdealTotalTime = 0;
-            viewModel.RealTotalTime = 0;
             await Navigation.PushAsync(new SimulationPage(viewModel));
         }
         async void Calculate_Clicked(object sender, EventArgs e)

@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using Xamarin.Forms;
 
 using WRONJ.Models;
+using System.Reflection;
 
 namespace WRONJ.ViewModels
 {
@@ -26,6 +27,20 @@ namespace WRONJ.ViewModels
                 return false;
 
             backingStore = value;
+            onChanged?.Invoke();
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+        protected bool SetProperty<T>(object backingObject,
+            T value,
+            [CallerMemberName]string propertyName = "",
+            Action onChanged = null)
+        {
+            PropertyInfo backingProperty = backingObject.GetType().GetProperty(propertyName);
+            if (EqualityComparer<T>.Default.Equals((T)backingProperty.GetValue(backingObject), value))
+                return false;
+
+            backingProperty.SetValue(backingObject,value);
             onChanged?.Invoke();
             OnPropertyChanged(propertyName);
             return true;

@@ -21,30 +21,35 @@
                     FontAttributes="Bold"
                     FontSize="20" />
             <Label Text="Number of Workers: "/>
-            <Entry Text="{Binding Workers, Mode=OneWayToSource, Converter={StaticResource intToString}}"
-                   Style="{StaticResource intEntry}" />
-            <Label Text="Number of Jobs:"/>
-            <Entry Text="{Binding Jobs, Mode=OneWayToSource, Converter={StaticResource intToString}}"
+            <Entry Text="{Binding Workers, Mode=TwoWay, Converter={StaticResource intToString}}"
                    Style="{StaticResource intEntry}"
-                   x:Name="jobNumber"/>
+                   x:Name="Workers"/>
+            <Label Text="Number of Jobs:"/>
+            <Entry Text="{Binding Jobs, Mode=TwoWay, Converter={StaticResource intToString}}"
+                   Style="{StaticResource intEntry}"
+                   x:Name="Jobs"/>
             <Label Text="Assignment time (milliseconds)" 
                     HorizontalOptions="Start" 
                     Style="{DynamicResource SubTitleStyle}" 
                     FontAttributes="Bold"
                     FontSize="20" />
             <Label Text="Average Time:"/>
-            <Entry Text="{Binding AssignmentTime, Mode=OneWayToSource, Converter={StaticResource doubleToString}}"/>
+            <Entry Text="{Binding AssignmentTime, Mode=TwoWay, Converter={StaticResource doubleToString}}"
+                   x:Name="AssignmentTime"/>
             <Label Text="Volatility:"/>
-            <Entry Text="{Binding AssignmentTimeVolatility, Mode=OneWayToSource, Converter={StaticResource doubleToString}}"/>
+            <Entry Text="{Binding AssignmentTimeVolatility, Mode=TwoWay, Converter={StaticResource doubleToString}}"
+                    x:Name="AssignmentTimeVolatility"/>
             <Label Text="Job time (seconds)" 
                     HorizontalOptions="Start" 
                     Style="{DynamicResource SubTitleStyle}" 
                     FontAttributes="Bold"
                     FontSize="20" />
             <Label Text="Average Time:"/>
-            <Entry Text="{Binding JobTime, Mode=OneWayToSource, Converter={StaticResource doubleToString}}"/>
+            <Entry Text="{Binding JobTime, Mode=TwoWay, Converter={StaticResource doubleToString}}"
+                   x:Name="JobTime"/>
             <Label Text="Volatility:"/>
-            <Entry Text="{Binding JobTimeVolatility, Mode=OneWayToSource, Converter={StaticResource doubleToString}}"/>
+            <Entry Text="{Binding JobTimeVolatility, Mode=TwoWay, Converter={StaticResource doubleToString}}"
+                   x:Name="JobTimeVolatility"/>
             <BoxView HeightRequest="10"/>
             <Label Text="Output Data" 
                     HorizontalOptions="Start" 
