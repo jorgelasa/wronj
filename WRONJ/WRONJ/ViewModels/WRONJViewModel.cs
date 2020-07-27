@@ -39,11 +39,9 @@ namespace WRONJ.ViewModels
         {
             get
             {
-                var hashed = md5Hasher.ComputeHash(System.Text.Encoding.UTF8.GetBytes(jobNumber.ToString()));
-                var iValue = BitConverter.ToInt32(hashed, 0);
                 if (jobNumber > jobs)
                     return Color.Transparent;
-                return Color.FromHsla((iValue % 1000) / 1000.0, 0.5, 0.5);
+                return Color.FromHsla(0.5,0.5,0.5 +(jobNumber % 16) / 48.0);
             }
         }
     }
@@ -92,6 +90,7 @@ namespace WRONJ.ViewModels
             {
                 if (SetProperty(Model, value))
                 {
+                    JobsInfo = new JobsInfo(value);
                     ChangeOutputData();
                 }
             }
@@ -235,7 +234,17 @@ namespace WRONJ.ViewModels
         public Color WorkerColor(int worker) {
             return Color.FromHsla(worker * 0.7 / Model.Workers, 0.8, 0.5);
         }
-        public JobsInfo JobsInfo { get; set; }
-
+        JobsInfo jobsInfo;
+        public JobsInfo JobsInfo {
+            get 
+            {
+                if (jobsInfo==null) jobsInfo = new JobsInfo(Jobs);
+                return jobsInfo;
+            }
+            set
+            {
+                jobsInfo = value;
+            }
+        } 
     }
 }

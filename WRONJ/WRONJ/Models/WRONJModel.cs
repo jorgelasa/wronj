@@ -224,9 +224,6 @@ namespace WRONJ.Models
                 time = activeWorker.endTime;
             }
         }
-        readonly string[] serializableProperties = new string[] { "Workers", "Jobs",
-                        "AssignmentTime", "AssignmentTimeVolatility",
-                        "JobTime", "JobTimeVolatility"};
         public void Save()
         {
             IDictionary<string, object> properties = Application.Current.Properties;

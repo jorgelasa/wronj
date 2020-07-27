@@ -110,7 +110,7 @@ namespace WRONJ.Views
                     view.BackgroundColor = this.BackgroundColor;
                 }
             }
-            activeWorkers.Children[idleWorkers[s - 1]].BackgroundColor = Color.Silver;
+            activeWorkers.Children[idleWorkers[idleWorkers.Count - 1]].BackgroundColor = Color.Silver;            
         }
 
         protected override void OnDisappearing()

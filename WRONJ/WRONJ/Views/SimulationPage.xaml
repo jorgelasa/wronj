@@ -76,7 +76,7 @@
         </Grid>
         <StackLayout Orientation="Horizontal">
             <Label Text="Free Workers Queue" FontSize="Medium"/>
-            <Label Text="{Binding FreeWorkers, StringFormat='    Free Workers Count: {0}'}"/>
+            <Label Text="{Binding FreeWorkers, StringFormat='    Count: {0}'}"/>
             <Label Text="{Binding FreeWorkersRate, StringFormat=' ( {0:P0} of total workers)'}"/>
         </StackLayout>
         <Grid x:Name="fsq" ColumnSpacing="0">
