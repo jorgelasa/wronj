@@ -27,7 +27,7 @@ namespace WRONJ.Views
             viewModel.FreeWorkers = viewModel.Workers;
             for (int worker = 0; worker < viewModel.Workers;  worker++)
             {
-                fsq.Children.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(viewModel.Workers -1 - worker) }, worker, 0);
+                fsq.Children.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker) }, worker, 0);
             }
             int workersColumns = viewModel.Workers <= 10? viewModel.Workers : (int) Math.Sqrt(viewModel.Workers);
             for (int row = 0, worker=0; row <= viewModel.Workers / workersColumns; row++)
@@ -48,7 +48,7 @@ namespace WRONJ.Views
             int jobs = jobQueue.Children.Count;
             for (int i=0; viewModel.JobsInfo!= null && i < jobs; i++)
             {
-                viewModel.JobsInfo[i].JobNumber = viewModel.LastJob + jobs - i - 1;
+                viewModel.JobsInfo[i].JobNumber = viewModel.LastJob + i + 1;
             }
         }
         private void AssignmentStart(List<int> idleWorkers, double jobTime, double assignmentTime)
@@ -62,9 +62,9 @@ namespace WRONJ.Views
             int workers = fsq.Children.Count;
             foreach (View view in fsq.Children)
             {
-                if (++s > workers - idleWorkers.Count)
+                if (s < idleWorkers.Count)
                 {
-                    view.BackgroundColor = viewModel.WorkerColor(idleWorkers[workers - s]);
+                    view.BackgroundColor = viewModel.WorkerColor(idleWorkers[s++]);
                 }
                 else
                 {
@@ -81,9 +81,9 @@ namespace WRONJ.Views
             int workers = fsq.Children.Count;
             foreach (View view in fsq.Children)
             {
-                if (++s > workers - idleWorkers.Count)
+                if (s < idleWorkers.Count)
                 {
-                    view.BackgroundColor = viewModel.WorkerColor(idleWorkers[workers - s]);
+                    view.BackgroundColor = viewModel.WorkerColor(idleWorkers[s++]);
                 }
                 else
                 {
@@ -101,9 +101,9 @@ namespace WRONJ.Views
             int workers = fsq.Children.Count;
             foreach (View view in fsq.Children)
             {
-                if (++s > workers - idleWorkers.Count)
+                if (s < idleWorkers.Count)
                 {
-                    view.BackgroundColor = viewModel.WorkerColor(idleWorkers[workers - s]);
+                    view.BackgroundColor = viewModel.WorkerColor(idleWorkers[s++]);
                 }
                 else
                 {

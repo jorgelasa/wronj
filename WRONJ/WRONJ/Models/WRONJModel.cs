@@ -5,10 +5,12 @@ using System.Threading.Tasks;
 using System.Threading;
 using MathNet.Numerics.Integration;
 using Xamarin.Forms;
+using System.Reflection;
+using MathNet.Numerics.Financial;
 
 namespace WRONJ.Models
 {
-    public class WRONJModel
+    public class WRONJModel : ICloneable
     {
         public delegate void FreeWorkerEventHandler(List<int> workers, double idealTotalTime, double realTotalTime);
         public delegate void AssignmentStartEventHandler(List<int> workers,double jobTime, double assignmentTime);
@@ -42,6 +44,20 @@ namespace WRONJ.Models
             return Jobs <= Workers ?
                     0 :
                     assignmentTime * (Workers - 1) > jobTime ? assignmentTime * Workers  : jobTime + assignmentTime;
+        }
+        public static double ModelWorkerTime(double assignmentTime, double jobTime, int workers)
+        {
+            return assignmentTime * (workers - 1) > jobTime ? assignmentTime * workers : jobTime + assignmentTime;
+        }
+        public double JobTimeLimit()
+        {
+            return AssignmentTime * (Workers -1);
+        }
+        public double WorkersLimit(double assignmentTime, double jobTime)
+        {
+            if (AssignmentTime == 0)
+                return 0;
+            return JobTime / AssignmentTime + 1;
         }
         public double IdeallTotalTime()
         {
@@ -224,11 +240,14 @@ namespace WRONJ.Models
                 time = activeWorker.endTime;
             }
         }
+        private PropertyInfo[] BasicProperties()
+        {
+            return GetType().GetProperties();
+        }
         public void Save()
         {
             IDictionary<string, object> properties = Application.Current.Properties;
-            var modelClass = GetType();
-            foreach (var property in modelClass.GetProperties())
+            foreach (var property in BasicProperties())
             {
                 properties[property.Name] = property.GetValue(this);
             }
@@ -236,8 +255,7 @@ namespace WRONJ.Models
         public void Load()
         {
             IDictionary<string, object> properties = Application.Current.Properties;
-            var modelClass = GetType();
-            foreach (var property in modelClass.GetProperties())
+            foreach (var property in BasicProperties())
             {
                 if (properties.ContainsKey(property.Name))
                 {
@@ -245,6 +263,14 @@ namespace WRONJ.Models
                 }
             }
         }
-
+        public object Clone()
+        {
+            WRONJModel clone = new WRONJModel();
+            foreach (var property in BasicProperties())
+            {
+                property.SetValue(clone, property.GetValue(this));
+            }
+            return clone;
+        }
     }
 }

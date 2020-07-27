@@ -39,5 +39,10 @@ namespace WRONJ.Views
             if (cancelTokenSource != null) cancelTokenSource.Cancel();
             base.OnDisappearing();
         }
+
+        async void Charts_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new ChartsPage(viewModel));
+        }
     }
 }

@@ -106,8 +106,9 @@
                     <Label Text="{Binding RealWorkerTime, Converter={StaticResource doubleToString4}}"/>
                 </StackLayout>
                 <StackLayout Grid.Column="2">
-                    <Button Text="Calculate" FontSize="20" Clicked="Calculate_Clicked"/>
-                    <Button Text="Simulate"  FontSize="20" Clicked="Simulate_Clicked"/>
+                    <Button Text="Calculate" FontSize="Small" Clicked="Calculate_Clicked"/>
+                    <Button Text="Simulate"  FontSize="Small" Clicked="Simulate_Clicked"/>
+                    <Button Text="Charts"  FontSize="Small" Clicked="Charts_Clicked"/>
                 </StackLayout>
             </Grid>
         </StackLayout>
