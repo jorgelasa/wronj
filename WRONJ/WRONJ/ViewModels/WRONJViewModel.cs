@@ -33,8 +33,8 @@ namespace WRONJ.ViewModels
                 if (jobNumber != value)
                 {
                     jobNumber = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Jobs"));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("JobColor"));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Glyph"));
                 }
             }
         }
@@ -45,6 +45,15 @@ namespace WRONJ.ViewModels
                 if (jobNumber > jobs)
                     return Color.Transparent;
                 return Color.FromHsla(0.5,0.5,0.5 +(jobNumber % 16) / 48.0);
+            }
+        }
+        public string Glyph
+        {
+            get
+            {
+                //Codes between \uf001 and \ufe7d
+                char c = (char)(61441 + jobNumber % 3700);
+                return c.ToString();
             }
         }
     }

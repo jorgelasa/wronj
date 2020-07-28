@@ -14,6 +14,7 @@ namespace WRONJ.Views
         WRONJViewModel viewModel;
         const int FWQMaxColumns = 64;
         CancellationTokenSource cancelTokenSource;
+        const string idleWorker = "\uf1d8";
         public SimulationPage(WRONJViewModel viewModel)
         {
             InitializeComponent();
@@ -30,11 +31,14 @@ namespace WRONJ.Views
                 fsq.Children.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker) }, worker, 0);
             }
             int workersColumns = viewModel.Workers <= 10? viewModel.Workers : (int) Math.Sqrt(viewModel.Workers);
+            string fontFamily = ((FontImageSource)((Image)jobQueue.Children[0]).Source).FontFamily;
             for (int row = 0, worker=0; row <= viewModel.Workers / workersColumns; row++)
             {
                 for (int col = 0; col < workersColumns && worker < viewModel.Workers; col++, worker++)
                 {
-                    activeWorkers.Children.Add(new BoxView { BackgroundColor = Color.Silver }, col, row);
+                    activeWorkers.Children.Add(new Image { BackgroundColor = Color.Silver,
+                                Source = new FontImageSource { FontFamily=fontFamily, Glyph=idleWorker}
+                    }, col, row);
                 }
             }
             viewModel.Model.AssignmentStart += AssignmentStart;
@@ -58,7 +62,6 @@ namespace WRONJ.Views
             viewModel.LastJobTime = jobTime;
             viewModel.LastAssignmentTime = assignmentTime*1000;
             viewModel.FreeWorkers = idleWorkers.Count;
-            moveJobQueue();
             int workers = fsq.Children.Count;
             foreach (View view in fsq.Children)
             {
@@ -78,6 +81,8 @@ namespace WRONJ.Views
             viewModel.FreeWorkers = idleWorkers.Count;
             viewModel.ModelWorkerTime = modelTime;
             viewModel.RealWorkerTime = workerTime;
+            string glyph = viewModel.JobsInfo[0].Glyph;
+            moveJobQueue();
             int workers = fsq.Children.Count;
             foreach (View view in fsq.Children)
             {
@@ -91,6 +96,7 @@ namespace WRONJ.Views
                 }
             }
             activeWorkers.Children[worker].BackgroundColor = viewModel.WorkerColor(worker);
+            ((FontImageSource)((Image)activeWorkers.Children[worker]).Source).Glyph = glyph;
         }
         private void FreeWorker(List<int> idleWorkers,double idealTime, double realTime)
         {
@@ -110,7 +116,9 @@ namespace WRONJ.Views
                     view.BackgroundColor = this.BackgroundColor;
                 }
             }
-            activeWorkers.Children[idleWorkers[idleWorkers.Count - 1]].BackgroundColor = Color.Silver;            
+            activeWorkers.Children[idleWorkers[idleWorkers.Count - 1]].BackgroundColor = Color.Silver;
+            ((FontImageSource)((Image)activeWorkers.Children[idleWorkers[idleWorkers.Count - 1]]).Source).Glyph = idleWorker;
+
         }
 
         protected override void OnDisappearing()
