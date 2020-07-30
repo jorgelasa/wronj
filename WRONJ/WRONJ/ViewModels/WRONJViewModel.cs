@@ -10,6 +10,7 @@ using WRONJ.Models;
 using OxyPlot;
 using OxyPlot.Series;
 using OxyPlot.Annotations;
+using MathNet.Numerics.Integration;
 
 namespace WRONJ.ViewModels
 {
@@ -189,10 +190,15 @@ namespace WRONJ.ViewModels
         }
         public void ChangeOutputData()
         {
-            IdealTotalTime = Model.IdeallTotalTime();
-            ModelWorkerTime = Model.ModelWorkerTime(Model.AssignmentTime, Model.JobTime);
-            RealTotalTime = 0;
-            RealWorkerTime = 0;
+            JobTimeLimit = WRONJModel.JobTimeLimit(Model.AssignmentTime, Model.Workers);
+            WorkersLimit = (int)Math.Round(WRONJModel.WorkersLimit(Model.AssignmentTime, Model.JobTime));
+            IdealTotalTime = WRONJModel.TotalTime(Model.JobTime,Model.Workers,Model.Jobs);
+            ModelTotalTime = WRONJModel.TotalTime(Model.JobTime, Model.Workers, Model.Jobs,Model.AssignmentTime);
+            ModelWorkerTime = WRONJModel.WorkerTime(Model.AssignmentTime, Model.JobTime, Model.Workers);
+            IdealTotalTimeVol = 0;
+            ModelTotalTimeVol = 0;
+            ModelWorkerTimeVol = 0;
+            EnableCalculations = AssignmentTimeVolatility > 0 || JobTimeVolatility > 0;
         }
         private int lastJob = 1;
         public int LastJob
@@ -202,7 +208,11 @@ namespace WRONJ.ViewModels
                 SetProperty(ref lastJob, value);
             }
         }
-        public double modelWorkerTime, realWorkerTime,idealTotalTime,realTotalTime;
+        double modelWorkerTime, modelWorkerTimeVol;
+        double idealTotalTime, idealTotalTimeVol;
+        double modelTotalTime, modelTotalTimeVol;
+        double jobTimeLimit;
+        int workersLimit;
         public double ModelWorkerTime
         {
             get { return modelWorkerTime; }
@@ -211,12 +221,12 @@ namespace WRONJ.ViewModels
                 SetProperty(ref modelWorkerTime, value);
             }
         }
-        public double RealWorkerTime
+        public double ModelWorkerTimeVol
         {
-            get { return realWorkerTime; }
+            get { return modelWorkerTimeVol; }
             set
             {
-                SetProperty(ref realWorkerTime, value);
+                SetProperty(ref modelWorkerTimeVol, value);
             }
         }
         public double IdealTotalTime
@@ -227,21 +237,63 @@ namespace WRONJ.ViewModels
                 SetProperty(ref idealTotalTime, value);
             }
         }
-        public double RealTotalTime
+        public double IdealTotalTimeVol
         {
-            get { return realTotalTime; }
+            get { return idealTotalTimeVol; }
             set
             {
-                SetProperty(ref realTotalTime, value);
+                SetProperty(ref idealTotalTimeVol, value);
             }
         }
+        public double ModelTotalTime
+        {
+            get { return modelTotalTime; }
+            set
+            {
+                SetProperty(ref modelTotalTime, value);
+            }
+        }
+        public double ModelTotalTimeVol
+        {
+            get { return modelTotalTimeVol; }
+            set
+            {
+                SetProperty(ref modelTotalTimeVol, value);
+            }
+        }
+        public double JobTimeLimit
+        {
+            get { return jobTimeLimit; }
+            set
+            {
+                SetProperty(ref jobTimeLimit, value);
+            }
+        }
+        public int WorkersLimit
+        {
+            get { return workersLimit; }
+            set
+            {
+                SetProperty(ref workersLimit, value);
+            }
+        }
+        bool enableCalculations;
+        public bool EnableCalculations
+        {
+            get { return enableCalculations; }
+            set
+            {
+                SetProperty(ref enableCalculations, value);
+            }
+        }
+
         public async Task Calculate(CancellationToken cancelToken)
         {
             var data =await Model.CalculateAsync(cancelToken);
-            ModelWorkerTime = data.modelTime;
-            RealWorkerTime = data.workerTime;
-            IdealTotalTime = data.idealTotalTime;
-            RealTotalTime = data.realTotalTime;
+            //ModelWorkerTime = data.modelTime;
+            ModelWorkerTimeVol = data.workerTime;
+            IdealTotalTimeVol = data.idealTotalTime;
+            ModelTotalTimeVol = data.realTotalTime;
         }
         public Color WorkerColor(int worker) {
             return Color.FromHsla(worker * 0.7 / Model.Workers, 0.8, 0.5);
@@ -263,10 +315,10 @@ namespace WRONJ.ViewModels
             get {
                 double fontSize = 16;
                 var chart = new PlotModel { Title = $"WT = f (JT), with {Workers} workers and AT={AssignmentTime:F2} ms" };
-                double medianPoint = Model.JobTimeLimit();
+                double medianPoint = WRONJModel.JobTimeLimit(Model.AssignmentTime, Model.Workers);
                 var idealSeries = new FunctionSeries( x => x,0,2*medianPoint, medianPoint/100,"Ideal Grid");
                 idealSeries.FontSize = fontSize;
-                var realSeries = new FunctionSeries(x => WRONJModel.ModelWorkerTime(Model.AssignmentTime,x,Workers), 
+                var realSeries = new FunctionSeries(x => WRONJModel.WorkerTime(Model.AssignmentTime,x,Workers), 
                                         0, 2 * medianPoint, medianPoint / 100,"WRONJ Grid");
                 realSeries.FontSize = fontSize;
                 realSeries.FontWeight = FontWeights.Bold;
@@ -275,7 +327,7 @@ namespace WRONJ.ViewModels
                 var annotation = new LineAnnotation();
                 annotation.Color = OxyColors.Red;
                 annotation.MinimumY = 0;
-                annotation.MaximumY = WRONJModel.ModelWorkerTime(Model.AssignmentTime, 2 * medianPoint, Workers);
+                annotation.MaximumY = WRONJModel.WorkerTime(Model.AssignmentTime, 2 * medianPoint, Workers);
                 annotation.FontSize = fontSize;
                 annotation.FontWeight = FontWeights.Bold;
                 annotation.X = medianPoint;
@@ -293,14 +345,23 @@ namespace WRONJ.ViewModels
             {
                 double fontSize = 16;
                 var chart = new PlotModel { Title = $"TotalTime = f (Workers), with {Jobs} jobs, JT={JobTime:F2} secs and AT={AssignmentTime:F2} ms" };
-                double medianPoint = Model.WorkersLimit(Model.AssignmentTime,JobTime);
+                double medianPoint = WRONJModel.WorkersLimit(Model.AssignmentTime,JobTime);
                 double x0 = (int)(medianPoint > 0 ? medianPoint / 2 : 1);
                 double x1 = (int)(medianPoint > 0 ? 2 * medianPoint : Jobs);
                 double dx = x1 - x0 > 100 ? (int)((x1 - x0) / 100) : 1;
-                var idealSeries = new FunctionSeries(x => Jobs*JobTime/x, x0, x1, dx, "Ideal Grid");
+                var idealSeries = new FunctionSeries(
+                    x => WRONJModel.TotalTime(
+                            Model.JobTime,
+                            (int)Math.Round(x),
+                            Model.Jobs)
+                    , x0, x1, dx, "Ideal Grid");
                 idealSeries.FontSize = fontSize;
-                var realSeries = new FunctionSeries(x => Jobs * WRONJModel.ModelWorkerTime(Model.AssignmentTime, JobTime, (int)x) / x,
-                    x0, x1, dx, "WRONJ Grid");
+                var realSeries = new FunctionSeries(
+                    x => WRONJModel.TotalTime(
+                            WRONJModel.WorkerTime(Model.AssignmentTime, JobTime, (int)Math.Round(x)),
+                            (int)Math.Round(x),
+                            Model.Jobs)
+                    ,x0, x1, dx, "WRONJ Grid");
                 realSeries.FontSize = fontSize;
                 realSeries.FontWeight = FontWeights.Bold;
                 chart.Series.Add(idealSeries);
@@ -308,7 +369,7 @@ namespace WRONJ.ViewModels
                 var annotation = new LineAnnotation();
                 annotation.Color = OxyColors.Red;
                 annotation.MinimumY = 0;
-                annotation.MaximumY = Jobs * WRONJModel.ModelWorkerTime(Model.AssignmentTime, JobTime, (int)x0) / x0;
+                annotation.MaximumY = Jobs * WRONJModel.WorkerTime(Model.AssignmentTime, JobTime, (int)x0) / x0;
                 annotation.FontSize = fontSize;
                 annotation.FontWeight = FontWeights.Bold;
                 annotation.X = medianPoint;

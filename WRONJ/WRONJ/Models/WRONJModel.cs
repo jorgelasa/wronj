@@ -39,32 +39,40 @@ namespace WRONJ.Models
                 dist.RandomSource= new MathNet.Numerics.Random.SystemRandomSource(seed);
             return dist;
         }
-        public double ModelWorkerTime(double assignmentTime,double jobTime)
-        {
-            return Jobs <= Workers ?
-                    0 :
-                    assignmentTime * (Workers - 1) > jobTime ? assignmentTime * Workers  : jobTime + assignmentTime;
-        }
-        public static double ModelWorkerTime(double assignmentTime, double jobTime, int workers)
+        public static double WorkerTime(double assignmentTime, double jobTime, int workers)
         {
             return assignmentTime * (workers - 1) > jobTime ? assignmentTime * workers : jobTime + assignmentTime;
         }
-        public double JobTimeLimit()
+        public static double JobTimeLimit(double assignmentTime,int workers)
         {
-            return AssignmentTime * (Workers -1);
-        }
-        public double WorkersLimit(double assignmentTime, double jobTime)
-        {
-            if (AssignmentTime == 0)
+            if (workers == 0)
                 return 0;
-            return JobTime / AssignmentTime + 1;
+            return assignmentTime * (workers -1);
         }
-        public double IdeallTotalTime()
+        public static double WorkersLimit(double assignmentTime, double jobTime)
         {
-            return Workers == 0 ? 0 : JobTime * (Jobs/Workers + (Jobs % Workers > 0 ? 1 : 0));
+            if (assignmentTime == 0 || jobTime == 0)
+                return 0;
+            return jobTime / assignmentTime + 1;
         }
-        public Task<(  double modelTime, 
-                double workerTime,
+        public static double TotalTime(double jobTime, int workers, int jobs,double assignmentTime=0)
+        {
+            if (workers == 0 || jobs == 0)
+                return 0;
+            if (assignmentTime==0)
+                return jobTime * (jobs/workers + (jobs % workers > 0 ? 1 : 0));
+            if (jobs <= workers)
+                return assignmentTime * jobs + jobTime;
+            if (jobs % workers == 0)
+            {
+                return WorkerTime(assignmentTime, jobTime, workers) * (jobs / workers - 1) +
+                    assignmentTime * workers + jobTime;
+            }
+            return WorkerTime(assignmentTime, jobTime, workers) * (jobs / workers) +
+                    assignmentTime * (jobs % workers) + jobTime;
+
+        }
+        public Task<(double workerTime,
                 double idealTotalTime,
                 double realTotalTime) >  CalculateAsync(CancellationToken cancelToken)
         {
@@ -72,11 +80,12 @@ namespace WRONJ.Models
                 assignmentVolatility = AssignmentTimeVolatility, jobTimeVolatility = JobTimeVolatility;
             int workers = Workers, jobs = Jobs;
             if (workers == 0 || jobs == 0 || inputJobTime == 0)
-                return Task<(double,double,double,double)>.FromResult((0.0,0.0,0.0, 0.0));
-            return Task < (double, double, double, double, double) >.Run(() =>
+                return Task<(double,double,double)>.FromResult((0.0,0.0, 0.0));
+            return Task < (double, double, double) >.Run(() =>
             {
-                double workerTime = 0, modelTime=0, assignmentsTime=0, jobsTime=0;
+                double assignmentsTime=0, jobsTime=0;
                 double time = 0;
+                double workerTime = jobs > workers ? 0 : WorkerTime(inputAssignmentTime, inputJobTime, workers);
                 // Sorted sets to manage the ideal and real worker times 
                 SortedSet<(double endTime, int worker)> workersTime = new SortedSet<(double, int)>();
                 SortedSet<(double endTime, int worker)> workersIdealTime = new SortedSet<(double, int)>();
@@ -115,8 +124,6 @@ namespace WRONJ.Models
                         workersTime.Add((time + jobTime, firstWorker.worker));
                         // We start to compute the workerTime only when the grid is full
                         workerTime = ((j - workers) * workerTime + time + jobTime - firstWorker.endTime) / (j + 1 - workers);
-                        // Use the actual average values as input to the model
-                        modelTime = ModelWorkerTime(assignmentsTime, jobsTime);
                     }
                     else
                     {
@@ -124,7 +131,7 @@ namespace WRONJ.Models
                         workersTime.Add((time + jobTime, workersTime.Count));
                     }
                 }
-                return (modelTime, workerTime, workersIdealTime.Last().endTime, workersTime.Last().endTime);
+                return (workerTime, workersIdealTime.Last().endTime, workersTime.Last().endTime);
             });
         }
     public async void Simulate(CancellationToken cancelToken)
@@ -223,7 +230,7 @@ namespace WRONJ.Models
                 {
                     workerTime = ((j- workers) * workerTime + workerLastTime) / (j + 1 - workers);
                     // Use the actual average values as input to the model
-                    modelWorkerTime = ModelWorkerTime(assignmentsTime, jobsTime);
+                    modelWorkerTime = WorkerTime(assignmentsTime, jobsTime,workers);
                 }
                 AssignmentEnd?.Invoke(FWQ, assignedWorker, modelWorkerTime,workerTime);
                 if (FWQ.Count == 0)

@@ -80,7 +80,7 @@ namespace WRONJ.Views
             int s = 0;
             viewModel.FreeWorkers = idleWorkers.Count;
             viewModel.ModelWorkerTime = modelTime;
-            viewModel.RealWorkerTime = workerTime;
+            viewModel.ModelWorkerTimeVol = workerTime;
             string glyph = viewModel.JobsInfo[0].Glyph;
             moveJobQueue();
             int workers = fsq.Children.Count;
@@ -103,7 +103,7 @@ namespace WRONJ.Views
             int s = 0;
             viewModel.FreeWorkers = idleWorkers.Count;
             viewModel.IdealTotalTime = idealTime;
-            viewModel.RealTotalTime = realTime;
+            viewModel.ModelTotalTime = realTime;
             int workers = fsq.Children.Count;
             foreach (View view in fsq.Children)
             {
