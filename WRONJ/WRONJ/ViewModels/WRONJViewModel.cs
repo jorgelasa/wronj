@@ -11,6 +11,7 @@ using OxyPlot;
 using OxyPlot.Series;
 using OxyPlot.Annotations;
 using MathNet.Numerics.Integration;
+using OxyPlot.Axes;
 
 namespace WRONJ.ViewModels
 {
@@ -310,32 +311,68 @@ namespace WRONJ.ViewModels
                 jobsInfo = value;
             }
         }
+        private LineAnnotation verticalAnnotation(string text, double x, double y, OxyColor color, 
+            double margin = 10,
+            HorizontalAlignment alignment= HorizontalAlignment.Left)
+        {
+            var annotation = new LineAnnotation();
+            annotation.X = x;
+            annotation.MinimumY = 0;
+            annotation.MaximumY = y;
+            annotation.FontSize = 12;
+            annotation.Color = color;
+            annotation.Text = text;
+            annotation.FontWeight = FontWeights.Bold;
+            annotation.LineStyle = LineStyle.Solid;
+            annotation.Type = LineAnnotationType.Vertical;
+            annotation.TextOrientation = AnnotationTextOrientation.Horizontal;
+            annotation.TextPadding = 5;
+            annotation.TextMargin = margin;
+            annotation.TextHorizontalAlignment = alignment;
+            return annotation;
+        }
+        private LineAnnotation horizontalAnnotation(string text, double x0, double x1, double y, OxyColor color,
+            LineStyle style = LineStyle.Solid)
+        {
+            var annotation = new LineAnnotation();
+            annotation.Y = y;
+            annotation.MinimumX = x0;
+            annotation.MaximumX = x1;
+            annotation.FontSize = 14;
+            annotation.Color = color;
+            annotation.StrokeThickness = 3;
+            annotation.Text = text;
+            annotation.FontWeight = FontWeights.Bold;
+            annotation.LineStyle = style;
+            annotation.Type = LineAnnotationType.Horizontal;
+            annotation.TextOrientation = AnnotationTextOrientation.Horizontal;
+            annotation.TextPadding = 5;
+            //annotation.TextMargin = margin;
+            annotation.TextVerticalAlignment = VerticalAlignment.Bottom;
+            //annotation.TextHorizontalAlignment = HorizontalAlignment.Left; 
+            return annotation;
+        }
         public PlotModel TimesChart
         {
             get {
-                double fontSize = 16;
+                const double fontSize = 14;
                 var chart = new PlotModel { Title = $"WT = f (JT), with {Workers} workers and AT={AssignmentTime:F2} ms" };
-                double medianPoint = WRONJModel.JobTimeLimit(Model.AssignmentTime, Model.Workers);
-                var idealSeries = new FunctionSeries( x => x,0,2*medianPoint, medianPoint/100,"Ideal Grid");
+                double limit = WRONJModel.JobTimeLimit(Model.AssignmentTime, Model.Workers);
+                var idealSeries = new FunctionSeries( x => x,0,2*limit, limit/100,"Ideal Grid");
                 idealSeries.FontSize = fontSize;
                 var realSeries = new FunctionSeries(x => WRONJModel.WorkerTime(Model.AssignmentTime,x,Workers), 
-                                        0, 2 * medianPoint, medianPoint / 100,"WRONJ Grid");
+                                        0, 2 * limit, limit / 100,"WRONJ Grid");
                 realSeries.FontSize = fontSize;
                 realSeries.FontWeight = FontWeights.Bold;
                 chart.Series.Add(idealSeries);
                 chart.Series.Add(realSeries);
-                var annotation = new LineAnnotation();
-                annotation.Color = OxyColors.Red;
-                annotation.MinimumY = 0;
-                annotation.MaximumY = WRONJModel.WorkerTime(Model.AssignmentTime, 2 * medianPoint, Workers);
-                annotation.FontSize = fontSize;
-                annotation.FontWeight = FontWeights.Bold;
-                annotation.X = medianPoint;
-                annotation.LineStyle = LineStyle.Solid;
-                annotation.Type = LineAnnotationType.Vertical;
-                annotation.Text = $"Job Time Limit: {medianPoint:F2} (= ( Workers - 1) * AT)";
-                annotation.TextOrientation = AnnotationTextOrientation.Horizontal;
-                chart.Annotations.Add(annotation);
+                double maxY = WRONJModel.WorkerTime(Model.AssignmentTime, 2 * limit, Workers);
+                chart.Annotations.Add(verticalAnnotation($"Limit: {limit:F2}",
+                    limit, maxY, OxyColors.Blue, 100,
+                    limit <= JobTime ? HorizontalAlignment.Right : HorizontalAlignment.Left));
+                chart.Annotations.Add(verticalAnnotation($"Job Time: {JobTime:F2}",
+                    JobTime, maxY, limit <= JobTime ? OxyColors.Green : OxyColors.Red, 100,
+                    limit <= JobTime ? HorizontalAlignment.Left : HorizontalAlignment.Right));
                 return chart;
             }
         }
@@ -343,11 +380,11 @@ namespace WRONJ.ViewModels
         {
             get
             {
-                double fontSize = 16;
+                double fontSize = 12;
                 var chart = new PlotModel { Title = $"TotalTime = f (Workers), with {Jobs} jobs, JT={JobTime:F2} secs and AT={AssignmentTime:F2} ms" };
-                double medianPoint = WRONJModel.WorkersLimit(Model.AssignmentTime,JobTime);
-                double x0 = (int)(medianPoint > 0 ? medianPoint / 2 : 1);
-                double x1 = (int)(medianPoint > 0 ? 2 * medianPoint : Jobs);
+                double limit = WRONJModel.WorkersLimit(Model.AssignmentTime,JobTime);
+                double x0 = (int)(limit > 0 ? limit / 2 : 1);
+                double x1 = (int)(limit > 0 ? 2 * limit : Jobs);
                 double dx = x1 - x0 > 100 ? (int)((x1 - x0) / 100) : 1;
                 var idealSeries = new FunctionSeries(
                     x => WRONJModel.TotalTime(
@@ -366,18 +403,62 @@ namespace WRONJ.ViewModels
                 realSeries.FontWeight = FontWeights.Bold;
                 chart.Series.Add(idealSeries);
                 chart.Series.Add(realSeries);
-                var annotation = new LineAnnotation();
-                annotation.Color = OxyColors.Red;
-                annotation.MinimumY = 0;
-                annotation.MaximumY = Jobs * WRONJModel.WorkerTime(Model.AssignmentTime, JobTime, (int)x0) / x0;
-                annotation.FontSize = fontSize;
-                annotation.FontWeight = FontWeights.Bold;
-                annotation.X = medianPoint;
-                annotation.LineStyle = LineStyle.Solid;
-                annotation.Type = LineAnnotationType.Vertical;
-                annotation.Text = $"Workers Limit: {medianPoint:F0} (= JT / AT + 1)";
-                annotation.TextOrientation = AnnotationTextOrientation.Horizontal;
-                chart.Annotations.Add(annotation);
+                double maxY= WRONJModel.TotalTime(
+                            WRONJModel.WorkerTime(Model.AssignmentTime, JobTime, (int)Math.Round(x0)),
+                            (int)Math.Round(x0),
+                            Model.Jobs);
+                chart.Annotations.Add(verticalAnnotation($"Limit: {limit:F0}",
+                    limit, maxY, OxyColors.Blue,100,
+                    limit <= Workers ? HorizontalAlignment.Right : HorizontalAlignment.Left));
+                chart.Annotations.Add(verticalAnnotation($"Workers: {Workers}",
+                    Workers, maxY, limit >= Workers ? OxyColors.Green : OxyColors.Red, 100,
+                    limit <= Workers ? HorizontalAlignment.Left : HorizontalAlignment.Right));
+                return chart;
+            }
+        }
+        public PlotModel WorkerTimeChart
+        {
+            get
+            {
+                double fontSize = 12;
+                var chart = new PlotModel { Title = $"WRONJ Worker Time" };
+                var yAxis = new LinearAxis
+                {
+                    Position = AxisPosition.Left,
+                    Title = "Workers",
+                    Minimum = 0,
+                    Maximum = Workers + 1.5
+                };
+                yAxis.MinorStep = 1;
+                chart.Axes.Add(yAxis);
+                double assignmentTime = Model.AssignmentTime;
+                double maxX = JobTime > WRONJModel.JobTimeLimit(assignmentTime, Workers) ?
+                            2 * (JobTime + assignmentTime) :
+                            JobTime + assignmentTime + WRONJModel.WorkerTime(assignmentTime, JobTime, Workers);
+                var xAxis = new LinearAxis
+                {
+                    Position = AxisPosition.Bottom,
+                    Title = "Time",
+                    Minimum = 0,
+                    Maximum = maxX
+                };
+                chart.Axes.Add(xAxis);
+                double jobStart = 0;
+                for (int w = 1; w <= Workers; w++)
+                {
+                    chart.Annotations.Add(horizontalAnnotation("",
+                        0, jobStart+=assignmentTime, w, OxyColors.Red));
+                    chart.Annotations.Add(horizontalAnnotation("",
+                        jobStart, jobStart + JobTime, w, OxyColors.Green));
+                }
+                chart.Annotations.Add(horizontalAnnotation("Job Queue",
+                    0, maxX, Workers + 1, OxyColors.Red, LineStyle.Dot));
+
+                chart.Annotations.Add(new ArrowAnnotation
+                {
+                    StartPoint = new DataPoint(assignmentTime + JobTime, 1),
+                    EndPoint = new DataPoint(assignmentTime + JobTime, Workers + 1)
+                });
                 return chart;
             }
         }
