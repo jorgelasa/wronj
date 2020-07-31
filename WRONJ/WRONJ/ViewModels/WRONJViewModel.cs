@@ -198,7 +198,7 @@ namespace WRONJ.ViewModels
             IdealTotalTimeVol = 0;
             ModelTotalTimeVol = 0;
             ModelWorkerTimeVol = 0;
-            EnableCalculations = AssignmentTimeVolatility > 0 || JobTimeVolatility > 0;
+            VariableTimes = AssignmentTimeVolatility > 0 || JobTimeVolatility > 0;
         }
         private int lastJob = 1;
         public int LastJob
@@ -277,13 +277,13 @@ namespace WRONJ.ViewModels
                 SetProperty(ref workersLimit, value);
             }
         }
-        bool enableCalculations;
-        public bool EnableCalculations
+        bool variableTimes;
+        public bool VariableTimes
         {
-            get { return enableCalculations; }
+            get { return variableTimes; }
             set
             {
-                SetProperty(ref enableCalculations, value);
+                SetProperty(ref variableTimes, value);
             }
         }
 

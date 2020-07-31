@@ -124,36 +124,28 @@
             <Label Text="Active Workers" FontSize="Medium"/>
             <Label Text="  Ideal Total Time: ">
                 <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding IdealTotalTime}" Value="0">
+                    <DataTrigger TargetType="Label" Binding="{Binding IdealTotalTimeVol}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="{Binding IdealTotalTime, Converter={StaticResource doubleToString3}}"/>
-            <Label Text="-  Real Total Time: ">
+            <Label Text="{Binding IdealTotalTimeVol, Converter={StaticResource doubleToString3}}"/>
+            <Label Text="-  WRONJ Total Time: ">
                 <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding RealTotalTime}" Value="0">
+                    <DataTrigger TargetType="Label" Binding="{Binding ModelTotalTimeVol}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="{Binding RealTotalTime, Converter={StaticResource doubleToString3}}"/>
-            <Label Text="-  Model Worker Time: ">
+            <Label Text="{Binding ModelTotalTimeVol, Converter={StaticResource doubleToString3}}"/>
+            <Label Text="-  WRONJ Worker Time: ">
                 <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding ModelWorkerTime}" Value="0">
+                    <DataTrigger TargetType="Label" Binding="{Binding ModelWorkerTimeVol}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="{Binding ModelWorkerTime, Converter={StaticResource doubleToString3}}"/>
-            <Label Text="-  Real Worker Time: ">
-                <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding RealWorkerTime}" Value="0">
-                        <Setter Property="IsVisible" Value="False" />
-                    </DataTrigger>
-                </Label.Triggers>
-            </Label>
-            <Label Text="{Binding RealWorkerTime, Converter={StaticResource doubleToString3}}"/>
+            <Label Text="{Binding ModelWorkerTimeVol, Converter={StaticResource doubleToString3}}"/>
         </StackLayout>
         <Grid x:Name="activeWorkers">
         </Grid>

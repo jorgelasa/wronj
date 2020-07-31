@@ -14,7 +14,7 @@ namespace WRONJ.Models
     {
         public delegate void FreeWorkerEventHandler(List<int> workers, double idealTotalTime, double realTotalTime);
         public delegate void AssignmentStartEventHandler(List<int> workers,double jobTime, double assignmentTime);
-        public delegate void AssignmentEndEventHandler(List<int> workers, int worker, double modelTime, double workerTime);
+        public delegate void AssignmentEndEventHandler(List<int> workers, int worker, double workerTime);
         public event AssignmentStartEventHandler AssignmentStart;
         public event AssignmentEndEventHandler AssignmentEnd;
         public event FreeWorkerEventHandler FreeWorker;
@@ -153,7 +153,8 @@ namespace WRONJ.Models
             // - The second item is the last time when the worker ends the job 
             Dictionary<int, double> workersLastTime = new Dictionary<int, double>();
             Dictionary<int, double> workersIdealLastTime = new Dictionary<int, double>();
-            double workerTime = 0, modelWorkerTime = 0, assignmentsTime = 0, jobsTime = 0;
+            double workerTime = jobs > workers ? 0 : WorkerTime(inputAssignmentTime, inputJobTime, workers);
+            double assignmentsTime = 0, jobsTime = 0;
             Func<(double endTime, int worker), double, Task<bool>> freeWorker = async (activeWorker, timeBefore) =>
             {
                 int ms = (int)((activeWorker.endTime - timeBefore) * 1000);
@@ -229,10 +230,8 @@ namespace WRONJ.Models
                 if (j >= workers)
                 {
                     workerTime = ((j- workers) * workerTime + workerLastTime) / (j + 1 - workers);
-                    // Use the actual average values as input to the model
-                    modelWorkerTime = WorkerTime(assignmentsTime, jobsTime,workers);
                 }
-                AssignmentEnd?.Invoke(FWQ, assignedWorker, modelWorkerTime,workerTime);
+                AssignmentEnd?.Invoke(FWQ, assignedWorker, workerTime);
                 if (FWQ.Count == 0)
                 {
                     await freeWorker(workersTime.First(), time);
@@ -243,8 +242,8 @@ namespace WRONJ.Models
             // Releasing remaining active workers
             foreach (var activeWorker in workersTime)
             {
-                await freeWorker(activeWorker, time);
                 time = activeWorker.endTime;
+                await freeWorker(activeWorker, time);
             }
         }
         private PropertyInfo[] BasicProperties()

@@ -108,7 +108,7 @@
 
                     <Button Text="Variable Times" 
                             FontSize="20" Clicked="Calculate_Clicked"
-                            IsEnabled="{Binding EnableCalculations}"/>
+                            IsEnabled="{Binding VariableTimes}"/>
                     
                     <BoxView HeightRequest="10"/>
                                         

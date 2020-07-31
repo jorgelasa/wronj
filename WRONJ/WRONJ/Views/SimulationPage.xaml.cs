@@ -75,11 +75,10 @@ namespace WRONJ.Views
                 }
             }
         }
-        private void AssignmentEnd(List<int> idleWorkers, int worker, double modelTime, double workerTime)
+        private void AssignmentEnd(List<int> idleWorkers, int worker, double workerTime)
         {
             int s = 0;
             viewModel.FreeWorkers = idleWorkers.Count;
-            viewModel.ModelWorkerTime = modelTime;
             viewModel.ModelWorkerTimeVol = workerTime;
             string glyph = viewModel.JobsInfo[0].Glyph;
             moveJobQueue();
@@ -102,8 +101,8 @@ namespace WRONJ.Views
         {
             int s = 0;
             viewModel.FreeWorkers = idleWorkers.Count;
-            viewModel.IdealTotalTime = idealTime;
-            viewModel.ModelTotalTime = realTime;
+            viewModel.IdealTotalTimeVol = idealTime;
+            viewModel.ModelTotalTimeVol = realTime;
             int workers = fsq.Children.Count;
             foreach (View view in fsq.Children)
             {
@@ -127,6 +126,12 @@ namespace WRONJ.Views
             viewModel.Model.AssignmentStart -= AssignmentStart;
             viewModel.Model.AssignmentEnd -= AssignmentEnd;
             viewModel.Model.FreeWorker -= FreeWorker;
+            if (!viewModel.VariableTimes)
+            {
+                viewModel.IdealTotalTimeVol = 0;
+                viewModel.ModelTotalTimeVol = 0;
+                viewModel.ModelWorkerTimeVol = 0;
+            }
             cancelTokenSource?.Cancel();
         }
     }
