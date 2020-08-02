@@ -7,6 +7,7 @@ namespace WRONJ.Models
     public enum MenuItemType
     {
         Browse,
+        Help,
         About
     }
     public class HomeMenuItem

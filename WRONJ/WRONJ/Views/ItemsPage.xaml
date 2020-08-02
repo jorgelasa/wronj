@@ -147,8 +147,8 @@
 
                 </StackLayout>
                 <StackLayout Grid.Column="1">
-                    <Button Text="Simulate"  FontSize="20" Clicked="Simulate_Clicked"/>
-                    <Button Text="Charts"  FontSize="20" Clicked="Charts_Clicked"
+                    <Button Text="Simulate" FontSize="20" Clicked="Simulate_Clicked"/>
+                    <Button Text="Charts"   FontSize="20" Clicked="Charts_Clicked"
                             IsEnabled="{Binding EnableCharts}"/>
                 </StackLayout>
             </Grid>

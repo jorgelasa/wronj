@@ -21,6 +21,7 @@ namespace WRONJ.Views
             menuItems = new List<HomeMenuItem>
             {
                 new HomeMenuItem {Id = MenuItemType.Browse, Title="Model" },
+                new HomeMenuItem {Id = MenuItemType.Help, Title="Help" },
                 new HomeMenuItem {Id = MenuItemType.About, Title="About" }
             };
 

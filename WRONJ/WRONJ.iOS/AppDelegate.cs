@@ -24,6 +24,7 @@ namespace WRONJ.iOS
         {
             global::Xamarin.Forms.Forms.Init();
             OxyPlot.Xamarin.Forms.Platform.iOS.PlotViewRenderer.Init();
+            var initMarkdig = Markdig.Markdown.Version;
             LoadApplication(new App());
 
             return base.FinishedLaunching(app, options);
