@@ -6,9 +6,9 @@ In these cases, we may want to improve the performance of the grid by increasing
 
 Time Diagrams fot JT < Limit:
 
-![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/images/dt_lt_limit.png) 
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/dt_lt_limit.png) 
 
 Time Diagrams fot JT >= Limit:
 
-![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/images/dt_gt_limit.png)
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/dt_gt_limit.png)
 
