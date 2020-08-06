@@ -158,21 +158,21 @@ namespace WRONJ.ViewModels
                 }
             }
         }
-        private double lastJobTime, lastAssignmentTime;
-        public double LastJobTime
+        private double nextJobTime, nextAssignmentTime;
+        public double NextJobTime
         {
-            get { return lastJobTime; }
+            get { return nextJobTime; }
             set
             {
-                SetProperty(ref lastJobTime, value);
+                SetProperty(ref nextJobTime, value);
             }
         }
-        public double LastAssignmentTime
+        public double NextAssignmentTime
         {
-            get { return lastAssignmentTime; }
+            get { return nextAssignmentTime; }
             set
             {
-                SetProperty(ref lastAssignmentTime, value);
+                SetProperty(ref nextAssignmentTime, value);
             }
         }
 
@@ -202,12 +202,12 @@ namespace WRONJ.ViewModels
             VariableTimes = AssignmentTimeVolatility > 0 || JobTimeVolatility > 0;
             EnableCharts = Workers > 0 && AssignmentTime > 0 && JobTime > 0;
         }
-        private int lastJob = 1;
-        public int LastJob
+        private int nextJob = 1;
+        public int NextJob
         {
-            get { return lastJob; }
+            get { return nextJob; }
             set {
-                SetProperty(ref lastJob, value);
+                SetProperty(ref nextJob, value);
             }
         }
         double modelWorkerTime, modelWorkerTimeVol;

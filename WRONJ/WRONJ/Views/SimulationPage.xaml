@@ -17,40 +17,40 @@
     <StackLayout Spacing="20" Padding="15">
         <StackLayout Orientation="Horizontal">
             <Label Text="Job Queue" FontSize="Medium"/>
-            <Label Text="  Last Job: ">
+            <Label Text="  Next Job: ">
                 <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding LastJob}" Value="0">
+                    <DataTrigger TargetType="Label" Binding="{Binding NextJob}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="{Binding LastJob, Converter={StaticResource intToString}}"/>
-            <Label Text="-  Last Job Time: ">
+            <Label Text="{Binding NextJob, Converter={StaticResource intToString}}"/>
+            <Label Text="-  Next Job Time: ">
                 <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding LastJobTime}" Value="0">
+                    <DataTrigger TargetType="Label" Binding="{Binding NextJobTime}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="{Binding LastJobTime, Converter={StaticResource doubleToString2}}"/>
+            <Label Text="{Binding NextJobTime, Converter={StaticResource doubleToString2}}"/>
             <Label Text=" secs">
                 <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding LastJobTime}" Value="0">
+                    <DataTrigger TargetType="Label" Binding="{Binding NextJobTime}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="-  Last Assignment Time: ">
+            <Label Text="-  Next Assignment Time: ">
                 <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding LastAssignmentTime}" Value="0">
+                    <DataTrigger TargetType="Label" Binding="{Binding NextAssignmentTime}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="{Binding LastAssignmentTime, Converter={StaticResource doubleToString2}}"/>
+            <Label Text="{Binding NextAssignmentTime, Converter={StaticResource doubleToString2}}"/>
             <Label Text=" ms">
                 <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding LastAssignmentTime}" Value="0">
+                    <DataTrigger TargetType="Label" Binding="{Binding NextAssignmentTime}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
@@ -129,7 +129,7 @@
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="{Binding IdealTotalTimeVol, Converter={StaticResource doubleToString3}}"/>
+            <Label Text="{Binding IdealTotalTimeVol, Converter={StaticResource doubleToString2}}"/>
             <Label Text="-  WRONJ Total Time: ">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding ModelTotalTimeVol}" Value="0">
@@ -137,7 +137,7 @@
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="{Binding ModelTotalTimeVol, Converter={StaticResource doubleToString3}}"/>
+            <Label Text="{Binding ModelTotalTimeVol, Converter={StaticResource doubleToString2}}"/>
             <Label Text="-  WRONJ Worker Time: ">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding ModelWorkerTimeVol}" Value="0">
@@ -145,7 +145,7 @@
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="{Binding ModelWorkerTimeVol, Converter={StaticResource doubleToString3}}"/>
+            <Label Text="{Binding ModelWorkerTimeVol, Converter={StaticResource doubleToString2}}"/>
         </StackLayout>
         <Grid x:Name="activeWorkers">
         </Grid>
