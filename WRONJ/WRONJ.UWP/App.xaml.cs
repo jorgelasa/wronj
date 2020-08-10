@@ -59,7 +59,6 @@ namespace WRONJ.UWP
                 };
                 Xamarin.Forms.Forms.Init(e, assembliesToInclude);
                 OxyPlot.Xamarin.Forms.Platform.UWP.PlotViewRenderer.Init();
-                var initMarkdig =Markdig.Markdown.Version;
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {
                     //TODO: Load state from previously suspended application

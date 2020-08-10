@@ -6,6 +6,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 using WRONJ.Models;
+using Xamarin.Essentials;
 
 namespace WRONJ.Views
 {
@@ -34,8 +35,9 @@ namespace WRONJ.Views
                         MenuPages.Add(id, new NavigationPage(new ItemsPage()));
                         break;
                     case (int)MenuItemType.Help:
-                        MenuPages.Add(id, new NavigationPage(new HelpPage()));
-                        break;
+                        await Browser.OpenAsync("https://github.com/jorgelasa/wronj/blob/master/README.md#the-wronj-problem");
+                        IsPresented = false;
+                        return;
                     case (int)MenuItemType.About:
                         MenuPages.Add(id, new NavigationPage(new AboutPage()));
                         break;
