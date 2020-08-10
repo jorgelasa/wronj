@@ -5,18 +5,25 @@ The **WRONJ (Workers Rest On Next Job)** problem occurs when a [job scheduler](h
 In these cases, we may want to improve the performance of the grid by increasing the number of workers, but that's when the problem may arise: if the number of workers reaches a certain limit (***&#x2243; jt / at***, where ***jt*** is the  average time of the jobs and ***at*** is the average time that takes to the scheduler assigning a new job from the job queue to an idle worker ), the grid just don't scale: the performance is the same from that limit on. 
 
  # Contents
-1. [Conditions](#conditions)
-2. [Constant times](#contant-times)
+1. [WRONJ Conditions](#conditions)
+2. [Constant times](#constant-times)
 2. [Variable times](#variable-times)
 4. [More](#more)
 
 <div id="conditions"></div>
 
-## Conditions
+## WRONJ Conditions
 
+ 1. We have a grid with a fixed number ***w*** of single-threaded worker processes (workers), all with the same computing power: they take the same time to compute the same job.
+ 2. The grid uses a queue to manage all the pending jobs to compute. This is the ***JQ*** (Job Queue).
+ 3. The grid uses another queue to manage the idle workers, the ***FWQ*** (Free Workers Queue). When a worker has finished its job, the grid add an identifier of the worker to the ***FWQ***.
+ 4. The ***JS*** (Job Scheduler) of the grid is a single-threaded process, that chooses the next job to execute from the ***JQ*** and assigns it to the first idle worker in the ***FWQ***. The ***AT*** (Assignment Time) is the average time it takes for the ***JS***  to complete this task.
+ 
+ The ***AT*** is made up of the scheduling algorithm time plus the time it takes to send the task to the worker, probably over a network. A realistic set of values to these parameter would be ***AT***=1 millisecond for and ***w***=1000, but for the sake of clarity we'll use in this document a grid with just 10 workers and ***AT***=1 second. 
 
  
-<div id="contant-times"></div>
+ 
+<div id="constant-times"></div>
 
 ## Constant Times 
 
