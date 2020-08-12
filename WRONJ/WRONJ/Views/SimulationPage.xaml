@@ -17,7 +17,7 @@
     <StackLayout Spacing="20" Padding="15">
         <StackLayout Orientation="Horizontal">
             <Label Text="Job Queue" FontSize="Medium"/>
-            <Label Text="  Next Job: ">
+            <Label Text="  Next job: ">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding NextJob}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
@@ -25,7 +25,7 @@
                 </Label.Triggers>
             </Label>
             <Label Text="{Binding NextJob, Converter={StaticResource intToString}}"/>
-            <Label Text="-  Next Job Time: ">
+            <Label Text="-  Next job time: ">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding NextJobTime}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
@@ -40,7 +40,7 @@
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="-  Next Assignment Time: ">
+            <Label Text="-  Next assignment time: ">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding NextAssignmentTime}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
