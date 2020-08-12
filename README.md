@@ -9,6 +9,7 @@ In these cases, we may want to reduce the workload total time and improve the gr
  # Contents
 - [WRONJ Conditions](#wronj-conditions)
 - [Workload definitions](#workload-definitions)
+- [Ideal grid](#ideal-grid)
 - [WRONJ Worker Time](#wronj-worker-time)
     - [Constant times](#constant-times)
     - [Variable times](#variable-times)
@@ -23,9 +24,19 @@ In these cases, we may want to reduce the workload total time and improve the gr
  1. The grid uses another queue to manage the idle workers, the ***FWQ*** (Free Workers Queue). When a worker has finished its job, the grid add an identifier of the worker to the ***FWQ***.
  1. The ***JS*** (Job Scheduler) of the grid is a single-threaded process, that chooses the next job to execute from the ***JQ*** and assigns it to the first idle worker in the ***FWQ***. The ***at*** (assignment time) is the time it takes for the ***JS***  to complete this task for a job, and the ***AT*** (Assignment Time) is the average of all ***at*** in the workload.
  
- The ***at*** is made up of the scheduling algorithm time plus the time it takes to send the job data to the worker, probably over a network. A realistic set of values to these parameter would be ***AT***=1 millisecond for and ***w***=1000, but for the sake of clarity in most of the examples in this document we'll use a grid with only 10 workers and ***AT***=1 second, with a [FCFS](https://en.wikipedia.org/wiki/Scheduling_(computing)#First_come,_first_served) scheduling algorithm. 
+ The ***at*** is made up of the scheduling algorithm time plus the time it takes to send the job data to the worker, probably over a network. A realistic set of values to these parameter would be ***AT***=1 millisecond for and ***w***=1000, but for the sake of clarity in most of the examples in this document we'll use a grid with only 10 workers and ***AT***=1 second, with a [FCFS](https://en.wikipedia.org/wiki/Scheduling_(computing)#First_come,_first_served) scheduling algorithm, like this one: 
 
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/beforeAssignment.png)
  
+In the samples, we'll use a different icon for each job, and a different color for each worker (ranging from red to blue). In the image above, we can see seven active workers computing a job, and three idle workers waiting for a job. The ***JS*** will now get the next job in the ***JS*** and assign it to the first worker in the ***FWQ*** (the orange one), making it an active worker:
+
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/afterAssignment.png)
+
+The WRONJ problem occurs when there are active workers finishing its job at the time the ***JS*** is assigning a new job, so the ***FWQ*** will never be empty and the grid won't use 100% of its capacity, like this:
+
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/finishJob.png)
+
+
 ## Workload Definitions
  
  1. ***J*** : number of jobs in the workload.
@@ -35,12 +46,18 @@ In these cases, we may want to reduce the workload total time and improve the gr
  1. ***WT*** (Worker Time): average of all ***wt*** in the workload, its minimum value is ***JT*** + ***AT***.
  1. ***TT*** (Total Time): is the time it takes the grid to process all the jobs in the workload. When ***J*** >> ***W***, this time will be ***&#x2243; J*** * ***WT / W***.
 
+## Ideal grid
+
+An ideal grid is one where ***at*** is 0, so ***WT = JT*** and the total time of a workload with ***J*** >> ***W*** will be ***&#x2243; J*** * ***JT / W***.
+
 ## WRONJ Worker Time 
 
 In a grid with a fixed fixed number ***W*** of workers, the WRONJ problem occurs if the workload ***JT*** falls bellow the limit set by ***AT*** * ***(W -1)*** :
 
-- If ***JT*** >= ***AT*** * ***(W -1)*** , then ***WT*** has its optimum value of ***WT = JT + AT***.
-- If ***JT*** < ***AT*** * ***(W -1)*** , then ***WT > JT + AT***. In fact, no matter how low ***JT*** may go, ***WT*** remains fixed at this value: ***WT = W * AT***.
+- If ***JT*** >= ***AT*** * ***(W -1)*** , then ***WT*** has its optimum value of:
+    - ***WT = JT + AT***.
+- If ***JT*** < ***AT*** * ***(W -1)*** , then ***WT > JT + AT***. In fact, no matter how low ***JT*** may go, ***WT*** remains fixed at this value: 
+    - ***WT = W * AT***.
 
 
 
