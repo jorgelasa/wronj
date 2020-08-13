@@ -9,7 +9,7 @@ In these cases, we may want to reduce the workload total time and improve the gr
  # Contents
 - [WRONJ Conditions](#wronj-conditions)
 - [Workload definitions](#workload-definitions)
-- [Ideal grid](#ideal-grid)
+- [Ideal grid vs WRONJ grid](#ideal-grid-vs-wronj-grid)
 - [WRONJ Worker Time](#wronj-worker-time)
     - [Constant times](#constant-times)
     - [Variable times](#variable-times)
@@ -18,10 +18,10 @@ In these cases, we may want to reduce the workload total time and improve the gr
 
 ## WRONJ Conditions
 
- 1. We have a grid with a fixed number ***W*** of single-threaded worker processes (workers), all with the same computing power: they take the same time to compute the same job.
+ 1. We have a grid with a number ***W*** of single-threaded worker processes (workers), all with the same computing power: they take the same time to compute the same job.
  1. The workload submitted to the grid is perfectly parallel.
  1. The grid uses a queue to manage all the pending jobs to compute. This is the ***JQ*** (Job Queue).
- 1. The grid uses another queue to manage the idle workers, the ***FWQ*** (Free Workers Queue). When a worker has finished its job, the grid add an identifier of the worker to the ***FWQ***.
+ 1. The grid uses another queue to manage the idle workers, the ***FWQ*** (Free Workers Queue). When a worker has finished its job, the grid add a reference of that worker to the end of the ***FWQ***.
  1. The ***JS*** (Job Scheduler) of the grid is a single-threaded process, that chooses the next job to execute from the ***JQ*** and assigns it to the first idle worker in the ***FWQ***. The ***at*** (assignment time) is the time it takes for the ***JS***  to complete this task for a job, and the ***AT*** (Assignment Time) is the average of all ***at*** in the workload.
  
  The ***at*** is made up of the scheduling algorithm time plus the time it takes to send the job data to the worker, probably over a network. A realistic set of values to these parameter would be ***AT***=1 millisecond for and ***w***=1000, but for the sake of clarity in most of the examples in this document we'll use a grid with only 10 workers and ***AT***=1 second, with a [FCFS](https://en.wikipedia.org/wiki/Scheduling_(computing)#First_come,_first_served) scheduling algorithm, like this one: 
@@ -46,11 +46,13 @@ The WRONJ problem occurs when there are active workers finishing its job at the 
  1. ***WT*** (Worker Time): average of all ***wt*** in the workload, its minimum value is ***JT*** + ***AT***.
  1. ***TT*** (Total Time): is the time it takes the grid to process all the jobs in the workload. When ***J*** >> ***W***, this time will be ***&#x2243; J*** * ***WT / W***.
 
-## Ideal grid
+## Ideal grid vs WRONJ grid
 
-An ideal grid is one where ***at*** is 0, so ***WT = JT*** and the total time of a workload with ***J*** >> ***W*** will be ***&#x2243; J*** * ***JT / W***.
+An ideal grid is one where ***at = 0***: all workers are always active when the grid is full. In sucha a grid, the equality ***WT = JT*** holds, and the total time of a workload with ***J*** >> ***W*** will be ***&#x2243; J*** * ***JT / W***.
 
-## WRONJ Worker Time 
+A WRONJ grid is one that meets the [conditions](#wronj-conditions) above, with ***at > 0***. The ***WT*** in these grids has an odd behavior, as we are about to see.
+
+## WRONJ Worker Time
 
 In a grid with a fixed fixed number ***W*** of workers, the WRONJ problem occurs if the workload ***JT*** falls bellow the limit set by ***AT*** * ***(W -1)*** :
 
