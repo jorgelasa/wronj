@@ -54,17 +54,33 @@ A WRONJ grid is one that meets the [conditions](#wronj-conditions) above, with *
 
 ## WRONJ Worker Time
 
-In a grid with a fixed fixed number ***W*** of workers, the WRONJ problem occurs if the workload ***JT*** falls bellow the limit set by ***AT*** * ***(W -1)*** :
+The WRONJ problem is due to this dual value of ***WT*** in a WRONJ grid:
 
-- If ***JT*** >= ***AT*** * ***(W -1)*** , then ***WT*** has its optimum value of:
+1. If ***JT >= (W -1) * AT*** , then ***WT*** is equal to its minimum value:
     - ***WT = JT + AT***.
-- If ***JT*** < ***AT*** * ***(W -1)*** , then ***WT > JT + AT***. In fact, no matter how low ***JT*** may go, ***WT*** remains fixed at this value: 
+    - ***TT&#x2243; J * (JT + AT) / W*** (when the grid is full)
+2. If ***JT < (W -1) * AT*** , then ***WT*** has this value (greater than its minimum value): 
     - ***WT = W * AT***.
+    - ***TT&#x2243; J * AT*** (when the grid is full)
+
+In a grid with a fixed number ***W*** of workers, the WRONJ problem occurs when the workload ***JT*** falls bellow this limit ***(W -1) * AT***. In fact, no matter how low ***JT*** may go, ***WT*** remains fixed at the value ***W * AT***.
+
+The next chart shows ***WT*** as a function of ***JT***, in an ideal grid and in a WRONJ grid, both with 1000 workers. The ***AT*** value in the WRONJ grid is one millisecond. If ***JT*** is 1.5 seconds or is equal to 0.999 seconds (i.e. the limit value ***(W -1) * AT***), then ***WT*** in both grids is very similar. But when ***JT*** is 0.5 second, ***WT*** is twice as long in the WRONJ grid than in the ideal grid:
+ 
+
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/JTLimit.png)
+
+In a grid with a fixed value ***JT*** for the workloads, we'll flip the previous inequalities:
+
+- If ***W*** <= ***JT / AT + 1*** , then ***WT = JT + AT***.
+- If ***W*** > ***JT / AT + 1*** , then ***WT = W * AT***. 
+
+ The next chart shows the scalability problem with WRONJ grids. The workload has a million jobs where ***JT*** is a second and a half, the ***AT*** in the WRONJ grid is one millisecond, and we are increasing the number of workers: 1000, 1500, 2000. In this case the grid is full, so   and in the ideal grid, the total time is inversely proportional to ***W***. But in the WRONJ grid, once we reach the limit value of 1501 workers (***= JT / AT + 1***), the total time remains at the fixed value of 1000 seconds (***= JT * AT***):
+
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/WLimit.png)
 
 
-
-
-### Constant Times 
+### Constant Times
 
  - Simulation :
 

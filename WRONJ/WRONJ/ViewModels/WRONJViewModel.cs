@@ -400,7 +400,7 @@ namespace WRONJ.ViewModels
                         TextPosition = new DataPoint( 1.25* limit , 0.93 * WRONJModel.WorkerTime(Model.AssignmentTime, 1.5 * limit, Workers))
                     }
                 );
-                chart.Annotations.Add(verticalAnnotation("JT=AT*(W-1)",
+                chart.Annotations.Add(verticalAnnotation("JT=(W-1)*AT",
                     limit, maxY, OxyColors.Blue, 50,
                     HorizontalAlignment.Right));
                 chart.Annotations.Add(verticalAnnotation($"JT={JobTime:F2}",
@@ -564,7 +564,7 @@ namespace WRONJ.ViewModels
                 chart.Annotations.Add(
                     new TextAnnotation
                     {
-                        Text = "WT = " + (JobTime < limit ? "Workers * AT" : "JT + AT") + $" = {workerTime:F2}",
+                        Text = "WT = " + (JobTime < limit ? "W * AT" : "JT + AT") + $" = {workerTime:F2}",
                         TextPosition = new DataPoint(maxX / 2, 0.5)
                     }
                 );
