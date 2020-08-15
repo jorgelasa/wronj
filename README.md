@@ -10,9 +10,9 @@ In these cases, we may want to reduce the workload total time and improve the gr
 - [WRONJ Conditions](#wronj-conditions)
 - [Workload definitions](#workload-definitions)
 - [Ideal grid vs WRONJ grid](#ideal-grid-vs-wronj-grid)
-- [WRONJ Worker Time](#wronj-worker-time)
-    - [Constant times](#constant-times)
-    - [Variable times](#variable-times)
+- [WRONJ Worker Time (WWT)](#wronj-worker-time-(wwt))
+    - [WWT deduction with constant times](#wwt-deduction-with-constant-times)
+    - [WWT deduction with variable times](#wwt-deduction-with-variable-times)
 - [More](#more)
 
 
@@ -52,15 +52,20 @@ An ideal grid is one where ***at = 0***: all workers are always active when the 
 
 A WRONJ grid is one that meets the [conditions](#wronj-conditions) above, with ***at > 0***. The ***WT*** in these grids has an odd behavior, as we are about to see.
 
-## WRONJ Worker Time
+## WRONJ Worker Time (WWT)
 
 The WRONJ problem is due to this dual value of ***WT*** in a WRONJ grid:
 
 1. If ***JT >= (W -1) * AT*** , then ***WT*** is equal to its minimum value:
     - ***WT = JT + AT***.
-    - ***TT&#x2243; J * (JT + AT) / W*** (when the grid is full)
 2. If ***JT < (W -1) * AT*** , then ***WT*** has this value (greater than its minimum value): 
     - ***WT = W * AT***.
+
+When the grid is full the total time of a workoad is ***TT&#x2243; J * WT / W***, so the above expressions imply that:
+
+1. If ***JT >= (W -1) * AT*** , then:
+    - ***TT&#x2243; J * (JT + AT) / W***
+2. If ***JT < (W -1) * AT*** , then: 
     - ***TT&#x2243; J * AT*** (when the grid is full)
 
 In a grid with a fixed number ***W*** of workers, the WRONJ problem occurs when the workload ***JT*** falls bellow this limit ***(W -1) * AT***. In fact, no matter how low ***JT*** may go, ***WT*** remains fixed at the value ***W * AT***.
