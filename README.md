@@ -85,11 +85,11 @@ In a grid with a fixed value ***JT*** for the workloads, we'll flip the previous
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/WLimit.png)
 
 
-### Constant Times
+### WWT deduction with constant times
 
- - Simulation :
+ First 
 
-![alt text](https://raw.githubusercontent.com/jormigla/images_test/master/simul10constant.gif)
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/constantSimulation.gif)
 
  - Time Diagram fot JT < Limit :
 
@@ -100,12 +100,11 @@ In a grid with a fixed value ***JT*** for the workloads, we'll flip the previous
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/dt_gt_limit.png)
 
 
-### Variable Times 
+### WWT deduction with variable times 
 
  - Simulation :
 
-![alt text](https://raw.githubusercontent.com/jormigla/images_test/master/simul10var.gif)
-
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/variableSimulation.gif)
 
 <div id="more"></div>
 
