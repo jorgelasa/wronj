@@ -14,7 +14,7 @@ namespace WRONJ.Models
     {
         public delegate void AssignmentStartEventHandler(List<int> workers,double jobTime, double assignmentTime);
         public delegate void AssignmentEndEventHandler(List<int> workers, int worker, double workerTime);
-        public delegate void FreeWorkerEventHandler(List<int> workers);
+        public delegate void FreeWorkerEventHandler(List<int> workers, double timeBetweenEndings);
         public delegate void EndSimulationEventHandler(double idealTotalTime, double realTotalTime);
         public event AssignmentStartEventHandler AssignmentStart;
         public event AssignmentEndEventHandler AssignmentEnd;
@@ -157,6 +157,8 @@ namespace WRONJ.Models
             Dictionary<int, double> workersIdealLastTime = new Dictionary<int, double>();
             double workerTime = jobs > workers ? 0 : WorkerTime(inputAssignmentTime, inputJobTime, workers);
             double assignmentsTime = 0, jobsTime = 0;
+            double timeBetweenEndings = 0, timeLastEnding=0;
+            int endedCount = 0;
             Func<(double endTime, int worker), double, Task<bool>> freeWorker = async (activeWorker, timeBefore) =>
             {
                 int ms = (int)((activeWorker.endTime - timeBefore) * 1000);
@@ -167,7 +169,12 @@ namespace WRONJ.Models
                     waited = true;
                 }
                 FWQ.Add(activeWorker.worker);
-                FreeWorker?.Invoke(FWQ);
+                if (timeLastEnding > 0)
+                {
+                    timeBetweenEndings = (endedCount * timeBetweenEndings + activeWorker.endTime - timeLastEnding) / ++endedCount;
+                }
+                timeLastEnding = activeWorker.endTime;
+                FreeWorker?.Invoke(FWQ, timeBetweenEndings);
                 return waited;
             };
             // Assigning all jobs

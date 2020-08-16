@@ -39,9 +39,11 @@ The WRONJ problem occurs when there are active workers finishing its job at the 
 
 ## Workload Definitions
  
+When we refer to times, we will use the same name to define individual and average times (using capital letters in the latter case):
+
  1. ***J*** : number of jobs in the workload.
  1. ***jt*** (job time): computing time of a job in a worker.
- 2. ***wt*** (worker time): time it takes a worker to process a job. It's made up of the ***jt*** plus the time that the worker has been waiting in the ***FWQ*** until the ***JS*** assigned the job, so its minimum value is ***jt*** + ***at***.
+ 1. ***wt*** (worker time): time it takes a worker to process a job. It's made up of the ***jt*** plus the time that the worker has been waiting in the ***FWQ*** until the ***JS*** assigned the job, so its minimum value is ***jt*** + ***at***.
  1. ***JT*** (Job Time): average of all ***jt*** in the workload, 
  1. ***WT*** (Worker Time): average of all ***wt*** in the workload, its minimum value is ***JT*** + ***AT***.
  1. ***TT*** (Total Time): is the time it takes the grid to process all the jobs in the workload. When ***J*** >> ***W***, this time will be ***&#x2243; J*** * ***WT / W***.
@@ -87,7 +89,12 @@ In a grid with a fixed value ***JT*** for the workloads, we'll flip the previous
 
 ### WWT proof
 
- - Simulation :
+First, we define these two concepts:
+
+ 1. ***tbe*** (time between endings): when a worker finishes its job, it's released and placed at the end of the ***FWQ***. The *** tbe *** is the time that elapses between the moment a worker finishes its job and the last released worker finished its own job.
+ 1. ***TBE*** (Time Between Endings): average of all ***tbe*** in the workload. 
+
+ 
 
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/bigJTSimulation.gif)
 

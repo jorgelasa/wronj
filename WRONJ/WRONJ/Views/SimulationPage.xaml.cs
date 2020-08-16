@@ -102,10 +102,11 @@ namespace WRONJ.Views
             activeWorkers.Children[worker].BackgroundColor = viewModel.WorkerColor(worker);
             ((FontImageSource)((Image)activeWorkers.Children[worker]).Source).Glyph = glyph;
         }
-        private void FreeWorker(List<int> idleWorkers)
+        private void FreeWorker(List<int> idleWorkers,double timeBetweenEndings)
         {
             int s = 0;
             viewModel.FreeWorkers = idleWorkers.Count;
+            viewModel.TimeBetweenEndings = 1000*timeBetweenEndings;
             int workers = fsq.Children.Count;
             foreach (View view in fsq.Children)
             {

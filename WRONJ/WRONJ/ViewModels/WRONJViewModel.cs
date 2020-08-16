@@ -213,7 +213,7 @@ namespace WRONJ.ViewModels
         double modelWorkerTime, modelWorkerTimeVol;
         double idealTotalTime, idealTotalTimeVol;
         double modelTotalTime, modelTotalTimeVol;
-        double jobTimeLimit;
+        double jobTimeLimit, timeBetweenEndings;
         int workersLimit;
         public double ModelWorkerTime
         {
@@ -269,6 +269,14 @@ namespace WRONJ.ViewModels
             set
             {
                 SetProperty(ref jobTimeLimit, value);
+            }
+        }
+        public double TimeBetweenEndings
+        {
+            get { return timeBetweenEndings; }
+            set
+            {
+                SetProperty(ref timeBetweenEndings, value);
             }
         }
         public int WorkersLimit

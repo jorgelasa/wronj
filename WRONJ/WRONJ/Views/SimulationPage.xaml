@@ -55,7 +55,7 @@
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-        </StackLayout> 
+        </StackLayout>
         <Grid x:Name="jobQueue" ColumnSpacing="10">
             <Image BackgroundColor="{Binding JobsInfo[0].JobColor}" Grid.Column="0">
                 <Image.Source>
@@ -130,9 +130,30 @@
                 </Label.Triggers>
             </Label>
             <Label Text="{Binding ModelWorkerTimeVol, Converter={StaticResource doubleToString2}}"/>
+            <Label Text=" secs">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding ModelWorkerTimeVol}" Value="0">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label Text="-  Time Between Endings (ms): ">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding TimeBetweenEndings}" Value="0">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label Text="{Binding TimeBetweenEndings, Converter={StaticResource doubleToString2}}"/>
+            <Label Text=" ms">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding TimeBetweenEndings}" Value="0">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
         </StackLayout>
         <Grid x:Name="activeWorkers">
         </Grid>
     </StackLayout>
-    
 </ContentPage>
