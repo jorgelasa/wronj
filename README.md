@@ -11,8 +11,8 @@ In these cases, we may want to reduce the workload total time and improve the gr
 - [Workload definitions](#workload-definitions)
 - [Ideal grid vs WRONJ grid](#ideal-grid-vs-wronj-grid)
 - [WRONJ Worker Time (WWT)](#wronj-worker-time-(wwt))
-    - [WWT deduction with constant times](#wwt-deduction-with-constant-times)
-    - [WWT deduction with variable times](#wwt-deduction-with-variable-times)
+    - [WWT proof](#wwt-proof)
+    - [WWT graphical proof (constant times)](#wwt-graphical-proof-(constant-times))
 - [More](#more)
 
 
@@ -85,7 +85,15 @@ In a grid with a fixed value ***JT*** for the workloads, we'll flip the previous
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/WLimit.png)
 
 
-### WWT deduction with constant times
+### WWT proof
+
+ - Simulation :
+
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/bigJTSimulation.gif)
+
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/smallJTSimulation.gif)
+
+### WWT graphical proof (constant times)
 
  First 
 
@@ -99,12 +107,6 @@ In a grid with a fixed value ***JT*** for the workloads, we'll flip the previous
 
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/dt_gt_limit.png)
 
-
-### WWT deduction with variable times 
-
- - Simulation :
-
-![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/variableSimulation.gif)
 
 <div id="more"></div>
 
