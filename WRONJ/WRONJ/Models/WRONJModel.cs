@@ -12,12 +12,14 @@ namespace WRONJ.Models
 {
     public class WRONJModel : ICloneable
     {
-        public delegate void FreeWorkerEventHandler(List<int> workers, double idealTotalTime, double realTotalTime);
         public delegate void AssignmentStartEventHandler(List<int> workers,double jobTime, double assignmentTime);
         public delegate void AssignmentEndEventHandler(List<int> workers, int worker, double workerTime);
+        public delegate void FreeWorkerEventHandler(List<int> workers);
+        public delegate void EndSimulationEventHandler(double idealTotalTime, double realTotalTime);
         public event AssignmentStartEventHandler AssignmentStart;
         public event AssignmentEndEventHandler AssignmentEnd;
         public event FreeWorkerEventHandler FreeWorker;
+        public event EndSimulationEventHandler EndSimulation;
         /// <summary>
         /// Input average job assignment time, in seconds
         /// </summary>
@@ -165,7 +167,7 @@ namespace WRONJ.Models
                     waited = true;
                 }
                 FWQ.Add(activeWorker.worker);
-                FreeWorker?.Invoke(FWQ,idealTime,time);
+                FreeWorker?.Invoke(FWQ);
                 return waited;
             };
             // Assigning all jobs
@@ -245,6 +247,7 @@ namespace WRONJ.Models
                 time = activeWorker.endTime;
                 await freeWorker(activeWorker, time);
             }
+            EndSimulation?.Invoke(idealTime, time);
         }
         private PropertyInfo[] BasicProperties()
         {

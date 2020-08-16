@@ -44,6 +44,11 @@ namespace WRONJ.Views
             viewModel.Model.AssignmentStart += AssignmentStart;
             viewModel.Model.AssignmentEnd += AssignmentEnd;
             viewModel.Model.FreeWorker += FreeWorker;
+            viewModel.Model.EndSimulation += (idealTime, realTime) =>
+            {
+                viewModel.IdealTotalTimeVol = idealTime;
+                viewModel.ModelTotalTimeVol = realTime;
+            };
             cancelTokenSource = new CancellationTokenSource();
             viewModel.Model.Simulate(cancelTokenSource.Token);
         }
@@ -97,12 +102,10 @@ namespace WRONJ.Views
             activeWorkers.Children[worker].BackgroundColor = viewModel.WorkerColor(worker);
             ((FontImageSource)((Image)activeWorkers.Children[worker]).Source).Glyph = glyph;
         }
-        private void FreeWorker(List<int> idleWorkers,double idealTime, double realTime)
+        private void FreeWorker(List<int> idleWorkers)
         {
             int s = 0;
             viewModel.FreeWorkers = idleWorkers.Count;
-            viewModel.IdealTotalTimeVol = idealTime;
-            viewModel.ModelTotalTimeVol = realTime;
             int workers = fsq.Children.Count;
             foreach (View view in fsq.Children)
             {
@@ -117,9 +120,7 @@ namespace WRONJ.Views
             }
             activeWorkers.Children[idleWorkers[idleWorkers.Count - 1]].BackgroundColor = Color.Silver;
             ((FontImageSource)((Image)activeWorkers.Children[idleWorkers[idleWorkers.Count - 1]]).Source).Glyph = idleWorker;
-
         }
-
         protected override void OnDisappearing()
         {
             base.OnDisappearing();

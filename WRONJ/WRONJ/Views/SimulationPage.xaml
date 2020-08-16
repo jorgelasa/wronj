@@ -122,23 +122,7 @@
         </Grid>
         <StackLayout Orientation="Horizontal">
             <Label Text="Active Workers" FontSize="Medium"/>
-            <Label Text="  Ideal Total Time: ">
-                <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding IdealTotalTimeVol}" Value="0">
-                        <Setter Property="IsVisible" Value="False" />
-                    </DataTrigger>
-                </Label.Triggers>
-            </Label>
-            <Label Text="{Binding IdealTotalTimeVol, Converter={StaticResource doubleToString2}}"/>
-            <Label Text="-  WRONJ Total Time: ">
-                <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding ModelTotalTimeVol}" Value="0">
-                        <Setter Property="IsVisible" Value="False" />
-                    </DataTrigger>
-                </Label.Triggers>
-            </Label>
-            <Label Text="{Binding ModelTotalTimeVol, Converter={StaticResource doubleToString2}}"/>
-            <Label Text="-  WRONJ Worker Time: ">
+            <Label Text="  WRONJ Worker Time: ">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding ModelWorkerTimeVol}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
