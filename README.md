@@ -42,33 +42,40 @@ The WRONJ problem occurs when there are active workers finishing its job at the 
 When we refer to times, we will use the same name to define individual and average times (using capital letters in the latter case):
 
  1. ***J*** : number of jobs in the workload.
+ 1. ***FW*** : number of workers in the ***FWQ***.
+ 1. ***AW*** : number of active workers: ***AW = W - FW***.
  1. ***jt*** (job time): computing time of a job in a worker.
- 1. ***wt*** (worker time): time it takes a worker to process a job. It's made up of the ***jt*** plus the time that the worker has been waiting in the ***FWQ*** until the ***JS*** assigned the job, so its minimum value is ***jt*** + ***at***.
+ 1. ***fwqt*** (free worker queue time): time that the worker has been waiting in the ***FWQ*** until the ***JS*** assigned it a job. Its minimum value is ***at***
+ 1. ***wt*** (worker time): time it takes a worker to process a job. It's ***wt = jt + fwqt***, so its minimum value is ***jt*** + ***at***.
  1. ***JT*** (Job Time): average of all ***jt*** in the workload, 
- 1. ***WT*** (Worker Time): average of all ***wt*** in the workload, its minimum value is ***JT*** + ***AT***.
+ 1. ***FWQT*** (Free Worker Queue  Time): average of all ***fwqt*** in the workload. Its minimum value is ***AT***.
+ 1. ***WT*** (Worker Time): average of all ***wt*** in the workload. ***WT = JT + FWQT*** and its minimum value is ***JT*** + ***AT***.
  1. ***TT*** (Total Time): is the time it takes the grid to process all the jobs in the workload. When ***J*** >> ***W***, this time will be ***&#x2243; J*** * ***WT / W***.
+
+We'll say that ***the grid is full*** when ***J*** >> ***W***.
+
 
 ## Ideal grid vs WRONJ grid
 
-An ideal grid is one where ***at = 0***: all workers are always active when the grid is full. In sucha a grid, the equality ***WT = JT*** holds, and the total time of a workload with ***J*** >> ***W*** will be ***&#x2243; J*** * ***JT / W***.
+An ideal grid is one where ***at = 0***: all workers are always active when the grid is full. In such a grid, the equality ***WT = JT*** holds, and the total time of a workload with ***J*** >> ***W*** will be ***&#x2243; J*** * ***JT / W***.
 
 A WRONJ grid is one that meets the [conditions](#wronj-conditions) above, with ***at > 0***. The ***WT*** in these grids has an odd behavior, as we are about to see.
 
 ## WRONJ Worker Time (WWT)
 
-The WRONJ problem is due to this dual value of ***WT*** in a WRONJ grid:
+The WRONJ problem is due to this dual value of ***WT*** in a WRONJ grid when it's full:
 
-1. If ***JT >= (W -1) * AT*** , then ***WT*** is equal to its minimum value:
-    - ***WT = JT + AT***.
+1. If ***JT >= (W -1) * AT*** , then ***WT*** is approximately equal to its minimum value:
+    - ***WT &#x2243; JT + AT***.
 2. If ***JT < (W -1) * AT*** , then ***WT*** has this value (greater than its minimum value): 
-    - ***WT = W * AT***.
+    - ***WT &#x2243; W * AT***.
 
 When the grid is full the total time of a workoad is ***TT&#x2243; J * WT / W***, so the above expressions imply that:
 
 1. If ***JT >= (W -1) * AT*** , then:
-    - ***TT&#x2243; J * (JT + AT) / W***
+    - ***TT &#x2243; J * (JT + AT) / W***
 2. If ***JT < (W -1) * AT*** , then: 
-    - ***TT&#x2243; J * AT*** (when the grid is full)
+    - ***TT &#x2243; J * AT*** 
 
 In a grid with a fixed number ***W*** of workers, the WRONJ problem occurs when the workload ***JT*** falls bellow this limit ***(W -1) * AT***. In fact, no matter how low ***JT*** may go, ***WT*** remains fixed at the value ***W * AT***.
 
@@ -79,8 +86,8 @@ The next chart shows ***WT*** as a function of ***JT***, in an ideal grid and in
 
 In a grid with a fixed value ***JT*** for the workloads, we'll flip the previous inequalities:
 
-- If ***W*** <= ***JT / AT + 1*** , then ***WT = JT + AT***.
-- If ***W*** > ***JT / AT + 1*** , then ***WT = W * AT***. 
+- If ***W*** <= ***JT / AT + 1*** , then ***WT &#x2243; JT + AT***.
+- If ***W*** > ***JT / AT + 1*** , then ***WT &#x2243; W * AT***. 
 
  The next chart shows the scalability problem with WRONJ grids. The workload has a million jobs where ***JT*** is a second and a half, the ***AT*** in the WRONJ grid is one millisecond, and we are increasing the number of workers: 1000, 1500, 2000. In this case the grid is full, so   and in the ideal grid, the total time is inversely proportional to ***W***. But in the WRONJ grid, once we reach the limit value of 1501 workers (***= JT / AT + 1***), the total time remains at the fixed value of 1000 seconds (***= JT * AT***):
 
@@ -89,16 +96,42 @@ In a grid with a fixed value ***JT*** for the workloads, we'll flip the previous
 
 ### WWT proof
 
+To illutrate the proof, we'll use a grid with 10 workers and ***AT = 100 ms***. 
+
 First, we define these two concepts:
 
- 1. ***tbe*** (time between endings): when a worker finishes its job, it's released and placed at the end of the ***FWQ***. The *** tbe *** is the time that elapses between the moment a worker finishes its job and the last released worker finished its own job.
+ 1. ***tbe*** (time between endings): when a worker finishes its job, it's released and placed at the end of the ***FWQ***. The ***tbe*** is the elapsed time between the moment a worker finishes its job and the moment the last worker that was placed at the ***FWQ*** finished its own job. When the grid is full, then it's ***tbe &#x2243; JT / AW***.
  1. ***TBE*** (Time Between Endings): average of all ***tbe*** in the workload. 
 
- 
+If ***JT / W > AT***, then when there is a idle worker in the ***FWQ***, normally no other worker will finish their job while the ***JS*** assigns a new job to that idle worker. The ***FWQ*** will be empty most of the time, and workers will only wait ***AT*** until they are assigned a new job, so ***WT &#x2243; JT + AT***.
+
+In this case the ***FWQ*** is normally empty, so ***FW = 0***, ***AW = W*** and ***TBE = JT /W***. This is the case of our first sample, simulating a workload with ***JT = 5 seconds***. We can see that ***WWT***  tends to ***JT + AT*** (5.1 seconds), and ***TBE*** tends to ***JT / W*** (0.5 seconds):
+
 
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/bigJTSimulation.gif)
 
+When ***JT / W < AT***, normally the ***FWQ*** won't be empty, and ***FW*** will change:
+ - When ***FW*** increases, the ***TBE*** increases as well (cause ***AW*** decreases), and when ***AT < TBE*** the ***FWQ*** will shrink, and ***FW*** will decrease.
+ - When ***FW*** decreases, the ***TBE*** decreases as well (cause ***AW*** increases), and when ***AT > TBE*** the ***FWQ*** will grow, and ***FW*** will increase.
+ 
+The grid will tend toward a state of equilibrium, where ***AT = TBE*** and ***FW*** and ***AW*** are constants:
+ - ***AT = TBE &#x2243; JT / AW = JT / (W - FW)***
+
+ Solving the previous equation, we have:
+ 
+ - ***FW &#x2243; W - JT / AT***
+ - ***FWQT = FW * AT  &#x2243; W * AT - JT***
+ 
+ and finally:
+
+- ***WT = FWQT + JT &#x2243; W * AT***
+
+The next sample shows this dynamic. ***JT = 0.5 seconds***, so ***WWT*** will tend to ***W * AT*** (1 second), and ***TBE*** tends to ***&#x2243; AT*** (0.1 seconds):
+
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/smallJTSimulation.gif)
+
+We calculate the limit value for ***JT*** by equating the two values for ***WT*** :  ***JT + AT = W * AT***, so this limit is:
+- ***JT = (W - 1) * AT***
 
 ### WWT graphical proof (constant times)
 
