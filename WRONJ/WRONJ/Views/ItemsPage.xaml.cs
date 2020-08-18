@@ -25,6 +25,7 @@ namespace WRONJ.Views
             viewModel.ModelWorkerTimeVol = 0;
             viewModel.IdealTotalTimeVol = 0;
             viewModel.ModelTotalTimeVol = 0;
+            viewModel.TimeBetweenEndings = 0;
             await Navigation.PushAsync(new SimulationPage(viewModel));
         }
         async void Calculate_Clicked(object sender, EventArgs e)

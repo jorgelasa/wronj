@@ -135,18 +135,25 @@ We calculate the limit value for ***JT*** by equating the two values for ***WT**
 
 ### WWT graphical proof (constant times)
 
- First 
+- Time Diagram fot JT >= Limit :
 
-![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/constantSimulation.gif)
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/constantSimulation9.gif)
 
- - Time Diagram fot JT < Limit :
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/constantSimulation20.gif)
 
-![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/dt_lt_limit.png) 
-
- - Time Diagram fot JT >= Limit :
 
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/dt_gt_limit.png)
 
+
+ - Time Diagram fot JT < Limit :
+
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/constantSimulation2.gif)
+
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/constantSimulation5.gif)
+
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/dt_lt_limit.png) 
+
+ 
 
 <div id="more"></div>
 
