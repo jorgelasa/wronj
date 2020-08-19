@@ -13,10 +13,9 @@ In these cases, we may want to reduce the workload total time and improve the gr
 - [WRONJ Worker Time (WWT)](#wronj-worker-time-(wwt))
     - [WWT proof](#wwt-proof)
     - [WWT graphical proof (constant times)](#wwt-graphical-proof-(constant-times))
-- [More](#more)
 
 
-## WRONJ Conditions
+# WRONJ Conditions
 
  1. We have a grid with a number ***W*** of single-threaded worker processes (workers), all with the same computing power: they take the same time to compute the same job.
  1. The workload submitted to the grid is perfectly parallel.
@@ -24,46 +23,47 @@ In these cases, we may want to reduce the workload total time and improve the gr
  1. The grid uses another queue to manage the idle workers, the ***FWQ*** (Free Workers Queue). When a worker has finished its job, the grid add a reference of that worker to the end of the ***FWQ***.
  1. The ***JS*** (Job Scheduler) of the grid is a single-threaded process, that chooses the next job to execute from the ***JQ*** and assigns it to the first idle worker in the ***FWQ***. The ***at*** (assignment time) is the time it takes for the ***JS***  to complete this task for a job, and the ***AT*** (Assignment Time) is the average of all ***at*** in the workload.
  
- The ***at*** is made up of the scheduling algorithm time plus the time it takes to send the job data to the worker, probably over a network. A realistic set of values to these parameter would be ***AT***=1 millisecond for and ***w***=1000, but for the sake of clarity in most of the examples in this document we'll use a grid with only 10 workers and ***AT***=1 second, with a [FCFS](https://en.wikipedia.org/wiki/Scheduling_(computing)#First_come,_first_served) scheduling algorithm, like this one: 
+ The ***at*** is made up of the scheduling algorithm time plus the time it takes to send the job data to the worker, probably over a network. A realistic set of values to these parameter would be ***AT***=1 millisecond and ***W***=1000, but for the sake of clarity in most of the examples in this document we'll use a grid with only 10 workers and ***AT*** >= 100 milliseconds, with a [FCFS](https://en.wikipedia.org/wiki/Scheduling_(computing)#First_come,_first_served) scheduling algorithm, like this one: 
 
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/beforeAssignment.png)
  
-In the samples, we'll use a different icon for each job, and a different color for each worker (ranging from red to blue). In the image above, we can see seven active workers computing a job, and three idle workers waiting for a job. The ***JS*** will now get the next job in the ***JS*** and assign it to the first worker in the ***FWQ*** (the orange one), making it an active worker:
+In the samples, we'll use a different icon for each job, and a different color for each worker (ranging from red to blue). In the image above, we can see seven active workers computing different jobs, and three idle workers waiting for a new job. The ***JS*** will now get the next job in the ***JS*** and assign it to the first worker in the ***FWQ*** (the orange one), making it an active worker:
 
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/afterAssignment.png)
 
-The WRONJ problem occurs when there are active workers finishing its job at the time the ***JS*** is assigning a new job, so the ***FWQ*** will never be empty and the grid won't use 100% of its capacity, like this:
+The **WRONJ** problem occurs when there are active workers finishing its job at the time the ***JS*** is assigning a new job, so the ***FWQ*** will never be empty and the grid won't use 100% of its capacity, like this:
 
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/finishJob.png)
 
 
-## Workload Definitions
+# Workload Definitions
  
-When we refer to times, we will use the same name to define individual and average times (using capital letters in the latter case):
+In some of the following concepts, we will use the same name to define individual and average values (using capital letters in the latter case):
 
  1. ***J*** : number of jobs in the workload.
- 1. ***FW*** : number of workers in the ***FWQ***.
- 1. ***AW*** : number of active workers: ***AW = W - FW***.
+ 1. ***fw*** (free workers): number of workers in the ***FWQ***.
+ 1. ***FW*** (Free Workers): average of all values of ***fw*** in the workload.
+ 1. ***aw*** (active workers): number of active workers: ***aw = W - fw***.
+ 1. ***AW*** (Active Workers): average of all values of ***aw*** in the workload: ***AW = W - FW***.
  1. ***jt*** (job time): computing time of a job in a worker.
- 1. ***fwqt*** (free worker queue time): time that the worker has been waiting in the ***FWQ*** until the ***JS*** assigned it a job. Its minimum value is ***at***
- 1. ***wt*** (worker time): time it takes a worker to process a job. It's ***wt = jt + fwqt***, so its minimum value is ***jt*** + ***at***.
- 1. ***JT*** (Job Time): average of all ***jt*** in the workload, 
+ 1. ***JT*** (Job Time): average of all ***jt*** in the workload. 
+ 1. ***fwqt*** (free worker queue time): time that the worker has been waiting in the ***FWQ*** until the ***JS*** assigned it a job. Its minimum value is ***at***.
  1. ***FWQT*** (Free Worker Queue  Time): average of all ***fwqt*** in the workload. Its minimum value is ***AT***.
+ 1. ***wt*** (worker time): time it takes a worker to process a job. It's ***wt = jt + fwqt***, so its minimum value is ***jt*** + ***at***.
  1. ***WT*** (Worker Time): average of all ***wt*** in the workload. ***WT = JT + FWQT*** and its minimum value is ***JT*** + ***AT***.
- 1. ***TT*** (Total Time): is the time it takes the grid to process all the jobs in the workload. When ***J*** >> ***W***, this time will be ***&#x2243; J*** * ***WT / W***.
+ 1. We'll say that ***the grid is full*** when ***J*** >> ***W***.
+ 1. ***TT*** (Total Time): is the time it takes the grid to process all the jobs in the workload. When the grid is full, this time will be ***&#x2243; J*** * ***WT / W***.
 
-We'll say that ***the grid is full*** when ***J*** >> ***W***.
 
+# Ideal grid vs WRONJ grid
 
-## Ideal grid vs WRONJ grid
+An ideal grid is one where ***at = 0***: all workers are always active when the grid is full. In such a grid, the equality ***WT = JT*** holds, and the total time of a workload will be ***&#x2243; J*** * ***JT / W***.
 
-An ideal grid is one where ***at = 0***: all workers are always active when the grid is full. In such a grid, the equality ***WT = JT*** holds, and the total time of a workload with ***J*** >> ***W*** will be ***&#x2243; J*** * ***JT / W***.
+A **WRONJ** grid is one that meets the [conditions](#wronj-conditions) above, with ***at > 0***. The ***WT*** in these grids has an odd behavior, as we are about to see.
 
-A WRONJ grid is one that meets the [conditions](#wronj-conditions) above, with ***at > 0***. The ***WT*** in these grids has an odd behavior, as we are about to see.
+# WRONJ Worker Time (WWT)
 
-## WRONJ Worker Time (WWT)
-
-The WRONJ problem is due to this dual value of ***WT*** in a WRONJ grid when it's full:
+The **WRONJ** problem is due to this dual value of ***WT*** in a **WRONJ** grid when it's full:
 
 1. If ***JT >= (W -1) * AT*** , then ***WT*** is approximately equal to its minimum value:
     - ***WT &#x2243; JT + AT***.
@@ -77,9 +77,9 @@ When the grid is full the total time of a workoad is ***TT&#x2243; J * WT / W***
 2. If ***JT < (W -1) * AT*** , then: 
     - ***TT &#x2243; J * AT*** 
 
-In a grid with a fixed number ***W*** of workers, the WRONJ problem occurs when the workload ***JT*** falls bellow this limit ***(W -1) * AT***. In fact, no matter how low ***JT*** may go, ***WT*** remains fixed at the value ***W * AT***.
+In a grid with a fixed number ***W*** of workers, the **WRONJ** problem occurs when the workload ***JT*** falls bellow this limit ***(W -1) * AT***. In fact, no matter how low ***JT*** may go, ***WT*** remains fixed at the value ***W * AT*** and ***TT*** remains fixed at ***J * AT***.
 
-The next chart shows ***WT*** as a function of ***JT***, in an ideal grid and in a WRONJ grid, both with 1000 workers. The ***AT*** value in the WRONJ grid is one millisecond. If ***JT*** is 1.5 seconds or is equal to 0.999 seconds (i.e. the limit value ***(W -1) * AT***), then ***WT*** in both grids is very similar. But when ***JT*** is 0.5 second, ***WT*** is twice as long in the WRONJ grid than in the ideal grid:
+The next chart shows ***WT*** as a function of ***JT***, in an ideal grid and in a **WRONJ** grid, both with 1000 workers. The ***AT*** value in the **WRONJ** grid is one millisecond. If ***JT*** is 1.5 seconds or is equal to 0.999 seconds (i.e. the limit value ***(W -1) * AT***), then ***WT*** in both grids is very similar. But when ***JT*** is 0.5 second, ***WT*** is twice as long in the **WRONJ** grid than in the ideal grid:
  
 
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/JTLimit.png)
@@ -89,73 +89,95 @@ In a grid with a fixed value ***JT*** for the workloads, we'll flip the previous
 - If ***W*** <= ***JT / AT + 1*** , then ***WT &#x2243; JT + AT***.
 - If ***W*** > ***JT / AT + 1*** , then ***WT &#x2243; W * AT***. 
 
- The next chart shows the scalability problem with WRONJ grids. The workload has a million jobs where ***JT*** is a second and a half, the ***AT*** in the WRONJ grid is one millisecond, and we are increasing the number of workers: 1000, 1500, 2000. In this case the grid is full, so   and in the ideal grid, the total time is inversely proportional to ***W***. But in the WRONJ grid, once we reach the limit value of 1501 workers (***= JT / AT + 1***), the total time remains at the fixed value of 1000 seconds (***= JT * AT***):
+ The next chart shows the scalability problem with **WRONJ** grids. The workload has a million jobs where ***JT*** is a second and a half, the ***AT*** in the **WRONJ** grid is one millisecond, and we are increasing the number of workers: 1000, 1500, 2000. In this case the grid is full, so in the ideal grid, the total time is inversely proportional to ***W***. But in the **WRONJ** grid, once we reach the limit value of 1501 workers (***= JT / AT + 1***), the total time remains at the fixed value of 1000 seconds (***= J * AT***):
 
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/WLimit.png)
 
 
-### WWT proof
+## WWT proof
 
-To illutrate the proof, we'll use a grid with 10 workers and ***AT = 100 ms***. 
+To illutrate the proof, we'll use a full grid with 10 workers and ***AT = 100 ms***. 
 
 First, we define these two concepts:
 
- 1. ***tbe*** (time between endings): when a worker finishes its job, it's released and placed at the end of the ***FWQ***. The ***tbe*** is the elapsed time between the moment a worker finishes its job and the moment the last worker that was placed at the ***FWQ*** finished its own job. When the grid is full, then it's ***tbe &#x2243; JT / AW***.
+ 1. ***tbe*** (time between endings): when a worker finishes its job, it's released and placed at the end of the ***FWQ***. The ***tbe*** is the elapsed time between the moment a worker finishes its job and the moment the last worker that was placed at the ***FWQ*** finished its own job. The ***tbe*** increases when the times of jobs in the active workers increase, or when the number of ***aw*** decreases. The ***tbe*** decreases when the times of jobs in the active workers decrease, or when the number of ***aw*** increases.
  1. ***TBE*** (Time Between Endings): average of all ***tbe*** in the workload. 
 
-If ***JT / W > AT***, then when there is a idle worker in the ***FWQ***, normally no other worker will finish their job while the ***JS*** assigns a new job to that idle worker. The ***FWQ*** will be empty most of the time, and workers will only wait ***AT*** until they are assigned a new job, so ***WT &#x2243; JT + AT***.
+If ***JT / W >> AT***, then ***TBE >> AT*** and when there is a idle worker in the ***FWQ***, normally no other worker will finish their job while the ***JS*** assigns a new job to that idle worker. The ***FWQ*** will be empty most of the time, and workers will only wait ***AT*** until they are assigned a new job, so ***WT &#x2243; JT + AT***.
 
 In this case the ***FWQ*** is normally empty, so ***FW = 0***, ***AW = W*** and ***TBE = JT /W***. This is the case of our first sample, simulating a workload with ***JT = 5 seconds***. We can see that ***WWT***  tends to ***JT + AT*** (5.1 seconds), and ***TBE*** tends to ***JT / W*** (0.5 seconds):
 
 
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/bigJTSimulation.gif)
 
-When ***JT / W < AT***, normally the ***FWQ*** won't be empty, and ***FW*** will change:
- - When ***FW*** increases, the ***TBE*** increases as well (cause ***AW*** decreases), and when ***AT < TBE*** the ***FWQ*** will shrink, and ***FW*** will decrease.
- - When ***FW*** decreases, the ***TBE*** decreases as well (cause ***AW*** increases), and when ***AT > TBE*** the ***FWQ*** will grow, and ***FW*** will increase.
+When ***JT / W << AT***, normally the ***FWQ*** won't be empty, and ***fw*** will change:
+ - When ***fw*** increases, the ***tbe*** increases as well (cause ***aw*** decreases), and when ***at < tbe*** the ***FWQ*** will shrink (it empties faster than it fills), so ***fw*** will decrease.
+ - When ***fw*** decreases, the ***tbe*** decreases as well (cause ***aw*** increases), and when ***at > tbe*** the ***FWQ*** will grow (it empties slower than it fills), so ***fw*** will increase.
  
-The grid will tend toward a state of equilibrium, where ***AT = TBE*** and ***FW*** and ***AW*** are constants:
- - ***AT = TBE &#x2243; JT / AW = JT / (W - FW)***
+In this way, the grid will tend toward a state of equilibrium where:
 
- Solving the previous equation, we have:
+ **1)** ***AT = TBE***.
+
+Although the variables ***jt*** and ***at*** are not independent of the variable ***aw***, we assume that these two formulas are valid:
+
+  **2)** ***TBE &#x2243; JT / AW***  
  
- - ***FW &#x2243; W - JT / AT***
- - ***FWQT = FW * AT  &#x2243; W * AT - JT***
+  **3)** ***FWQT &#x2243; FW * AT***
+
+And combining that formulas with the previous equality we have:
+
+ **4)** (From **1)** and **2)**): ***AT &#x2243; JT / AW = JT / (W - FW)***
  
- and finally:
+ **5)** (From **4)**): ***FW &#x2243; W - JT / AT***
+
+ **6)** (From **3)** and **5)**): ***FWQT &#x2243; W * AT - JT***
+ 
+ and finally, from the definition of ***WT*** and **6)**:
 
 - ***WT = FWQT + JT &#x2243; W * AT***
 
-The next sample shows this dynamic. ***JT = 0.5 seconds***, so ***WWT*** will tend to ***W * AT*** (1 second), and ***TBE*** tends to ***&#x2243; AT*** (0.1 seconds):
+The next sample shows the grid dynamics. The value of ***JT*** is set to 0.5 seconds, so ***WWT*** will tend to ***W * AT*** (1 second), and ***TBE*** tends to ***&#x2243; AT*** (0.1 seconds):
 
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/smallJTSimulation.gif)
 
 We calculate the limit value for ***JT*** by equating the two values for ***WT*** :  ***JT + AT = W * AT***, so this limit is:
 - ***JT = (W - 1) * AT***
 
-### WWT graphical proof (constant times)
+## WWT graphical proof (constant times)
 
-- Time Diagram fot JT >= Limit :
+When ***at*** and ***jt*** are constant (and therefore ***AT=at*** and ***JT=jt***), then the two formulas for ***WWT*** become equalities. We'll show it using a grid with 10 workers and ***at = 1 second***. 
+
+First, the case where ***JT >= (W - 1) * AT***. The following simulations are set with ***JT*** equal to the limit ***(W - 1) * AT = 9 seconds***, 
 
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/constantSimulation9.gif)
 
+and with ***JT = 20 seconds***:
+
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/constantSimulation20.gif)
 
+As we can observe, ***WT*** are constant and equal to ***JT + AT*** in both cases, cause whenever a worker finishes its job, it finds the ***FWQ*** is empty and it only has to wait ***at*** for the next job. To better understand the behavior of a worker, check the following time diagrams for our grid of 10 workers:
 
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/dt_gt_limit.png)
 
+The timeline of each worker is drawn in red when the worker is in the ***FWQ***, and in green when is processing a job. For the first worker only, some arrows are used. An upward pointing arrow is drawn from the time the worker completes a job  to the ***FWQ***, meaning that the worker is placed at the end of the ***FWQ***. When the ***JS*** is ready to assign it a new job, a downward pointing arrow is drawn from ***FWQ*** to the worker's timeline. The time between the arrows pointing down in these diagrams is always ***jt + fwqt***, so this time is the ***wt***. In cases like these, where ***jt*** exceeds the limit, ***fqwt*** is just ***at***. Then ***wt = jt + at*** and is constant because ***jt*** and ***at*** are constant, so:
+ 
+ - ***WT = JT + AT***
 
- - Time Diagram fot JT < Limit :
+ We also see why ***(W - 1) * AT*** is the limit value for ***JT***: with any other lesser value, the ***FWQ*** would not be empty when the worker finished its job.
+
+Now, we'll see two samples where ***JT < (W - 1) * AT***. The values for ***jt*** are 2 and 5 seconds:
 
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/constantSimulation2.gif)
 
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/constantSimulation5.gif)
 
+And here is the correspondent time diagram:
+
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/dt_lt_limit.png) 
 
- 
+When the first worker queues at ***FWQ***, it has to wait there until the ***JS*** assigns a job to all the subsequent workers. Now we can clearly see the two parts of  ***wt*** :  ***jt*** and ***fwqt***, and how is the sum of these parts constant regardless of ***jt*** (when ***jt*** decreases, ***fqwt*** increases by the same amount) and equal to ***w * at***, so:
 
-<div id="more"></div>
+-  ***WT = W * AT***
 
-## More
+
 

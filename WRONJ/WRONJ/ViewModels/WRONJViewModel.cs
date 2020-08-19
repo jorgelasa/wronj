@@ -514,7 +514,7 @@ namespace WRONJ.ViewModels
                 chart.Annotations.Add(
                     new TextAnnotation
                     {
-                        Text = "Job Queue",
+                        Text = "FWQ",
                         TextPosition = new DataPoint(maxX / 2, Workers + 1.5)
                     }
                 );
