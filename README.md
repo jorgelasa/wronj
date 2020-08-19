@@ -10,9 +10,9 @@ In these cases, we may want to reduce the workload total time and improve the gr
 - [WRONJ Conditions](#wronj-conditions)
 - [Workload definitions](#workload-definitions)
 - [Ideal grid vs WRONJ grid](#ideal-grid-vs-wronj-grid)
-- [WRONJ Worker Time (WWT)](#wronj-worker-time-(wwt))
+- [WRONJ Worker Time](#wronj-worker-time)
     - [WWT proof](#wwt-proof)
-    - [WWT graphical proof (constant times)](#wwt-graphical-proof-(constant-times))
+    - [WWT graphical proof with constant times](#wwt-graphical-proof-with-constant-times)
 
 
 # WRONJ Conditions
@@ -53,6 +53,7 @@ In some of the following concepts, we will use the same name to define individua
  1. ***WT*** (Worker Time): average of all ***wt*** in the workload. ***WT = JT + FWQT*** and its minimum value is ***JT*** + ***AT***.
  1. We'll say that ***the grid is full*** when ***J*** >> ***W***.
  1. ***TT*** (Total Time): is the time it takes the grid to process all the jobs in the workload. When the grid is full, this time will be ***&#x2243; J*** * ***WT / W***.
+ 1. ***WWT*** (WRONJ Worker Time): Worker Time in a **WRONJ** grid that ids full.
 
 
 # Ideal grid vs WRONJ grid
@@ -61,7 +62,7 @@ An ideal grid is one where ***at = 0***: all workers are always active when the 
 
 A **WRONJ** grid is one that meets the [conditions](#wronj-conditions) above, with ***at > 0***. The ***WT*** in these grids has an odd behavior, as we are about to see.
 
-# WRONJ Worker Time (WWT)
+# WRONJ Worker Time
 
 The **WRONJ** problem is due to this dual value of ***WT*** in a **WRONJ** grid when it's full:
 
@@ -143,7 +144,7 @@ The next sample shows the grid dynamics. The value of ***JT*** is set to 0.5 sec
 We calculate the limit value for ***JT*** by equating the two values for ***WT*** :  ***JT + AT = W * AT***, so this limit is:
 - ***JT = (W - 1) * AT***
 
-## WWT graphical proof (constant times)
+## WWT graphical proof with constant times
 
 When ***at*** and ***jt*** are constant (and therefore ***AT=at*** and ***JT=jt***), then the two formulas for ***WWT*** become equalities. We'll show it using a grid with 10 workers and ***at = 1 second***. 
 
