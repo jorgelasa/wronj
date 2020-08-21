@@ -19,6 +19,7 @@ namespace WRONJ.Views
         {
             InitializeComponent();
             BindingContext = this.viewModel = viewModel;
+            viewModel.ShowExtraInfo = Width > Height;
             viewModel.NextJob = 0;
             viewModel.NextJobTime = 0;
             viewModel.NextAssignmentTime = 0;
@@ -135,6 +136,11 @@ namespace WRONJ.Views
                 viewModel.ModelWorkerTimeVol = 0;
             }
             cancelTokenSource?.Cancel();
+        }
+
+        private void OnPageSizeChanged(object sender, EventArgs e)
+        {
+            viewModel.ShowExtraInfo = Width > Height;
         }
     }
 }

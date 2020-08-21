@@ -5,7 +5,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              x:Class="WRONJ.Views.SimulationPage"
-             Title="{Binding Title, StringFormat='{0} Simulation'}">
+             Title="{Binding Title, StringFormat='{0} Simulation'}"
+             SizeChanged="OnPageSizeChanged">
     <ContentPage.Resources>
         <ResourceDictionary>
             <Style TargetType="Label">
@@ -17,38 +18,38 @@
     <StackLayout Spacing="20" Padding="15">
         <StackLayout Orientation="Horizontal">
             <Label Text="Job Queue" FontSize="Medium"/>
-            <Label Text="  Next job: ">
+            <Label Text="  Next job: " >
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding NextJob}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="{Binding NextJob, Converter={StaticResource intToString}}"/>
-            <Label Text="-  Next job time: ">
+            <Label Text="{Binding NextJob, Converter={StaticResource intToString}}" IsVisible="{Binding ShowExtraInfo}"/>
+            <Label Text="-  Next job time: " IsVisible="{Binding ShowExtraInfo}">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding NextJobTime}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="{Binding NextJobTime, Converter={StaticResource doubleToString2}}"/>
-            <Label Text=" secs">
+            <Label Text="{Binding NextJobTime, Converter={StaticResource doubleToString2}}" IsVisible="{Binding ShowExtraInfo}"/>
+            <Label Text=" secs" IsVisible="{Binding ShowExtraInfo}">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding NextJobTime}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="-  Next assignment time: ">
+            <Label Text="-  Next assignment time: " IsVisible="{Binding ShowExtraInfo}">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding NextAssignmentTime}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="{Binding NextAssignmentTime, Converter={StaticResource doubleToString2}}"/>
-            <Label Text=" ms">
+            <Label Text="{Binding NextAssignmentTime, Converter={StaticResource doubleToString2}}" IsVisible="{Binding ShowExtraInfo}"/>
+            <Label Text=" ms" IsVisible="{Binding ShowExtraInfo}">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding NextAssignmentTime}" Value="0">
                         <Setter Property="IsVisible" Value="False" />
@@ -115,8 +116,8 @@
         </Grid>
         <StackLayout Orientation="Horizontal">
             <Label Text="Free Workers Queue" FontSize="Medium"/>
-            <Label Text="{Binding FreeWorkers, StringFormat='    Count: {0}'}"/>
-            <Label Text="{Binding FreeWorkersRate, StringFormat=' ( {0:P0} of total workers)'}"/>
+            <Label Text="{Binding FreeWorkers, StringFormat='    Count: {0}'}" IsVisible="{Binding ShowExtraInfo}"/>
+            <Label Text="{Binding FreeWorkersRate, StringFormat=' ( {0:P0} of total workers)'}" IsVisible="{Binding ShowExtraInfo}"/>
         </StackLayout>
         <Grid x:Name="fsq" ColumnSpacing="0">
         </Grid>

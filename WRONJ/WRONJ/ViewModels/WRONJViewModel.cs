@@ -136,6 +136,14 @@ namespace WRONJ.ViewModels
                 }
             }
         }
+        public bool RandomAssignmentTimeVolatility
+        {
+            get { return Model.RandomAssignmentTimeVolatility; }
+            set
+            {
+                SetProperty(Model, value);
+            }
+        }
         public double JobTime
         {
             get { return Model.JobTime; }
@@ -156,6 +164,14 @@ namespace WRONJ.ViewModels
                 {
                     ChangeOutputData();
                 }
+            }
+        }
+        public bool RandomJobTimeVolatility
+        {
+            get { return Model.RandomJobTimeVolatility; }
+            set
+            {
+                SetProperty(Model, value);
             }
         }
         private double nextJobTime, nextAssignmentTime;
@@ -200,7 +216,7 @@ namespace WRONJ.ViewModels
             ModelTotalTimeVol = 0;
             ModelWorkerTimeVol = 0;
             VariableTimes = AssignmentTimeVolatility > 0 || JobTimeVolatility > 0;
-            EnableCharts = Workers > 0 && AssignmentTime > 0 && JobTime > 0;
+            EnableCharts = Workers > 1 && AssignmentTime > 0 && JobTime > 0;
         }
         private int nextJob = 1;
         public int NextJob
@@ -287,7 +303,7 @@ namespace WRONJ.ViewModels
                 SetProperty(ref workersLimit, value);
             }
         }
-        bool variableTimes, enableCharts;
+        bool variableTimes, enableCharts, showExtraInfo;
         public bool VariableTimes
         {
             get { return variableTimes; }
@@ -302,6 +318,14 @@ namespace WRONJ.ViewModels
             set
             {
                 SetProperty(ref enableCharts, value);
+            }
+        }
+        public bool ShowExtraInfo
+        {
+            get { return showExtraInfo; }
+            set
+            {
+                SetProperty(ref showExtraInfo, value);
             }
         }
 

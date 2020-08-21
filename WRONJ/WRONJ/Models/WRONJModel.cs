@@ -25,11 +25,13 @@ namespace WRONJ.Models
         /// </summary>
         public double AssignmentTime { get; set; }
         public double AssignmentTimeVolatility { get; set; }
+        public bool RandomAssignmentTimeVolatility { get; set; }
         /// <summary>
         ///  Input average job time, in seconds
         /// </summary>
         public double JobTime { get; set; }
         public double JobTimeVolatility { get; set; }
+        public bool RandomJobTimeVolatility { get; set; }
         public int Workers { get; set; }
         public int Jobs { get; set; }
         MathNet.Numerics.Distributions.LogNormal Distribution(double mean, double volatility, int seed=0)
@@ -80,6 +82,7 @@ namespace WRONJ.Models
         {
             double inputAssignmentTime = AssignmentTime, inputJobTime = JobTime, 
                 assignmentVolatility = AssignmentTimeVolatility, jobTimeVolatility = JobTimeVolatility;
+            bool randomATVol = RandomAssignmentTimeVolatility, randomJTVol = RandomJobTimeVolatility;
             int workers = Workers, jobs = Jobs;
             if (workers == 0 || jobs == 0 || inputJobTime == 0)
                 return Task<(double,double,double)>.FromResult((0.0,0.0, 0.0));
@@ -91,8 +94,8 @@ namespace WRONJ.Models
                 // Sorted sets to manage the ideal and real worker times 
                 SortedSet<(double endTime, int worker)> workersTime = new SortedSet<(double, int)>();
                 SortedSet<(double endTime, int worker)> workersIdealTime = new SortedSet<(double, int)>();
-                var jobDist = Distribution(inputJobTime, jobTimeVolatility,1);
-                var assignmentDist = Distribution(inputAssignmentTime,assignmentVolatility,2);
+                var jobDist = Distribution(inputJobTime, jobTimeVolatility, randomJTVol? 0: 1);
+                var assignmentDist = Distribution(inputAssignmentTime,assignmentVolatility, randomATVol ? 0 : 2);
                 for (int j=0; j < jobs;j++)
                 {
                     if (cancelToken.IsCancellationRequested)
@@ -141,12 +144,13 @@ namespace WRONJ.Models
             //All times in seconds
             double inputAssignmentTime = AssignmentTime , inputJobTime = JobTime,
                 assignmentVolatility = AssignmentTimeVolatility, jobTimeVolatility = JobTimeVolatility;
+            bool randomATVol = RandomAssignmentTimeVolatility, randomJTVol = RandomJobTimeVolatility;
             int workers = Workers, jobs=Jobs;
             if (workers == 0)
                 return;
             double time = 0, idealTime=0;
-            var jobDist = Distribution(inputJobTime, jobTimeVolatility, 1);
-            var assignmentDist = Distribution(inputAssignmentTime, assignmentVolatility, 2);
+            var jobDist = Distribution(inputJobTime, jobTimeVolatility, randomJTVol ? 0 : 1);
+            var assignmentDist = Distribution(inputAssignmentTime, randomATVol ? 0 : 2);
             List<int> FWQ = Enumerable.Range(0, (int)workers).ToList();
             // Sorted set to manage the real worker times 
             SortedSet<(double endTime, int position)> workersTime = new SortedSet<(double, int)>();

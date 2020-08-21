@@ -15,6 +15,7 @@ namespace WRONJ.Views
         public ItemsPage()
         {
             InitializeComponent();
+            ChangeOrientation();
             viewModel = new WRONJViewModel (new WRONJModel()){ Title = "Model" };
             viewModel.Model.Load();
             viewModel.ChangeOutputData();
@@ -47,6 +48,30 @@ namespace WRONJ.Views
         async void Charts_Clicked(object sender, EventArgs e)
         {
             await Navigation.PushAsync(new ChartsPage(viewModel));
+        }
+        private  void ChangeOrientation()
+        {
+            // Portrait mode.
+            if (Width < Height)
+            {
+                //itemsGrid.RowDefinitions[1].Height = GridLength.Auto;
+                itemsGrid.RowDefinitions[1].Height = new GridLength(1, GridUnitType.Star);
+                itemsGrid.ColumnDefinitions[1].Width = new GridLength(0, GridUnitType.Absolute);
+                Grid.SetRow(outputData, 1);
+                Grid.SetColumn(outputData, 0);
+            }
+            // Landscape mode.
+            else
+            {
+                itemsGrid.RowDefinitions[1].Height = new GridLength(0, GridUnitType.Absolute);
+                itemsGrid.ColumnDefinitions[1].Width = new GridLength(1, GridUnitType.Star);
+                Grid.SetRow(outputData, 0);
+                Grid.SetColumn(outputData, 1);
+            }
+        }
+        private void OnPageSizeChanged(object sender, EventArgs e)
+        {
+            ChangeOrientation();
         }
     }
 }
