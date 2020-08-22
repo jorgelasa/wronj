@@ -11,9 +11,8 @@ namespace WRONJ.Views
     [DesignTimeVisible(false)]
     public partial class SimulationPage : ContentPage
     {
-        WRONJViewModel viewModel;
-        const int FWQMaxColumns = 64;
-        CancellationTokenSource cancelTokenSource;
+        readonly WRONJViewModel viewModel;
+        readonly CancellationTokenSource cancelTokenSource;
         const string idleWorker = "\uf1d8";
         public SimulationPage(WRONJViewModel viewModel)
         {
@@ -25,7 +24,7 @@ namespace WRONJ.Views
             viewModel.NextAssignmentTime = 0;
             if (viewModel.Workers <= 0)
                 return;
-            moveJobQueue();
+            MoveJobQueue();
             viewModel.FreeWorkers = viewModel.Workers;
             for (int worker = 0; worker < viewModel.Workers;  worker++)
             {
@@ -53,7 +52,7 @@ namespace WRONJ.Views
             cancelTokenSource = new CancellationTokenSource();
             viewModel.Model.Simulate(cancelTokenSource.Token);
         }
-        private void moveJobQueue()
+        private void MoveJobQueue()
         {
             int jobs = jobQueue.Children.Count;
             for (int i=0; viewModel.JobsInfo!= null && i < jobs; i++)
@@ -68,7 +67,6 @@ namespace WRONJ.Views
             viewModel.NextJobTime = jobTime;
             viewModel.NextAssignmentTime = assignmentTime*1000;
             viewModel.FreeWorkers = idleWorkers.Count;
-            int workers = fsq.Children.Count;
             foreach (View view in fsq.Children)
             {
                 if (s < idleWorkers.Count)
@@ -87,8 +85,7 @@ namespace WRONJ.Views
             viewModel.FreeWorkers = idleWorkers.Count;
             viewModel.ModelWorkerTimeVol = workerTime;
             string glyph = viewModel.JobsInfo[0].Glyph;
-            moveJobQueue();
-            int workers = fsq.Children.Count;
+            MoveJobQueue();
             foreach (View view in fsq.Children)
             {
                 if (s < idleWorkers.Count)
@@ -108,7 +105,6 @@ namespace WRONJ.Views
             int s = 0;
             viewModel.FreeWorkers = idleWorkers.Count;
             viewModel.TimeBetweenEndings = 1000*timeBetweenEndings;
-            int workers = fsq.Children.Count;
             foreach (View view in fsq.Children)
             {
                 if (s < idleWorkers.Count)

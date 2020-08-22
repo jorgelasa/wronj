@@ -18,10 +18,10 @@
     <StackLayout Spacing="20" Padding="15">
         <StackLayout Orientation="Horizontal">
             <Label Text="Job Queue" FontSize="Medium"/>
-            <Label Text="  Next job: " >
+            <Label Text="  Next job: " IsVisible="{Binding ShowExtraInfo}">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding NextJob}" Value="0">
-                        <Setter Property="IsVisible" Value="False" />
+                        <Setter Property="TextColor" Value="White" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
@@ -29,7 +29,7 @@
             <Label Text="-  Next job time: " IsVisible="{Binding ShowExtraInfo}">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding NextJobTime}" Value="0">
-                        <Setter Property="IsVisible" Value="False" />
+                        <Setter Property="TextColor" Value="White" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
@@ -37,14 +37,14 @@
             <Label Text=" secs" IsVisible="{Binding ShowExtraInfo}">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding NextJobTime}" Value="0">
-                        <Setter Property="IsVisible" Value="False" />
+                        <Setter Property="TextColor" Value="White" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
             <Label Text="-  Next assignment time: " IsVisible="{Binding ShowExtraInfo}">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding NextAssignmentTime}" Value="0">
-                        <Setter Property="IsVisible" Value="False" />
+                        <Setter Property="TextColor" Value="White" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
@@ -52,7 +52,7 @@
             <Label Text=" ms" IsVisible="{Binding ShowExtraInfo}">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding NextAssignmentTime}" Value="0">
-                        <Setter Property="IsVisible" Value="False" />
+                        <Setter Property="TextColor" Value="White" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
@@ -123,33 +123,33 @@
         </Grid>
         <StackLayout Orientation="Horizontal">
             <Label Text="Active Workers" FontSize="Medium"/>
-            <Label Text="  WRONJ Worker Time: ">
-                <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding ModelWorkerTimeVol}" Value="0">
-                        <Setter Property="IsVisible" Value="False" />
-                    </DataTrigger>
-                </Label.Triggers>
-            </Label>
-            <Label Text="{Binding ModelWorkerTimeVol, Converter={StaticResource doubleToString2}}"/>
-            <Label Text=" secs">
-                <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding ModelWorkerTimeVol}" Value="0">
-                        <Setter Property="IsVisible" Value="False" />
-                    </DataTrigger>
-                </Label.Triggers>
-            </Label>
-            <Label Text="-  Time Between Endings (ms): ">
+            <Label Text="  Time Between Endings (ms): " IsVisible="{Binding ShowExtraInfo}">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding TimeBetweenEndings}" Value="0">
-                        <Setter Property="IsVisible" Value="False" />
+                        <Setter Property="TextColor" Value="White" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="{Binding TimeBetweenEndings, Converter={StaticResource doubleToString2}}"/>
-            <Label Text=" ms">
+            <Label Text="{Binding TimeBetweenEndings, Converter={StaticResource doubleToString2}}" IsVisible="{Binding ShowExtraInfo}"/>
+            <Label Text=" ms" IsVisible="{Binding ShowExtraInfo}">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding TimeBetweenEndings}" Value="0">
-                        <Setter Property="IsVisible" Value="False" />
+                        <Setter Property="TextColor" Value="White" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label Text="  - WRONJ Worker Time: " IsVisible="{Binding ShowExtraInfo}">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding ModelWorkerTimeVol}" Value="0">
+                        <Setter Property="TextColor" Value="White" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label Text="{Binding ModelWorkerTimeVol, Converter={StaticResource doubleToString2}}" IsVisible="{Binding ShowExtraInfo}"/>
+            <Label Text=" secs" IsVisible="{Binding ShowExtraInfo}">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding ModelWorkerTimeVol}" Value="0">
+                        <Setter Property="TextColor" Value="White" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>

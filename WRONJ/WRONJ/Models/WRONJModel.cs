@@ -150,7 +150,7 @@ namespace WRONJ.Models
                 return;
             double time = 0, idealTime=0;
             var jobDist = Distribution(inputJobTime, jobTimeVolatility, randomJTVol ? 0 : 1);
-            var assignmentDist = Distribution(inputAssignmentTime, randomATVol ? 0 : 2);
+            var assignmentDist = Distribution(inputAssignmentTime, assignmentVolatility, randomATVol ? 0 : 2);
             List<int> FWQ = Enumerable.Range(0, (int)workers).ToList();
             // Sorted set to manage the real worker times 
             SortedSet<(double endTime, int position)> workersTime = new SortedSet<(double, int)>();
@@ -163,7 +163,7 @@ namespace WRONJ.Models
             double assignmentsTime = 0, jobsTime = 0;
             double timeBetweenEndings = 0, timeLastEnding=0;
             int endedCount = 0;
-            Func<(double endTime, int worker), double, Task<bool>> freeWorker = async (activeWorker, timeBefore) =>
+            async Task<bool> freeWorker ((double endTime, int worker) activeWorker, double timeBefore)
             {
                 int ms = (int)((activeWorker.endTime - timeBefore) * 1000);
                 bool waited = false;                

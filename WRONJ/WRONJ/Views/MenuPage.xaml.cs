@@ -13,7 +13,7 @@ namespace WRONJ.Views
     public partial class MenuPage : ContentPage
     {
         MainPage RootPage { get => Application.Current.MainPage as MainPage; }
-        List<HomeMenuItem> menuItems;
+        private readonly List<HomeMenuItem> menuItems;
         public MenuPage()
         {
             InitializeComponent();

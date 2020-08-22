@@ -137,12 +137,19 @@ And combining that formulas with the previous equality we have:
 
 - ***WT = FWQT + JT &#x2243; W * AT***
 
-The next sample shows the grid dynamics. The value of ***JT*** is set to 0.5 seconds, so ***WWT*** will tend to ***W * AT*** (1 second), and ***TBE*** tends to ***&#x2243; AT*** (0.1 seconds):
+We get the limit value for ***JT*** by equating the two values for ***WT*** :  ***JT + AT = W * AT***, so the limit is for this value of ***JT***:
+- ***JT = (W - 1) * AT***
+
+
+The next samples show the grid dynamics when JT is less than that limit. In the first one we use the same grid as before, with the value of ***JT*** set to 0.5 seconds, so ***WWT*** will tend to ***W * AT*** (1 second), and ***TBE*** tends to ***&#x2243; AT*** (0.1 seconds):
 
 ![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/smallJTSimulation.gif)
 
-We calculate the limit value for ***JT*** by equating the two values for ***WT*** :  ***JT + AT = W * AT***, so this limit is:
-- ***JT = (W - 1) * AT***
+The second one depicts a more realistic grid, with 100 workers, ***AT = 10 ms*** and ***JT = 0.5 seconds***. In this grid,  ***WWT*** and ***TBE*** tend to the same values as before:
+
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/simulation100W.gif)
+
+
 
 ## WWT graphical proof with constant times
 

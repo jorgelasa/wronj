@@ -10,7 +10,7 @@ namespace WRONJ.Views
     [DesignTimeVisible(false)]
     public partial class ItemsPage : ContentPage
     {
-        WRONJViewModel viewModel;
+        private readonly WRONJViewModel viewModel;
         CancellationTokenSource cancelTokenSource;
         public ItemsPage()
         {
