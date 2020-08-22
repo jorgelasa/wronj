@@ -609,5 +609,9 @@ namespace WRONJ.ViewModels
                 return chart;
             }
         }
+        public PlotModel[] Plots
+        {
+            get { return new PlotModel[] { WorkerTimeChart, TimesChart, WorkersChart }; }
+        }
     }
 }
