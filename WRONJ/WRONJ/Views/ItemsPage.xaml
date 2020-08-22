@@ -95,20 +95,24 @@
                 </Grid>
                 <BoxView HeightRequest="10"/>
             </StackLayout>
+            
             <StackLayout Padding="10" Spacing="10"  x:Name="outputData">
                 <Label Text="Output Data" 
                         HorizontalOptions="Center" 
                         Style="{StaticResource IOData}"/>
                 <BoxView HeightRequest="10"/>
                 <Grid>
-                    <StackLayout Spacing="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                        <Label Text="Constant Times" 
+                    <Button Text="Simulate" FontSize="14" Clicked="Simulate_Clicked" FontAttributes="Bold"/>
+                    <Label Text="Constant Times" 
                             HorizontalOptions="Center" 
-                            Style="{StaticResource GroupData}"/>
-
-                        <BoxView HeightRequest="10"/>
-
+                            VerticalOptions="Center" 
+                            Style="{StaticResource GroupData}" Grid.Row="1"/>
+                    <StackLayout Grid.Row="2" Spacing="10" >
                         <Label Text="Ideal Total Time"
                             HorizontalOptions="Start" 
                             FontAttributes="Bold"/>
@@ -124,14 +128,14 @@
                             HorizontalOptions="Start"/>
                         <Label Text="{Binding ModelWorkerTime, Converter={StaticResource doubleToString4}}"/>
 
-                        <BoxView HeightRequest="10"/>
-
-                        <Button Text="Variable Times" 
-                                FontSize="14" Clicked="Calculate_Clicked"
+                    </StackLayout>
+                    <Button Text="Charts" Grid.Column="1"
+                            FontSize="14" FontAttributes="Bold" Clicked="Charts_Clicked"
+                            IsEnabled="{Binding EnableCharts}" />
+                    <Button Text="Variable Times" Grid.Row="1" Grid.Column="1" 
+                                FontSize="14" FontAttributes="Bold" Clicked="Calculate_Clicked"
                                 IsEnabled="{Binding VariableTimes}"/>
-
-                        <BoxView HeightRequest="10"/>
-
+                    <StackLayout Grid.Row="2" Grid.Column="1" Spacing="10">
                         <Label Text="Ideal Total Time"
                             HorizontalOptions="Start" 
                             FontAttributes="Bold">
@@ -165,11 +169,7 @@
                         </Label>
                         <Label Text="{Binding ModelWorkerTimeVol, Converter={StaticResource doubleToString4}}"/>
 
-                    </StackLayout>
-                    <StackLayout Grid.Column="1">
-                        <Button Text="Simulate" FontSize="14" Clicked="Simulate_Clicked"/>
-                        <Button Text="Charts"   FontSize="14" Clicked="Charts_Clicked"
-                                IsEnabled="{Binding EnableCharts}"/>
+
                     </StackLayout>
                 </Grid>
             </StackLayout>
