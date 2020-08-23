@@ -54,7 +54,6 @@ namespace WRONJ.Views
             // Portrait mode.
             if (Width < Height)
             {
-                //itemsGrid.RowDefinitions[1].Height = GridLength.Auto;
                 itemsGrid.RowDefinitions[1].Height = new GridLength(1, GridUnitType.Star);
                 itemsGrid.ColumnDefinitions[1].Width = new GridLength(0, GridUnitType.Absolute);
                 Grid.SetRow(outputData, 1);

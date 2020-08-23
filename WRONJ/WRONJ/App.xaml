@@ -28,10 +28,23 @@
             <Style TargetType="Label">
                 <Setter Property="LineBreakMode" Value="NoWrap" />
                 <Setter Property="FontSize" Value="12" />
+                <Setter Property="TextColor" Value="Black" />
+            </Style>
+            <Style TargetType="Label" x:Key="Title1">
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="FontSize" Value="16" />
+            </Style>
+            <Style TargetType="Label" x:Key="Title2">
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="FontSize" Value="14" />
+            </Style>
+            <Style TargetType="Label" x:Key="Title3">
+                <Setter Property="FontAttributes" Value="Bold"/>
             </Style>
             <Style TargetType="Entry">
                 <Setter Property="Keyboard" Value="Numeric" />
                 <Setter Property="FontSize" Value="12" />
+                <Setter Property="TextColor" Value="Black" />
                 <Style.Behaviors>
                     <toolkit:PositiveDoubleValidationBehavior />
                 </Style.Behaviors> 
@@ -39,6 +52,7 @@
             <Style TargetType="Entry" x:Key="intEntry">
                 <Setter Property="Keyboard" Value="Numeric" />
                 <Setter Property="FontSize" Value="12" />
+                <Setter Property="TextColor" Value="Black" />
                 <Style.Behaviors>
                     <toolkit:IntValidationBehavior />
                 </Style.Behaviors>

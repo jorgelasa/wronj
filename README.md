@@ -6,7 +6,7 @@ This problem usually goes unnoticed, but may be a big issue in the context of [g
 
 In these cases, we may want to reduce the workload total time and improve the grid performance by increasing the number of workers, but that's when the problem can arise: if the number of workers reaches a certain limit (***&#x2243; JT / AT***, where ***JT*** is the  average time for workload jobs and ***AT*** is the average time it takes for the scheduler to assign a new job from the job queue to an idle worker), the grid just doesn't scale: the total time will be the same from that limit on. 
 
-It's basically a [parallel slowdown](https://en.wikipedia.org/wiki/Parallel_slowdown) in a class of workloads where this slowdowns are not supposed to happen, but can actually appear when we hit some thresold values.
+It's basically a [parallel slowdown](https://en.wikipedia.org/wiki/Parallel_slowdown) affecting a kind of workloads where this slowdowns are not supposed to happen on an ideal grid, but can actually appear when we hit some thresold values on a wrongly implemented grid.
 
  # Contents
 - [WRONJ Conditions](#wronj-conditions)
@@ -15,7 +15,7 @@ It's basically a [parallel slowdown](https://en.wikipedia.org/wiki/Parallel_slow
 - [WRONJ Worker Time](#wronj-worker-time)
     - [WWT proof](#wwt-proof)
     - [WWT graphical proof with constant times](#wwt-graphical-proof-with-constant-times)
-
+- [Possible solutions to the WRONJ problem](#possible-solutions-to-the-wronj-problem)
 
 # WRONJ Conditions
 
@@ -193,5 +193,12 @@ When the first worker queues at ***FWQ***, it has to wait there until the ***JS*
 
 -  ***WT = W * AT***
 
+# Possible solutions to the WRONJ problem
+
+No matter how small it may be, ***AT*** will always be greater than zero. To avoid the **WRONJ** problem, the grid should scale the number of ***JS*** threads of execution as it scales the number of workers. A good solution is to create ***JS*** processes that handle a maximum number of workers: this grid will ensure the smooth running of workloads with ***JT*** above a certain minimun, which depends on the maximum number of workers assigned to each ***JS***.
+
+For instance, if we have a grid with 4000 workers, where ***AT*** is 1 ms, and we expect the workloads ***JT*** to not fall bellow 0.5 seconds, 8 ***JS*** should be created (managing 500 workers each).
+
+If we are using a ***WRONJ*** grid whose code we cannot modify, the only solution is to modify the tasks that will be sent to the grid (to make these task heavier), until we pass the grid ***JT*** thresold with our workloads.
 
 
