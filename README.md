@@ -6,7 +6,7 @@ This problem usually goes unnoticed, but may be a big issue in the context of [g
 
 In these cases, we may want to reduce the workload total time and improve the grid performance by increasing the number of workers, but that's when the problem can arise: if the number of workers reaches a certain limit (***&#x2243; JT / AT***, where ***JT*** is the  average time for workload jobs and ***AT*** is the average time it takes for the scheduler to assign a new job from the job queue to an idle worker), the grid just doesn't scale: the total time will be the same from that limit on. 
 
-It's basically a [parallel slowdown](https://en.wikipedia.org/wiki/Parallel_slowdown) affecting a kind of workloads where this slowdowns are not supposed to happen on an ideal grid, but can actually appear when we hit some thresold values on a wrongly implemented grid.
+It's basically a [parallel slowdown](https://en.wikipedia.org/wiki/Parallel_slowdown) affecting a kind of workloads where these slowdowns are not supposed to happen on an ideal grid, but can actually appears when we hit some thresold values on a wrongly implemented grid.
 
  # Contents
 - [WRONJ Conditions](#wronj-conditions)
