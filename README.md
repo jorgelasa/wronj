@@ -16,6 +16,7 @@ It's basically a [parallel slowdown](https://en.wikipedia.org/wiki/Parallel_slow
     - [WWT proof](#wwt-proof)
     - [WWT graphical proof with constant times](#wwt-graphical-proof-with-constant-times)
 - [Possible solutions to the WRONJ problem](#possible-solutions-to-the-wronj-problem)
+- [The WRONJ app](#the-wronj-app)
 
 # WRONJ Conditions
 
@@ -201,4 +202,16 @@ For instance, if we have a grid with 4000 workers, where ***AT*** is 1 ms, and w
 
 If we are using a ***WRONJ*** grid whose code we cannot modify, the only solution is to modify the tasks that will be sent to the grid (to make these task heavier), until we pass the grid ***JT*** thresold with our workloads.
 
+# The WRONJ app
 
+This repository contains the code for a [Xamarin](https://dotnet.microsoft.com/apps/xamarin) application, written using [VS 2019](https://visualstudio.microsoft.com/vs/). You can modify, build and run this code if you have that IDE, or you can just download the **WRONJ** app from [Google Play](https://play.google.com/store/apps/details?id=com.wronj) to your Android device.
+
+The **WRONJ** app simulate a virtual grid where we can see the effects of the **WRONJ** problem, by setting the parameters of the grid and those of the workload:
+
+![alt text](https://raw.githubusercontent.com/jorgelasa/wronj/master/Images/WRONJApp.gif)
+
+The volatility fields are used to generate pseudo-random times for ***at*** and ***jt***, according to a log-normal distribution with that volatility and mean equal to the corresponding average time. If the *Random* field is not checked, a fixed value will be used as the seed of the generation.
+
+The *Constant times* values will be always calculated with constant times (volatility=0), and are recalculated every time a basic parameter is changed. The *Variable times* values will be calculated using the volatility values, and only after pressing the button. 
+
+Using the *Charts* and *Simulate* buttons we'll see graphs and grid simulations like the ones we have seen we have seen throughout this document.
