@@ -2,7 +2,7 @@
 
 When computing a [perfectly parallel](https://en.wikipedia.org/wiki/Embarrassingly_parallel) workload, the **WRONJ (Workers Rest On Next Job)** problem is a performance slowdown that can occur when the [job scheduler](https://en.wikipedia.org/wiki/Job_scheduler) that assigns the workload jobs to idle workers runs in a single thread of execution. 
 
-This is a generic scheduling problem and usually goes unnoticed, but may be a big issue in the context of high throuhput [grid computing](https://en.wikipedia.org/wiki/Grid_computing) when a grid has a large number of workers and the grid is full (i.e. the number of jobs to be done is much greater than the number of grid workers).
+This is a generic scheduling problem and usually goes unnoticed, but may be a big issue in the context of high throughput [grid computing](https://en.wikipedia.org/wiki/Grid_computing) when a grid has a large number of workers and the grid is full (i.e. the number of jobs to be done is much greater than the number of grid workers).
 
 In these cases, we may want to reduce the workload total time and improve the grid performance by increasing the number of workers, but that's when the problem can arise: if the number of workers reaches a certain limit (***&#x2243; JT / AT***, where ***JT*** is the  average time for workload jobs and ***AT*** is the average time it takes for the scheduler to assign a new job from the job queue to an idle worker), the grid just doesn't scale: the total time will be the same from that limit on. 
 
