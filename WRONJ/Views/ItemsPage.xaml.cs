@@ -43,11 +43,6 @@ namespace WRONJ.Views
             base.OnDisappearing();
         }
 
-        async void Charts_Clicked(object sender, EventArgs e)
-        {
-            //await Navigation.PushAsync(new ChartsPage(viewModel));
-            await Shell.Current.GoToAsync(nameof(ChartsPage));
-        }
         private void ChangeOrientation()
         {
             // Portrait mode.

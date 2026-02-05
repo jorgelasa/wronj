@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using ScottPlot.Maui;
 
 namespace WRONJ
 {
@@ -15,8 +14,7 @@ namespace WRONJ
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                     fonts.AddFont("materialdesignicons-webfont.ttf", "Material");
-                })
-                .UseScottPlot();
+                });
             //.ConfigureMauiHandlers(handlers => { handlers.AddHandler<PlotView, PlotViewHandler>(); });
 
 #if DEBUG

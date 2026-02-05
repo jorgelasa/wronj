@@ -9,7 +9,6 @@ namespace WRONJ
             InitializeComponent();
             // Register routes for navigation
             Routing.RegisterRoute(nameof(SimulationPage), typeof(SimulationPage));
-            Routing.RegisterRoute(nameof(ChartsPage), typeof(ChartsPage));
         }
 
         async void OnHelpClicked(object sender, EventArgs e)
