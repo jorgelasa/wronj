@@ -20,9 +20,9 @@ namespace WRONJ.Views
         }
         async void Simulate_Clicked(object sender, EventArgs e)
         {
-            viewModel.ModelWorkerTimeVol = 0;
-            viewModel.IdealTotalTimeVol = 0;
-            viewModel.ModelTotalTimeVol = 0;
+            viewModel.SimulationWorkerTime = "";
+            viewModel.IdealSimulationTotalTime = 0;
+            viewModel.SimulationTotalTime = 0;
             viewModel.TimeBetweenEndings = 0;
             //await Navigation.PushAsync(new SimulationPage(viewModel));
             await Shell.Current.GoToAsync(nameof(SimulationPage));

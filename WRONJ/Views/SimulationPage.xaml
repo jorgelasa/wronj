@@ -191,15 +191,15 @@
             </Label>
             <Label Text="  - WRONJ Worker Time: " IsVisible="{Binding ShowExtraInfo}">
                 <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding ModelWorkerTimeVol}" Value="0">
+                    <DataTrigger TargetType="Label" Binding="{Binding SimulationWorkerTime}" Value="">
                         <Setter Property="TextColor" Value="White" />
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="{Binding ModelWorkerTimeVol, Converter={StaticResource doubleToString2}}" IsVisible="{Binding ShowExtraInfo}"/>
+            <Label Text="{Binding SimulationWorkerTime}" IsVisible="{Binding ShowExtraInfo}"/>
             <Label Text=" secs" IsVisible="{Binding ShowExtraInfo}">
                 <Label.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding ModelWorkerTimeVol}" Value="0">
+                    <DataTrigger TargetType="Label" Binding="{Binding SimulationWorkerTime}" Value="">
                         <Setter Property="TextColor" Value="White" />
                     </DataTrigger>
                 </Label.Triggers>

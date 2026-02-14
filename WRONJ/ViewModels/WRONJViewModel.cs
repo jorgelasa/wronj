@@ -75,6 +75,18 @@ namespace WRONJ.ViewModels
         {
             Model = model ?? new Models.WRONJModel();
         }
+        public int Jobs
+        {
+            get { return Model.Jobs; }
+            set
+            {
+                if (SetProperty(Model, value))
+                {
+                    JobsInfo = new JobsInfo(value);
+                    ChangeOutputData();
+                }
+            }
+        }
         public int Workers
         {
             get { return Model.Workers; }
@@ -86,14 +98,13 @@ namespace WRONJ.ViewModels
                 }
             }
         }
-        public int Jobs
+        public int Machines
         {
-            get { return Model.Jobs; }
+            get { return Model.Machines; }
             set
             {
                 if (SetProperty(Model, value))
                 {
-                    JobsInfo = new JobsInfo(value);
                     ChangeOutputData();
                 }
             }
@@ -126,14 +137,6 @@ namespace WRONJ.ViewModels
                 }
             }
         }
-        public bool RandomAssignmentTimeVolatility
-        {
-            get { return Model.RandomAssignmentTimeVolatility; }
-            set
-            {
-                SetProperty(Model, value);
-            }
-        }
         public double JobTime
         {
             get { return Model.JobTime; }
@@ -156,14 +159,19 @@ namespace WRONJ.ViewModels
                 }
             }
         }
-        public bool RandomJobTimeVolatility
+
+        public bool MachineAssignment
         {
-            get { return Model.RandomJobTimeVolatility; }
+            get { return Model.MachineAssignment; }
             set
             {
-                SetProperty(Model, value);
+                if (SetProperty(Model, value))
+                {
+                    ChangeOutputData();
+                }
             }
         }
+
         private double nextJobTime, nextAssignmentTime;
         public double NextJobTime
         {
@@ -197,16 +205,17 @@ namespace WRONJ.ViewModels
         }
         public void ChangeOutputData()
         {
-            JobTimeLimit = WRONJModel.JobTimeLimit(Model.AssignmentTime, Model.Workers);
-            WorkersLimit = (int)Math.Round(WRONJModel.WorkersLimit(Model.AssignmentTime, Model.JobTime));
-            IdealTotalTime = WRONJModel.TotalTime(Model.JobTime, Model.Workers, Model.Jobs);
-            ModelTotalTime = WRONJModel.TotalTime(Model.JobTime, Model.Workers, Model.Jobs, Model.AssignmentTime);
-            ModelWorkerTime = WRONJModel.WorkerTime(Model.AssignmentTime, Model.JobTime, Model.Workers);
-            IdealTotalTimeVol = 0;
-            ModelTotalTimeVol = 0;
-            ModelWorkerTimeVol = 0;
+            JobTimeLimit = Model.JobTimeLimit();
+            WorkersLimit = (int)Math.Round(Model.WorkersLimit());
+            IdealTotalTime = Model.TotalTime(true);
+            ModelTotalTime = Model.TotalTime(false);
+            ModelWorkerTime = Model.WorkerTime();
+            IdealSimulationTotalTime = 0;
+            SimulationTotalTime = 0;
+            SimulationWorkerTime = "";
+            SimulationMaxJobTime = 0;
+            Seed = 1;
             VariableTimes = AssignmentTimeVolatility > 0 || JobTimeVolatility > 0;
-            EnableCharts = Workers > 1 && AssignmentTime > 0 && JobTime > 0;
         }
         private int nextJob = 1;
         public int NextJob
@@ -217,10 +226,12 @@ namespace WRONJ.ViewModels
                 SetProperty(ref nextJob, value);
             }
         }
-        double modelWorkerTime, modelWorkerTimeVol;
-        double idealTotalTime, idealTotalTimeVol;
-        double modelTotalTime, modelTotalTimeVol;
-        double jobTimeLimit, timeBetweenEndings;
+        double modelWorkerTime;
+        string simulationWorkerTime;
+        double idealTotalTime, idealSimulationTotalTime;
+        double modelTotalTime, simulationTotalTime;
+        double jobTimeLimit, timeBetweenEndings, simulationMaxJobTime;
+
         int workersLimit;
         public double ModelWorkerTime
         {
@@ -230,12 +241,12 @@ namespace WRONJ.ViewModels
                 SetProperty(ref modelWorkerTime, value);
             }
         }
-        public double ModelWorkerTimeVol
+        public string SimulationWorkerTime
         {
-            get { return modelWorkerTimeVol; }
+            get { return simulationWorkerTime; }
             set
             {
-                SetProperty(ref modelWorkerTimeVol, value);
+                SetProperty(ref simulationWorkerTime, value);
             }
         }
         public double IdealTotalTime
@@ -246,12 +257,12 @@ namespace WRONJ.ViewModels
                 SetProperty(ref idealTotalTime, value);
             }
         }
-        public double IdealTotalTimeVol
+        public double IdealSimulationTotalTime
         {
-            get { return idealTotalTimeVol; }
+            get { return idealSimulationTotalTime; }
             set
             {
-                SetProperty(ref idealTotalTimeVol, value);
+                SetProperty(ref idealSimulationTotalTime, value);
             }
         }
         public double ModelTotalTime
@@ -262,12 +273,12 @@ namespace WRONJ.ViewModels
                 SetProperty(ref modelTotalTime, value);
             }
         }
-        public double ModelTotalTimeVol
+        public double SimulationTotalTime
         {
-            get { return modelTotalTimeVol; }
+            get { return simulationTotalTime; }
             set
             {
-                SetProperty(ref modelTotalTimeVol, value);
+                SetProperty(ref simulationTotalTime, value);
             }
         }
         public double JobTimeLimit
@@ -286,6 +297,14 @@ namespace WRONJ.ViewModels
                 SetProperty(ref timeBetweenEndings, value);
             }
         }
+        public double SimulationMaxJobTime
+        {
+            get { return simulationMaxJobTime; }
+            set
+            {
+                SetProperty(ref simulationMaxJobTime, value);
+            }
+        }
         public int WorkersLimit
         {
             get { return workersLimit; }
@@ -294,21 +313,13 @@ namespace WRONJ.ViewModels
                 SetProperty(ref workersLimit, value);
             }
         }
-        bool variableTimes, enableCharts, showExtraInfo;
+        bool variableTimes, showExtraInfo;
         public bool VariableTimes
         {
             get { return variableTimes; }
             set
             {
                 SetProperty(ref variableTimes, value);
-            }
-        }
-        public bool EnableCharts
-        {
-            get { return enableCharts; }
-            set
-            {
-                SetProperty(ref enableCharts, value);
             }
         }
         public bool ShowExtraInfo
@@ -319,14 +330,14 @@ namespace WRONJ.ViewModels
                 SetProperty(ref showExtraInfo, value);
             }
         }
-
+        public int Seed { get; set; }
         public async Task Calculate(CancellationToken cancelToken)
-        {
-            var data = await Model.CalculateAsync(cancelToken);
-            //ModelWorkerTime = data.modelTime;
-            ModelWorkerTimeVol = data.workerTime;
-            IdealTotalTimeVol = data.idealTotalTime;
-            ModelTotalTimeVol = data.realTotalTime;
+        {            
+            var data = await Model.CalculateAsync(cancelToken, ++Seed);
+            IdealSimulationTotalTime = data.idealTotalTime;
+            SimulationTotalTime = data.realTotalTime;
+            SimulationWorkerTime = Jobs > Model.EffectiveWorkers ? string.Format("{0:F4}",data.workerTime) : "Jobs > Total workers is required";
+            SimulationMaxJobTime = data.maxJobTime;
         }
         public Microsoft.Maui.Graphics.Color WorkerColor(int worker)
         {

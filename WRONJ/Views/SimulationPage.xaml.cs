@@ -42,11 +42,11 @@ public partial class SimulationPage : ContentPage
         viewModel.Model.FreeWorker += FreeWorker;
         viewModel.Model.EndSimulation += (idealTime, realTime) =>
         {
-            viewModel.IdealTotalTimeVol = idealTime;
-            viewModel.ModelTotalTimeVol = realTime;
+            viewModel.IdealSimulationTotalTime = idealTime;
+            viewModel.SimulationTotalTime = realTime;
         };
         cancelTokenSource = new CancellationTokenSource();
-        viewModel.Model.Simulate(cancelTokenSource.Token);
+        viewModel.Model.Simulate(cancelTokenSource.Token, ++viewModel.Seed);
     }
     private void MoveJobQueue()
     {
@@ -75,11 +75,11 @@ public partial class SimulationPage : ContentPage
             }
         }
     }
-    private void AssignmentEnd(List<int> idleWorkers, int worker, double workerTime)
+    private void AssignmentEnd(List<int> idleWorkers, int worker, string workerTime)
     {
         int s = 0;
         viewModel.FreeWorkers = idleWorkers.Count;
-        viewModel.ModelWorkerTimeVol = workerTime;
+        viewModel.SimulationWorkerTime = workerTime;
         string glyph = viewModel.JobsInfo[0].Glyph;
         MoveJobQueue();
         foreach (View view in fsq.Children)
@@ -129,9 +129,9 @@ public partial class SimulationPage : ContentPage
         viewModel.Model.FreeWorker -= FreeWorker;
         if (!viewModel.VariableTimes)
         {
-            viewModel.IdealTotalTimeVol = 0;
-            viewModel.ModelTotalTimeVol = 0;
-            viewModel.ModelWorkerTimeVol = 0;
+            viewModel.IdealSimulationTotalTime = 0;
+            viewModel.SimulationTotalTime = 0;
+            viewModel.SimulationWorkerTime = "";
         }
         cancelTokenSource?.Cancel();
     }

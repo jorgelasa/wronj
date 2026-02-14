@@ -23,14 +23,26 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <StackLayout Orientation="Horizontal" Spacing="1">
+
+                    <Label Text="Jobs" Style="{StaticResource Title3}"/>
+                    <Entry Text="{Binding Jobs, Mode=TwoWay, Converter={StaticResource intToString}}"
+                           Grid.Row="1"
+                           Style="{StaticResource intEntry}"/>
+
+                    <Label Text="Assignment by machine" Grid.Column="1" HorizontalOptions="Center" Style="{StaticResource Title3}"/>
+                    <CheckBox Grid.Column="1" Grid.Row="1" HorizontalOptions="Center" IsChecked="{Binding MachineAssignment, Mode=TwoWay}"/>
+
+                    <HorizontalStackLayout Spacing="1" Grid.Row="2">
                         <Label Text="Workers" Style="{StaticResource Title3}"/>
-                        <Label Text=" (WL : ">
+                        <Label Text=" per machine " IsVisible="{Binding MachineAssignment}" Style="{StaticResource Title3}"/>
+                        <Label Text=" (WL: ">
                             <Label.Triggers>
                                 <DataTrigger TargetType="Label" Binding="{Binding WorkersLimit}" Value="0">
                                     <Setter Property="IsVisible" Value="False" />
@@ -45,15 +57,19 @@
                                 </DataTrigger>
                             </Label.Triggers>
                         </Label>
-                    </StackLayout>
-                    <Label Text="Jobs" Grid.Column="1" Style="{StaticResource Title3}"/>
+                    </HorizontalStackLayout>
                     <Entry Text="{Binding Workers, Mode=TwoWay, Converter={StaticResource intToString}}"
-                           Grid.Row="1"
+                           Grid.Row="3"
                            Style="{StaticResource intEntry}"/>
-                    <Entry Text="{Binding Jobs, Mode=TwoWay, Converter={StaticResource intToString}}"
-                           Grid.Row="1"
+
+                    <Label Text="Machines" Grid.Row="2" Grid.Column="1" Style="{StaticResource Title3}"
+                            IsVisible="{Binding MachineAssignment}"/>
+                    <Entry Text="{Binding Machines, Mode=TwoWay, Converter={StaticResource intToString}}"
+                           IsVisible="{Binding MachineAssignment}"
                            Grid.Column="1"
+                           Grid.Row="3"
                            Style="{StaticResource intEntry}"/>
+
                 </Grid>
                 <Label Text="Assignment time (milliseconds)" 
                         HorizontalOptions="Center" 
@@ -64,7 +80,6 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
@@ -72,10 +87,6 @@
                     <Label Text="Volatility" Grid.Column="1" Style="{StaticResource Title3}"/>
                     <Entry Text="{Binding AssignmentTime, Mode=TwoWay, Converter={StaticResource doubleToString}}" Grid.Row="1"/>
                     <Entry Text="{Binding AssignmentTimeVolatility, Mode=TwoWay, Converter={StaticResource doubleToString}}" Grid.Row="1" Grid.Column="1"/>
-                    <StackLayout Orientation="Horizontal" Grid.Row="1" Grid.Column="2" HorizontalOptions="Center">
-                        <Label Text="Random" VerticalTextAlignment="Center" Style="{StaticResource Title3}" Margin="20,0,10,0"/>
-                        <CheckBox IsChecked="{Binding RandomAssignmentTimeVolatility, Mode=TwoWay}"/>
-                    </StackLayout>
                 </Grid>
                 <Label Text="Job time (seconds)" 
                         HorizontalOptions="Center" 
@@ -86,7 +97,6 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
@@ -111,14 +121,11 @@
                     <Label Text="Volatility" Grid.Column="1" Style="{StaticResource Title3}"/>
                     <Entry Text="{Binding JobTime, Mode=TwoWay, Converter={StaticResource doubleToString}}" Grid.Row="1"/>
                     <Entry Text="{Binding JobTimeVolatility, Mode=TwoWay, Converter={StaticResource doubleToString}}" Grid.Row="1" Grid.Column="1"/>
-                    <StackLayout Orientation="Horizontal"  Grid.Row="1" Grid.Column="2" HorizontalOptions="Center">
-                        <Label Text="Random" VerticalTextAlignment="Center" Style="{StaticResource Title3}" Margin="20,0,10,0"/>
-                        <CheckBox IsChecked="{Binding RandomJobTimeVolatility, Mode=TwoWay}" />
-                    </StackLayout>
                 </Grid>
             </VerticalStackLayout>
 
-            <StackLayout Padding="10" Spacing="10"  x:Name="outputData">
+            <VerticalStackLayout Padding="10" Spacing="10"  x:Name="outputData">
+                <Button Text="View Simulation Grid" FontSize="14" Clicked="Simulate_Clicked" FontAttributes="Bold"/>
                 <Grid ColumnSpacing="10" RowSpacing="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -129,23 +136,22 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Button Text="Simulate" FontSize="14" Clicked="Simulate_Clicked" FontAttributes="Bold"/>
                     <Label Text="Constant Times" 
                             HorizontalOptions="Center" 
                             VerticalOptions="Center" 
                             Style="{StaticResource Title2}" Grid.Row="1"/>
                     <StackLayout Grid.Row="2" Spacing="10" >
-                        <Label Text="Ideal Total Time"
+                        <Label Text="Theoretical Ideal Total Time (at = 0)"
                             HorizontalOptions="Start" 
                             Style="{StaticResource Title3}"/>
                         <Label Text="{Binding IdealTotalTime, Converter={StaticResource doubleToString4}}"/>
 
-                        <Label Text="WRONJ Total Time"
+                        <Label Text="Theoretical Total Time"
                             HorizontalOptions="Start" 
                             Style="{StaticResource Title3}"/>
                         <Label Text="{Binding ModelTotalTime, Converter={StaticResource doubleToString4}}"/>
 
-                        <Label Text="WRONJ Worker Time"
+                        <Label Text="Theoretical Worker Time"
                             FontAttributes="Bold"
                             Style="{StaticResource Title3}"/>
                         <Label Text="{Binding ModelWorkerTime, Converter={StaticResource doubleToString4}}"/>
@@ -158,41 +164,53 @@
                                 FontSize="14" Clicked="Calculate_Clicked" FontAttributes="Bold"
                                 IsEnabled="{Binding VariableTimes}"/>
                     <StackLayout Grid.Row="2" Grid.Column="1" Spacing="10">
-                        <Label Text="Ideal Total Time"
+                        <Label Text="Ideal Grid Total Time (at = 0)"
                             HorizontalOptions="Start" 
                             Style="{StaticResource Title3}">
                             <Label.Triggers>
-                                <DataTrigger TargetType="Label" Binding="{Binding IdealTotalTimeVol}" Value="0">
+                                <DataTrigger TargetType="Label" Binding="{Binding IdealSimulationTotalTime}" Value="0">
                                     <Setter Property="IsVisible" Value="False" />
                                 </DataTrigger>
                             </Label.Triggers>
                         </Label>
-                        <Label Text="{Binding IdealTotalTimeVol, Converter={StaticResource doubleToString4}}"/>
+                        <Label Text="{Binding IdealSimulationTotalTime, Converter={StaticResource doubleToString4}}"/>
 
-                        <Label Text="WRONJ Total Time"
+                        <Label Text="Simulation Grid Total Time"
                             HorizontalOptions="Start" 
                             Style="{StaticResource Title3}">
                             <Label.Triggers>
-                                <DataTrigger TargetType="Label" Binding="{Binding ModelTotalTimeVol}" Value="0">
+                                <DataTrigger TargetType="Label" Binding="{Binding SimulationTotalTime}" Value="0">
                                     <Setter Property="IsVisible" Value="False" />
                                 </DataTrigger>
                             </Label.Triggers>
                         </Label>
-                        <Label Text="{Binding ModelTotalTimeVol, Converter={StaticResource doubleToString4}}"/>
+                        <Label Text="{Binding SimulationTotalTime, Converter={StaticResource doubleToString4}}"/>
 
-                        <Label Text="WRONJ Worker Time"
+                        <Label Text="Simulation Grid Worker Time"
                             HorizontalOptions="Start" 
                             Style="{StaticResource Title3}">
                             <Label.Triggers>
-                                <DataTrigger TargetType="Label" Binding="{Binding ModelWorkerTimeVol}" Value="0">
+                                <DataTrigger TargetType="Label" Binding="{Binding SimulationWorkerTime}" Value="">
                                     <Setter Property="IsVisible" Value="False" />
                                 </DataTrigger>
                             </Label.Triggers>
                         </Label>
-                        <Label Text="{Binding ModelWorkerTimeVol, Converter={StaticResource doubleToString4}}"/>
+                        <Label Text="{Binding SimulationWorkerTime}"/>
+                        
+                        <Label Text="Max Job Time"
+                            HorizontalOptions="Start" 
+                            Style="{StaticResource Title3}">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding SimulationMaxJobTime}" Value="0">
+                                    <Setter Property="IsVisible" Value="False" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Label Text="{Binding SimulationMaxJobTime, Converter={StaticResource doubleToString4}}"/>
+
                     </StackLayout>
                 </Grid>
-            </StackLayout>
+            </VerticalStackLayout>
         </Grid>
     </ScrollView>
 </ContentPage>
