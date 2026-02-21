@@ -15,9 +15,9 @@ namespace WRONJ.Toolkit
             if (Decimals >= 0)
             {
                 string format = $"{{0:F{Decimals}}}";
-                return string.Format(format, value);
+                return " " + string.Format(format, value);
             }
-            return value.ToString();
+            return " " + value.ToString();
         }
         public object ConvertBack(object value, Type targetType,
         object parameter, CultureInfo culture)
@@ -34,7 +34,7 @@ namespace WRONJ.Toolkit
         {
             if ((int)value <= 0)
                 return string.Empty;
-            return value.ToString();
+            return " " + value.ToString();
         }
         public object ConvertBack(object value, Type targetType,
         object parameter, CultureInfo culture)

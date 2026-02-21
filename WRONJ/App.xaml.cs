@@ -12,8 +12,14 @@ namespace WRONJ
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
+            var window = new Window(new AppShell());
+            window.Destroying += (s, e) =>
+            {
+                ViewModel?.Model.Save();
+            };
+            return window;
         }
+
 
         protected override void OnSleep()
         {

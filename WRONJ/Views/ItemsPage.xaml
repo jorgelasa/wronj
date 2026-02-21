@@ -36,8 +36,10 @@
                            Grid.Row="1"
                            Style="{StaticResource intEntry}"/>
 
-                    <Label Text="Assignment by machine" Grid.Column="1" HorizontalOptions="Center" Style="{StaticResource Title3}"/>
-                    <CheckBox Grid.Column="1" Grid.Row="1" HorizontalOptions="Center" IsChecked="{Binding MachineAssignment, Mode=TwoWay}"/>
+                    <HorizontalStackLayout Grid.Column="1" Grid.Row="1">
+                        <Label Text="Multiple workers per machine " VerticalOptions="Center" HorizontalOptions="Start" Style="{StaticResource Title3}"/>
+                        <CheckBox VerticalOptions="Center" IsChecked="{Binding MachineAssignment, Mode=TwoWay}"/>
+                    </HorizontalStackLayout>
 
                     <HorizontalStackLayout Spacing="1" Grid.Row="2">
                         <Label Text="Workers" Style="{StaticResource Title3}"/>
@@ -146,20 +148,17 @@
                             Style="{StaticResource Title3}"/>
                         <Label Text="{Binding IdealTotalTime, Converter={StaticResource doubleToString4}}"/>
 
-                        <Label Text="Theoretical Total Time"
+                        <Label Text="Minimum Theoretical Total Time"
                             HorizontalOptions="Start" 
                             Style="{StaticResource Title3}"/>
                         <Label Text="{Binding ModelTotalTime, Converter={StaticResource doubleToString4}}"/>
 
-                        <Label Text="Theoretical Worker Time"
+                        <Label Text="Minimum Theoretical Worker Time"
                             FontAttributes="Bold"
                             Style="{StaticResource Title3}"/>
                         <Label Text="{Binding ModelWorkerTime, Converter={StaticResource doubleToString4}}"/>
 
                     </StackLayout>
-                    <!--Button Text="Charts" Grid.Column="1"
-                            FontSize="14" Clicked="Charts_Clicked" FontAttributes="Bold"
-                            IsEnabled="{Binding EnableCharts}" /-->
                     <Button Text="Variable Times" Grid.Row="1" Grid.Column="1" 
                                 FontSize="14" Clicked="Calculate_Clicked" FontAttributes="Bold"
                                 IsEnabled="{Binding VariableTimes}"/>
@@ -168,45 +167,45 @@
                             HorizontalOptions="Start" 
                             Style="{StaticResource Title3}">
                             <Label.Triggers>
-                                <DataTrigger TargetType="Label" Binding="{Binding IdealSimulationTotalTime}" Value="0">
+                                <DataTrigger TargetType="Label" Binding="{Binding IdealCalculatedTotalTime}" Value="0">
                                     <Setter Property="IsVisible" Value="False" />
                                 </DataTrigger>
                             </Label.Triggers>
                         </Label>
-                        <Label Text="{Binding IdealSimulationTotalTime, Converter={StaticResource doubleToString4}}"/>
+                        <Label Text="{Binding IdealCalculatedTotalTime, Converter={StaticResource doubleToString4}}"/>
 
                         <Label Text="Simulation Grid Total Time"
                             HorizontalOptions="Start" 
                             Style="{StaticResource Title3}">
                             <Label.Triggers>
-                                <DataTrigger TargetType="Label" Binding="{Binding SimulationTotalTime}" Value="0">
+                                <DataTrigger TargetType="Label" Binding="{Binding CalculatedTotalTime}" Value="0">
                                     <Setter Property="IsVisible" Value="False" />
                                 </DataTrigger>
                             </Label.Triggers>
                         </Label>
-                        <Label Text="{Binding SimulationTotalTime, Converter={StaticResource doubleToString4}}"/>
+                        <Label Text="{Binding CalculatedTotalTime, Converter={StaticResource doubleToString4}}"/>
 
                         <Label Text="Simulation Grid Worker Time"
                             HorizontalOptions="Start" 
                             Style="{StaticResource Title3}">
                             <Label.Triggers>
-                                <DataTrigger TargetType="Label" Binding="{Binding SimulationWorkerTime}" Value="">
+                                <DataTrigger TargetType="Label" Binding="{Binding CalculatedWorkerTime}" Value="0">
                                     <Setter Property="IsVisible" Value="False" />
                                 </DataTrigger>
                             </Label.Triggers>
                         </Label>
-                        <Label Text="{Binding SimulationWorkerTime}"/>
+                        <Label Text="{Binding CalculatedWorkerTime, Converter={StaticResource doubleToString4}}"/>
                         
                         <Label Text="Max Job Time"
                             HorizontalOptions="Start" 
                             Style="{StaticResource Title3}">
                             <Label.Triggers>
-                                <DataTrigger TargetType="Label" Binding="{Binding SimulationMaxJobTime}" Value="0">
+                                <DataTrigger TargetType="Label" Binding="{Binding CalculatedMaxJobTime}" Value="0">
                                     <Setter Property="IsVisible" Value="False" />
                                 </DataTrigger>
                             </Label.Triggers>
                         </Label>
-                        <Label Text="{Binding SimulationMaxJobTime, Converter={StaticResource doubleToString4}}"/>
+                        <Label Text="{Binding CalculatedMaxJobTime, Converter={StaticResource doubleToString4}}"/>
 
                     </StackLayout>
                 </Grid>

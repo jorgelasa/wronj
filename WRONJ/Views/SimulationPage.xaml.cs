@@ -1,3 +1,4 @@
+using Microsoft.Maui.Controls;
 using WRONJ.ViewModels;
 
 namespace WRONJ.Views;
@@ -6,7 +7,7 @@ public partial class SimulationPage : ContentPage
 {
     readonly WRONJViewModel viewModel;
     readonly CancellationTokenSource cancelTokenSource;
-    const string idleWorker = "\uf1d8";
+    const string kIdleWorkerGlyph = "\uf1d8";
     public SimulationPage()
     {
         InitializeComponent();
@@ -14,39 +15,41 @@ public partial class SimulationPage : ContentPage
         BindingContext = viewModel;
         viewModel.ShowExtraInfo = Width > Height;
         viewModel.NextJob = 0;
-        viewModel.NextJobTime = 0;
-        viewModel.NextAssignmentTime = 0;
-        if (viewModel.Workers <= 0)
+        viewModel.SimulationMaxJobTime = 0;
+        viewModel.SimulationWorkerTime = 0;
+        viewModel.SimulationTotalTime = 0;
+        if (viewModel.Model.TotalWorkers <= 0)
             return;
         MoveJobQueue();
-        viewModel.FreeWorkers = viewModel.Workers;
-        for (int worker = 0; worker < viewModel.Workers; worker++)
+        viewModel.FreeWorkers = viewModel.Model.TotalWorkers;
+        for (int worker = 0; worker < viewModel.Model.TotalWorkers; worker++)
         {
-            fsq.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker)}, worker, 0);
+            fwq.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker)}, worker, 0);
         }
-        int workersColumns = viewModel.Workers <= 10 ? viewModel.Workers : (int)Math.Sqrt(viewModel.Workers);
+        int workersColumns = viewModel.Model.TotalWorkers <= 10 ? viewModel.Model.TotalWorkers : (int)Math.Sqrt(viewModel.Model.TotalWorkers);
         string fontFamily = ((FontImageSource)((Image)jobQueue.Children[0]).Source).FontFamily;
-        for (int row = 0, worker = 0; row <= viewModel.Workers / workersColumns; row++)
+        for (int row = 0, worker = 0; row <= viewModel.Model.TotalWorkers / workersColumns; row++)
         {
-            for (int col = 0; col < workersColumns && worker < viewModel.Workers; col++, worker++)
+            for (int col = 0; col < workersColumns && worker < viewModel.Model.TotalWorkers; col++, worker++)
             {
                 activeWorkers.Add(new Image
                 {
                     BackgroundColor = Colors.Silver,
-                    Source = new FontImageSource { FontFamily = fontFamily, Glyph = idleWorker }
+                    Source = new FontImageSource { FontFamily = fontFamily, Glyph = kIdleWorkerGlyph }
                 }, col, row);
             }
         }
         viewModel.Model.AssignmentStart += AssignmentStart;
         viewModel.Model.AssignmentEnd += AssignmentEnd;
-        viewModel.Model.FreeWorker += FreeWorker;
-        viewModel.Model.EndSimulation += (idealTime, realTime) =>
-        {
-            viewModel.IdealSimulationTotalTime = idealTime;
-            viewModel.SimulationTotalTime = realTime;
-        };
+        viewModel.Model.AddFreeWorker += AddFreeWorker;
         cancelTokenSource = new CancellationTokenSource();
-        viewModel.Model.Simulate(cancelTokenSource.Token, ++viewModel.Seed);
+        Simulate();
+    }
+    async Task<double> Simulate()
+    {
+        double totalTime = await viewModel.Model.Simulate(cancelTokenSource.Token, ++viewModel.Seed);
+        viewModel.SimulationTotalTime = totalTime;
+        return totalTime;
     }
     private void MoveJobQueue()
     {
@@ -56,83 +59,75 @@ public partial class SimulationPage : ContentPage
             viewModel.JobsInfo[i].JobNumber = viewModel.NextJob + i + 1;
         }
     }
-    private void AssignmentStart(List<int> idleWorkers, double jobTime, double assignmentTime)
+    private void RefreshFWQ(List<int> freeWorkers, List<int> workers, bool assigning)
     {
-        int s = 0;
-        viewModel.NextJob++;
-        viewModel.NextJobTime = jobTime;
-        viewModel.NextAssignmentTime = assignmentTime * 1000;
-        viewModel.FreeWorkers = idleWorkers.Count;
-        foreach (View view in fsq.Children)
+        int i = 0;
+        foreach (View view in fwq.Children)
         {
-            if (s < idleWorkers.Count)
+            if (i < freeWorkers.Count)
             {
-                view.BackgroundColor = viewModel.WorkerColor(idleWorkers[s++]);
+                view.BackgroundColor = viewModel.WorkerColor(freeWorkers[i], assigning && (workers?.Contains(freeWorkers[i]) ?? false));
             }
             else
             {
                 view.BackgroundColor = this.BackgroundColor;
             }
+            i++;
+        }
+        if (workers != null)
+        {
+            RefreshWorkers(workers, assigning);
         }
     }
-    private void AssignmentEnd(List<int> idleWorkers, int worker, string workerTime)
-    {
-        int s = 0;
-        viewModel.FreeWorkers = idleWorkers.Count;
-        viewModel.SimulationWorkerTime = workerTime;
-        string glyph = viewModel.JobsInfo[0].Glyph;
-        MoveJobQueue();
-        foreach (View view in fsq.Children)
-        {
-            if (s < idleWorkers.Count)
-            {
-                view.BackgroundColor = viewModel.WorkerColor(idleWorkers[s++]);
-            }
-            else
-            {
-                view.BackgroundColor = this.BackgroundColor;
-            }
-        }
 
-        // Cast the child to Image before accessing properties
-        var workerView = (Image)activeWorkers.Children[worker];
-        workerView.BackgroundColor = viewModel.WorkerColor(worker);
-        ((FontImageSource)workerView.Source).Glyph = glyph;
+    private void RefreshWorkers(List<int> workers, bool assigning)
+    {
+        for (int i = 0; i < workers.Count; i++)
+        {
+            string glyph = viewModel.JobsInfo[i].Glyph;
+            // Cast the child to Image before accessing properties
+            var workerView = (Image)activeWorkers.Children[workers[i]];
+            workerView.BackgroundColor = viewModel.WorkerColor(workers[i], assigning);
+            ((FontImageSource)workerView.Source).Glyph = glyph;
+        }
     }
-    private void FreeWorker(List<int> idleWorkers, double timeBetweenEndings)
-    {
-        int s = 0;
-        viewModel.FreeWorkers = idleWorkers.Count;
-        viewModel.TimeBetweenEndings = 1000 * timeBetweenEndings;
-        foreach (View view in fsq.Children)
-        {
-            if (s < idleWorkers.Count)
-            {
-                view.BackgroundColor = viewModel.WorkerColor(idleWorkers[s++]);
-            }
-            else
-            {
-                view.BackgroundColor = this.BackgroundColor;
-            }
-        }
 
-        int lastIdx = idleWorkers[idleWorkers.Count - 1];
-        var freedView = (Image)activeWorkers.Children[lastIdx];
+    /// Remove from the free workers view all the workers assigned
+    private void AssignmentStart(List<int> freeWorkers, List<int> assignedWorkers, double maxJobTime, double assignmentTime)
+    {
+        viewModel.NextJob+= assignedWorkers.Count;
+        if (maxJobTime > viewModel.SimulationMaxJobTime)
+        {
+            viewModel.SimulationMaxJobTime = maxJobTime;
+        }
+        viewModel.FreeWorkers = freeWorkers.Count;
+        RefreshFWQ(freeWorkers, assignedWorkers, true);
+    }
+    /// Add to the free workers view a worker that has finished its jobs, and update the image of that worker in its view
+    private void AddFreeWorker(List<int> freeWorkers)
+    {
+        viewModel.FreeWorkers = freeWorkers.Count;
+        RefreshFWQ(freeWorkers, null, true);
+        
+        var freedView = (Image)activeWorkers.Children[freeWorkers.Last()];
         freedView.BackgroundColor = Colors.Silver;
-        ((FontImageSource)freedView.Source).Glyph = idleWorker;
+        ((FontImageSource)freedView.Source).Glyph = kIdleWorkerGlyph;
+
+    }
+    
+    /// Assign the jobs from the job queue view to the active workers view 
+    private void AssignmentEnd(List<int> freeWorkers, List<int> assignedWorkers, double workerTime)
+    {
+        viewModel.SimulationWorkerTime = workerTime;
+        RefreshFWQ(freeWorkers, assignedWorkers, false);
+        MoveJobQueue();
     }
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
         viewModel.Model.AssignmentStart -= AssignmentStart;
         viewModel.Model.AssignmentEnd -= AssignmentEnd;
-        viewModel.Model.FreeWorker -= FreeWorker;
-        if (!viewModel.VariableTimes)
-        {
-            viewModel.IdealSimulationTotalTime = 0;
-            viewModel.SimulationTotalTime = 0;
-            viewModel.SimulationWorkerTime = "";
-        }
+        viewModel.Model.AddFreeWorker -= AddFreeWorker;
         cancelTokenSource?.Cancel();
     }
 

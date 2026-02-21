@@ -1,22 +1,22 @@
-﻿using System.Reflection;
+﻿using MathNet.Numerics.Financial;
+using System.Reflection;
 using System.Text.Json;
 
-/// Alias for the type used to manage the workers end times in the machines simulation,
+/// Alias for the type used to manage the workers end times,
 /// along with an assignation id to allow repeated times in the sorted set
-using WorkersMachine = System.Collections.Generic.SortedSet<(double time, int id)>;
+using WorkersTimes = System.Collections.Generic.SortedSet<(double time, int id)>;
 
 namespace WRONJ.Models
 {
     public class WRONJModel : ICloneable
     {
-        public delegate void AssignmentStartEventHandler(List<int> workers, double jobTime, double assignmentTime);
-        public delegate void AssignmentEndEventHandler(List<int> workers, int worker, string workerTime);
-        public delegate void FreeWorkerEventHandler(List<int> workers, double timeBetweenEndings);
+        public delegate void AssignmentStartEventHandler(List<int> freeWorkers, List<int> assignedWorkers, double maxJobTime, double assignmentTime);
+        public delegate void AssignmentEndEventHandler(List<int> freeWorkers, List<int> assignedWorkers, double workerTime);
+        public delegate void FreeWorkerEventHandler(List<int> freeWorkers);
         public delegate void EndSimulationEventHandler(double idealTotalTime, double realTotalTime);
         public event AssignmentStartEventHandler AssignmentStart;
         public event AssignmentEndEventHandler AssignmentEnd;
-        public event FreeWorkerEventHandler FreeWorker;
-        public event EndSimulationEventHandler EndSimulation;
+        public event FreeWorkerEventHandler AddFreeWorker;
         /// <summary>
         /// Input average job assignment time, in seconds
         /// </summary>
@@ -36,7 +36,7 @@ namespace WRONJ.Models
             return MachineAssignment && Machines > 0;
         }
         public int AssignationUnits => UseMachines() ? Machines : Workers;
-        public int EffectiveWorkers => UseMachines() ? Workers * Machines : Workers;
+        public int TotalWorkers => UseMachines() ? Workers * Machines : Workers;
         public double EffectiveAssignmentTime => UseMachines() ? AssignmentTime / Workers : AssignmentTime;
         MathNet.Numerics.Distributions.LogNormal Distribution(double mean, double volatility, int seed = 0)
         {
@@ -49,14 +49,14 @@ namespace WRONJ.Models
         }
         public double WorkerTime()
         {
-            return EffectiveAssignmentTime * (EffectiveWorkers - 1) > JobTime ? EffectiveAssignmentTime * EffectiveWorkers : JobTime + AssignmentTime;
+            return EffectiveAssignmentTime * (TotalWorkers - 1) > JobTime ? EffectiveAssignmentTime * TotalWorkers : JobTime + AssignmentTime;
         }
         public double JobTimeLimit()
         {
-            if (EffectiveWorkers == 0)
+            if (TotalWorkers == 0)
                 return 0;
 
-            return EffectiveAssignmentTime * (EffectiveWorkers - 1);
+            return EffectiveAssignmentTime * (TotalWorkers - 1);
         }
         public double WorkersLimit()
         {
@@ -64,19 +64,19 @@ namespace WRONJ.Models
                 return 0;
             return JobTime / JobTime + 1;
         }
-        
+
         public double TotalTime(bool idealTime)
         {
-            if (EffectiveWorkers == 0 || Jobs == 0)
+            if (TotalWorkers == 0 || Jobs == 0)
                 return 0;
 
             double assignmentTime = idealTime ? 0 : AssignmentTime;
             double effectiveAssignmentTime = idealTime ? 0 : EffectiveAssignmentTime;
-            
-            if (Jobs <= EffectiveWorkers || effectiveAssignmentTime > 0 && JobTime <= JobTimeLimit())
+
+            if (Jobs <= TotalWorkers || effectiveAssignmentTime > 0 && JobTime <= JobTimeLimit())
                 return effectiveAssignmentTime * Jobs + JobTime;
 
-            return (JobTime + assignmentTime) * (Jobs / EffectiveWorkers + (Jobs % AssignationUnits > 0 ? 1 : 0)) +
+            return (JobTime + assignmentTime) * (Jobs / TotalWorkers + (Jobs % AssignationUnits > 0 ? 1 : 0)) +
                 assignmentTime * (Jobs % AssignationUnits > 0 ? Jobs % AssignationUnits - 1 : AssignationUnits - 1);
 
         }
@@ -89,7 +89,6 @@ namespace WRONJ.Models
                 return Task<(double, double, double, double)>.FromResult((0.0, 0.0, 0.0, 0.0));
             return Task<(double, double, double, double)>.Run(() =>
             {
-                double assignmentsTime = 0;
                 // This will be the time of the last assignation
                 double time = 0;
                 double lastTime = 0;
@@ -98,79 +97,27 @@ namespace WRONJ.Models
                 var assignmentDist = Distribution(inputAssignmentTime, assignmentVolatility, seed + 1);
                 // The worker time will be calculated with the average value of the difference between end times for each worker,
                 // so we can only begin the calculation once all the workers have been filled
-                double workerTime = 0;
-                Queue<double> jobsQue = new ();
+                double workerTime = Jobs > TotalWorkers ? 0 : WorkerTime();
                 // Sorted set to manage the ideal worker times, where the end time of the last job assigned to the worker is stored,
                 // so we can always assign the next job to the worker that will be free first in the ideal grid
-                WorkersMachine workersIdealTime = new ();
+                WorkersTimes workersIdealTime = new();
                 // Sorted set to manage the real worker times, where the end time of the last job assigned to the worker is stored,
                 // so we can always assign the next job to the worker that will be free first in the simluation grid
-                WorkersMachine workersTime = new ();
-                for (int j = 0; j < Jobs; j++)
-                {
-                    if (cancelToken.IsCancellationRequested)
-                        break;
-                    double jobTime = (jobDist == null ? inputJobTime : jobDist.Sample());
-                    if (jobDist != null && jobTime > maxJobTime)
-                    {
-                        maxJobTime = jobTime;
-                    }   
-                    if (workersIdealTime.Count == EffectiveWorkers)
-                    {
-                        var firstWorker = workersIdealTime.First();
-                        workersIdealTime.Remove(firstWorker);
-                        // In the ideal grid, the assignment time is 0: the worker time 
-                        // (= difference between the ending time of a job and the the ending time of the next one)
-                        // always be equal to the job time
-                        workersIdealTime.Add((firstWorker.time + jobTime, firstWorker.id));
-                    }
-                    else
-                    {
-                        workersIdealTime.Add((jobTime, workersIdealTime.Count));
-                    }
-                    if (UseMachines())
-                    {
-                        jobsQue.Enqueue(jobTime);
-                    }
-                    else 
-                    {
-                        double assignmentTime = (assignmentDist == null ? inputAssignmentTime : assignmentDist.Sample());
-                        assignmentsTime = (j * assignmentsTime + assignmentTime) / (j + 1);
-                        if (j >= EffectiveWorkers)
-                        {
-                            var firstWorker = workersTime.First();
-                            if (firstWorker.time > time)
-                            {
-                                time = firstWorker.time;
-                            }
-                            time += assignmentTime;
-                            workerTime = ((j - EffectiveWorkers) * workerTime + time + jobTime - firstWorker.time) / (j + 1 - EffectiveWorkers);
-                            workersTime.Remove(firstWorker);
-                            workersTime.Add((time + jobTime, firstWorker.id));
-                        }
-                        else
-                        {
-                            time += assignmentTime;
-                            workersTime.Add((time + jobTime, workersTime.Count));
-                        }
-                        lastTime = workersTime.Last().time;
-                    }
-                }
-                // If we are using machines, we need to simulate the process of assigning jobs to machines and workers,
+                WorkersTimes workersTime = new();
+                // We need to simulate the process of assigning jobs to machines and workers,
                 // where each machine can have a queue of jobs assigned to it, and each worker in the machine will take the jobs in order.
                 // We will use a sorted set for each machine to manage the end times of the workers in that machine,
                 // so we can always assign the next job to the worker that will be free first in that machine.
-                List<WorkersMachine> machinesWorkersTimes = Enumerable.Range(0, Machines).Select(_ => new WorkersMachine()).ToList();
-
-                // This will be the siumulation process when machines > 0, where we have a queue of jobs
-                // that we can assign in batches to the different machines
-                int job = 0;
-                while (jobsQue.Count > 0)
+                int machines = UseMachines() ? Machines : Workers;
+                int workersByMachine = UseMachines() ? Workers : 1;
+                List<WorkersTimes> machinesWorkersTimes = Enumerable.Range(0, machines).Select(_ => new WorkersTimes()).ToList();
+                int finishedJobs = 0;
+                while (finishedJobs < Jobs)
                 {
                     if (cancelToken.IsCancellationRequested)
                         break;
                     double nextTime = double.MaxValue;
-                    WorkersMachine nextMachine = null;
+                    WorkersTimes nextMachine = null;
                     foreach (var machine in machinesWorkersTimes)
                     {
                         if (machine.Count == 0)
@@ -191,59 +138,77 @@ namespace WRONJ.Models
                     }
                     double assignmentTime = (assignmentDist == null ? inputAssignmentTime : assignmentDist.Sample());
                     List<double> finishedWorkersEndTimes = new();
-                    if (job >= EffectiveWorkers)
+                    if (finishedJobs >= TotalWorkers)
                     {
                         finishedWorkersEndTimes.AddRange(nextMachine.Where(w => w.time <= time).Select(w => w.time));
                     }
                     // Remove all the finished workers
                     nextMachine?.RemoveWhere(w => w.time <= time);
                     time += assignmentTime;
-                    int jobsToAssign = Math.Min(Workers - nextMachine.Count, jobsQue.Count);
+                    int jobsToAssign = Math.Min(workersByMachine - nextMachine.Count, Jobs - finishedJobs);
+                    List<double> jobTimes = Enumerable.Range(0, jobsToAssign).Select(_ => jobDist == null ? JobTime : jobDist.Sample()).ToList();
                     for (int i = 0; i < jobsToAssign; i++)
                     {
-                        double nextWorkerTime = time + jobsQue.Dequeue();
+                        double jobTime = jobTimes[i];
+                        if (jobTime > maxJobTime)
+                        {
+                            maxJobTime = jobTime;
+                        }
+                        // In the ideal grid, the assignment time is 0, so we don't have to take
+                        // account of the different machines, only the total number or workers.
+                        // The worker time (= difference between the ending time of a job and the the ending time of the next one)
+                        // in this case always be equal to the job time
+                        if (workersIdealTime.Count == TotalWorkers)
+                        {
+                            var firstWorker = workersIdealTime.First();
+                            workersIdealTime.Remove(firstWorker);
+                            workersIdealTime.Add((firstWorker.time + jobTime, firstWorker.id));
+                        }
+                        else
+                        {
+                            workersIdealTime.Add((jobTime, workersIdealTime.Count));
+                        }
+
+                        double nextWorkerTime = time + jobTime;
                         if (finishedWorkersEndTimes.Count > i)
                         {
-                            workerTime = ((job + i - EffectiveWorkers) * workerTime + nextWorkerTime - finishedWorkersEndTimes[i]) / 
-                                (job + i + 1 - EffectiveWorkers);
+                            workerTime = ((finishedJobs + i - TotalWorkers) * workerTime + nextWorkerTime - finishedWorkersEndTimes[i]) /
+                                (finishedJobs + i + 1 - TotalWorkers);
 
                         }
                         if (nextWorkerTime > lastTime)
                         {
                             lastTime = nextWorkerTime;
                         }
-                        nextMachine.Add((nextWorkerTime, job));
+                        nextMachine.Add((nextWorkerTime, finishedJobs));
                     }
-                    job += jobsToAssign;
-
+                    finishedJobs += jobsToAssign;
                 }
                 return (workersIdealTime.Last().time, lastTime, maxJobTime, workerTime);
             });
         }
-        public async void Simulate(CancellationToken cancelToken, int seed)
+        public async Task<double> Simulate(CancellationToken cancelToken, int seed)
         {
             //All times in seconds
-            double inputAssignmentTime = AssignmentTime,
-                assignmentVolatility = AssignmentTimeVolatility;
-            int workers = Workers;
-            if (workers == 0)
-                return;
+            if (TotalWorkers == 0)
+                return 0;
             double time = 0, idealTime = 0;
             var jobDist = Distribution(JobTime, JobTimeVolatility, seed);
-            var assignmentDist = Distribution(inputAssignmentTime, assignmentVolatility, seed + 1);
-            List<int> FWQ = Enumerable.Range(0, (int)workers).ToList();
-            // Sorted set to manage the real worker times 
-            SortedSet<(double endTime, int position)> workersTime = new SortedSet<(double, int)>();
+            var assignmentDist = Distribution(AssignmentTime, AssignmentTimeVolatility, seed + 1);
+            List<int> FWQ = Enumerable.Range(0, (int)TotalWorkers).ToList();
+            // Time and worker index of all the running workers
+            WorkersTimes activeWorkersTime = new();
             // Dictionary to manage the ideal and real worker last times: 
             // - The first item is worker position
             // - The second item is the last time when the worker ends the job 
-            Dictionary<int, double> workersLastTime = new Dictionary<int, double>();
-            Dictionary<int, double> workersIdealLastTime = new Dictionary<int, double>();
-            double workerTime = Jobs > workers ? 0 : WorkerTime();
-            double assignmentsTime = 0, jobsTime = 0;
-            double timeBetweenEndings = 0, timeLastEnding = 0;
-            int endedCount = 0;
-            async Task<bool> freeWorker((double endTime, int worker) activeWorker, double timeBefore)
+            Dictionary<int, double> workersLastTimes = new Dictionary<int, double>();
+            Dictionary<int, double> workersIdealLastTimes = new Dictionary<int, double>();
+
+            // The worker time will be calculated with the average value of the difference between end times for each worker,
+            // so we can only begin the calculation once all the workers have been filled
+            double workerTime = Jobs > TotalWorkers ? 0 : WorkerTime();
+            // Release a worker that has finished its job
+            async Task<bool> ReleaseWorker((double endTime, int worker) activeWorker, double timeBefore)
             {
                 int ms = (int)((activeWorker.endTime - timeBefore) * 1000);
                 bool waited = false;
@@ -253,48 +218,75 @@ namespace WRONJ.Models
                     waited = true;
                 }
                 FWQ.Add(activeWorker.worker);
-                if (timeLastEnding > 0)
-                {
-                    timeBetweenEndings = (endedCount * timeBetweenEndings + activeWorker.endTime - timeLastEnding) / ++endedCount;
-                }
-                timeLastEnding = activeWorker.endTime;
-                FreeWorker?.Invoke(FWQ, timeBetweenEndings);
+                AddFreeWorker?.Invoke(FWQ);
                 return waited;
             }
-            ;
+            // When using machines, return the index of the machine (starting with 1)
+            // corresponding to the worker; otherwise, return 0
+            int Machine(int worker)
+            {
+                if (!UseMachines())
+                {
+                    return 0;
+                }
+                return 1 + worker / Workers;
+            }
             // Assigning all jobs
-            for (int j = 0; j < Jobs; j++)
+            int finishedJobs = 0;
+            while (finishedJobs < Jobs)
             {
                 if (cancelToken.IsCancellationRequested)
                     break;
-                int assignedWorker = FWQ[0];
-                double jobTime = (jobDist == null ? JobTime : jobDist.Sample());
-                // In the ideal grid, the assignment time is 0: the worker time 
-                // (= difference between the ending time of a job and the the ending time of the next one)
-                // always be equal to the job time
-                if (workersIdealLastTime.ContainsKey(assignedWorker))
+                List<int> assignedWorkers = new();
+                int firstAssignedWorker = FWQ[0];
+                int machine = Machine(FWQ[0]);
+                if (machine == 0)
                 {
-                    workersIdealLastTime[assignedWorker] = workersIdealLastTime[assignedWorker] + jobTime;
+                    assignedWorkers.Add(firstAssignedWorker);
                 }
                 else
                 {
-                    workersIdealLastTime.Add(assignedWorker, jobTime);
+                    if (workersLastTimes.Count < TotalWorkers)
+                    {
+                        // We are still filling the grid in the first pass
+                        assignedWorkers.AddRange(FWQ.Where(w => w >= firstAssignedWorker && w < Jobs && w < firstAssignedWorker + Workers));
+                    }
+                    else
+                    {
+                        int j = finishedJobs;
+                        assignedWorkers.AddRange(workersLastTimes.Where(w => Machine(w.Key) == machine && w.Value <= time && j++ < Jobs).Select(w => w.Key));
+                    }
                 }
-                if (workersIdealLastTime[assignedWorker] > idealTime)
+                List<double> jobTimes = assignedWorkers.Select(_ => jobDist == null ? JobTime : jobDist.Sample()).ToList();
+                // In the ideal grid, the assignment time is 0: the worker time 
+                // (= difference between the ending time of a job and the the ending time of the next one)
+                // always be equal to the job time
+                for (int i = 0; i < assignedWorkers.Count; i++)
                 {
-                    idealTime = workersIdealLastTime[assignedWorker];
+                    if (workersIdealLastTimes.ContainsKey(assignedWorkers[i]))
+                    {
+                        workersIdealLastTimes[assignedWorkers[i]] = workersIdealLastTimes[assignedWorkers[i]] + jobTimes[i];
+                    }
+                    else
+                    {
+                        workersIdealLastTimes.Add(assignedWorkers[i], jobTimes[i]);
+                    }
+                    if (workersIdealLastTimes[assignedWorkers[i]] > idealTime)
+                    {
+                        idealTime = workersIdealLastTimes[assignedWorkers[i]];
+                    }
                 }
-                double assignmentTime = (assignmentDist == null ? inputAssignmentTime : assignmentDist.Sample());
-                // Getting a new job from pending queue
-                AssignmentStart?.Invoke(FWQ, jobTime, assignmentTime);
-                // Free all workers that end while assigning the new job
+                double assignmentTime = (assignmentDist == null ? AssignmentTime : assignmentDist.Sample());
+                AssignmentStart?.Invoke(FWQ, assignedWorkers, jobTimes.Max(), assignmentTime);
+
+                #region Free all workers that end while assigning the new job
                 double freeWorkerTime = time;
                 bool waited = false;
-                while (workersTime.Count > 0 && workersTime.First().endTime < time + assignmentTime)
+                while (activeWorkersTime.Count > 0 && activeWorkersTime.First().time < time + assignmentTime)
                 {
-                    waited = await freeWorker(workersTime.First(), freeWorkerTime);
-                    freeWorkerTime = workersTime.First().endTime;
-                    workersTime.Remove(workersTime.First());
+                    waited = await ReleaseWorker(activeWorkersTime.First(), freeWorkerTime);
+                    freeWorkerTime = activeWorkersTime.First().time;
+                    activeWorkersTime.Remove(activeWorkersTime.First());
                 }
                 time += assignmentTime;
                 int ms = (int)((time - freeWorkerTime) * 1000);
@@ -304,43 +296,55 @@ namespace WRONJ.Models
                     // the GUI is refreshed
                     await Task.Delay(ms > 0 ? ms : 1);
                 }
-                FWQ.RemoveAt(0);
-                double workerLastTime = workersLastTime.ContainsKey(assignedWorker) ?
-                                    time + jobTime - workersLastTime[assignedWorker] :
-                                    jobTime;
-                //Assign to an active worker
-                if (workersLastTime.ContainsKey(assignedWorker))
+                #endregion
+
+
+                double finishedWorkersLastTimes = 0;
+                for (int i = 0; i < assignedWorkers.Count; i++)
                 {
-                    workersLastTime[assignedWorker] = time + jobTime;
+                    double workerLastTime = workersLastTimes.ContainsKey(assignedWorkers[i]) ?
+                                    time + jobTimes[i] - workersLastTimes[assignedWorkers[i]] :
+                                    jobTimes[i];
+
+                    //Assign to an active worker
+                    if (workersLastTimes.ContainsKey(assignedWorkers[i]))
+                    {
+                        finishedWorkersLastTimes += time + jobTimes[i] - workersLastTimes[assignedWorkers[i]];
+                        workersLastTimes[assignedWorkers[i]] = time + jobTimes[i];
+                    }
+                    else
+                    {
+                        workersLastTimes.Add(assignedWorkers[i], time + jobTimes[i]);
+                    }
+                    activeWorkersTime.Add((time + jobTimes[i], assignedWorkers[i]));
+                }
+                // We start to compute the worker times only when the grid is full
+                if (finishedJobs >= TotalWorkers)
+                {
+                    workerTime = ((finishedJobs - TotalWorkers) * workerTime + finishedWorkersLastTimes) / (finishedJobs + assignedWorkers.Count - TotalWorkers);
+                }
+
+                FWQ.RemoveAll(w => assignedWorkers.Contains(w));
+                AssignmentEnd?.Invoke(FWQ, assignedWorkers, workerTime);
+                if (FWQ.Count == 0)
+                {
+                    await ReleaseWorker(activeWorkersTime.First(), time);
+                    time = activeWorkersTime.First().time;
+                    activeWorkersTime.Remove(activeWorkersTime.First());
                 }
                 else
                 {
-                    workersLastTime.Add(assignedWorker, time + jobTime);
+                    await Task.Delay(1);
                 }
-                workersTime.Add((time + jobTime, assignedWorker));
-                assignmentsTime = (j * assignmentsTime + assignmentTime) / (j + 1);
-                jobsTime = (j * jobsTime + jobTime) / (j + 1);
-                // We start to compute the worker times only when the grid is full
-                if (j >= workers)
-                {
-                    workerTime = ((j - workers) * workerTime + workerLastTime) / (j + 1 - workers);
-                }
-
-                AssignmentEnd?.Invoke(FWQ, assignedWorker, workerTime > 0 ? string.Format("{0:F4}", workerTime): "");
-                if (FWQ.Count == 0)
-                {
-                    await freeWorker(workersTime.First(), time);
-                    time = workersTime.First().endTime;
-                    workersTime.Remove(workersTime.First());
-                }
+                finishedJobs += assignedWorkers.Count;
             }
             // Releasing remaining active workers
-            foreach (var activeWorker in workersTime)
+            foreach (var activeWorker in activeWorkersTime)
             {
-                time = activeWorker.endTime;
-                await freeWorker(activeWorker, time);
+                time = activeWorker.time;
+                await ReleaseWorker(activeWorker, time);
             }
-            EndSimulation?.Invoke(idealTime, time);
+            return time;
         }
         private PropertyInfo[] BasicProperties()
         {
