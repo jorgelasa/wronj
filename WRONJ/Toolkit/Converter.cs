@@ -6,23 +6,21 @@ namespace WRONJ.Toolkit
     {
         public bool OnlyPositive { get; set; }
         public int Decimals { get; set; } = -1;
-        public object Convert(object value, Type targetType,
-        object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (OnlyPositive && (double)value <= 0)
+            if (OnlyPositive && (value is double d && d <= 0))
                 return string.Empty;
 
             if (Decimals >= 0)
             {
                 string format = $"{{0:F{Decimals}}}";
-                return " " + string.Format(format, value);
+                return string.Format(format, value);
             }
-            return " " + value.ToString();
+            return value?.ToString();
         }
-        public object ConvertBack(object value, Type targetType,
-        object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (!Double.TryParse((string)value, out double dVal))
+            if (!Double.TryParse((string?)value, out double dVal))
                 dVal = 0;
             return dVal;
         }
@@ -34,7 +32,7 @@ namespace WRONJ.Toolkit
         {
             if ((int)value <= 0)
                 return string.Empty;
-            return " " + value.ToString();
+            return value.ToString();
         }
         public object ConvertBack(object value, Type targetType,
         object parameter, CultureInfo culture)

@@ -18,7 +18,7 @@
         </Grid.RowDefinitions>
         <StackLayout BackgroundColor="{StaticResource Accent}" VerticalOptions="FillAndExpand" HorizontalOptions="Fill">
             <StackLayout Orientation="Horizontal" HorizontalOptions="Center" VerticalOptions="Center">
-                <Label Text="The WRONJ (Workers Rest On Next Job) problem" FontSize="Large"/>
+                <Label Text="Grid simulator and the WRONJ problem" FontSize="Large"/>
             </StackLayout>
         </StackLayout>
         <ScrollView Grid.Row="1">

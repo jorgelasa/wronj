@@ -41,7 +41,7 @@
             <ColumnDefinition>
             </ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <HorizontalStackLayout>
+        <HorizontalStackLayout Spacing="2">
             <Label Text="Job Queue" FontSize="Medium"/>
             <Label Text="  Next job:" IsVisible="{Binding ShowExtraInfo}">
                 <Label.Triggers>
@@ -151,16 +151,16 @@
                 </Image.Source>
             </Image>
         </Grid>
-        <HorizontalStackLayout Grid.Row="2">
-            <Label Text="Free Workers Queue" FontSize="Medium"/>
-            <Label Text="{Binding FreeWorkers, StringFormat='    Count: {0}'}" IsVisible="{Binding ShowExtraInfo}"/>
-            <Label Text="{Binding FreeWorkersRate, StringFormat=' ( {0:P0} )'}" IsVisible="{Binding ShowExtraInfo}"/>
+        <HorizontalStackLayout Grid.Row="2" Spacing="1">
+            <Label Text="Idle Workers Queue" FontSize="Medium"/>
+            <Label Text="{Binding IdleWorkers, StringFormat='    Count: {0}'}" IsVisible="{Binding ShowExtraInfo}"/>
+            <Label Text="{Binding IdleWorkersRate, StringFormat=' ( {0:P0} )'}" IsVisible="{Binding ShowExtraInfo}"/>
         </HorizontalStackLayout>
-        <Grid x:Name="fwq" ColumnSpacing="1" Grid.Row="3">
+        <Grid x:Name="iwq" ColumnSpacing="1" Grid.Row="3">
         </Grid>
-        <HorizontalStackLayout Grid.Row="4">
+        <HorizontalStackLayout Grid.Row="4" Spacing="2">
             <Label Text="Active Workers" FontSize="Medium"/>
-            <Label Text="  - Worker Time: " IsVisible="{Binding ShowExtraInfo}">
+            <Label Text=" Worker Time: " IsVisible="{Binding ShowExtraInfo}">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding SimulationWorkerTime}" Value="0">
                         <Setter Property="TextColor" Value="White" />

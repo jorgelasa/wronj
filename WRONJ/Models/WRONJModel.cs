@@ -10,13 +10,13 @@ namespace WRONJ.Models
 {
     public class WRONJModel : ICloneable
     {
-        public delegate void AssignmentStartEventHandler(List<int> freeWorkers, List<int> assignedWorkers, double maxJobTime, double assignmentTime);
-        public delegate void AssignmentEndEventHandler(List<int> freeWorkers, List<int> assignedWorkers, double workerTime);
-        public delegate void FreeWorkerEventHandler(List<int> freeWorkers);
+        public delegate void AssignmentStartEventHandler(List<int> idleWorkers, List<int> assignedWorkers, double maxJobTime, double assignmentTime);
+        public delegate void AssignmentEndEventHandler(List<int> idleWorkers, List<int> assignedWorkers, double workerTime);
+        public delegate void IdleWorkerEventHandler(List<int> idleWorkers);
         public delegate void EndSimulationEventHandler(double idealTotalTime, double realTotalTime);
         public event AssignmentStartEventHandler AssignmentStart;
         public event AssignmentEndEventHandler AssignmentEnd;
-        public event FreeWorkerEventHandler AddFreeWorker;
+        public event IdleWorkerEventHandler AddIdleWorker;
         /// <summary>
         /// Input average job assignment time, in seconds
         /// </summary>
@@ -58,11 +58,11 @@ namespace WRONJ.Models
 
             return EffectiveAssignmentTime * (TotalWorkers - 1);
         }
-        public double WorkersLimit()
+        public double WorkersMachinesLimit()
         {
-            if (JobTime == 0 || JobTime == 0)
+            if (JobTime == 0 || EffectiveAssignmentTime == 0)
                 return 0;
-            return JobTime / JobTime + 1;
+            return JobTime / AssignmentTime + 1;
         }
 
         public double TotalTime(bool idealTime)
@@ -99,15 +99,15 @@ namespace WRONJ.Models
                 // so we can only begin the calculation once all the workers have been filled
                 double workerTime = Jobs > TotalWorkers ? 0 : WorkerTime();
                 // Sorted set to manage the ideal worker times, where the end time of the last job assigned to the worker is stored,
-                // so we can always assign the next job to the worker that will be free first in the ideal grid
+                // so we can always assign the next job to the worker that will be idle first in the ideal grid
                 WorkersTimes workersIdealTime = new();
                 // Sorted set to manage the real worker times, where the end time of the last job assigned to the worker is stored,
-                // so we can always assign the next job to the worker that will be free first in the simluation grid
+                // so we can always assign the next job to the worker that will be idle first in the simluation grid
                 WorkersTimes workersTime = new();
                 // We need to simulate the process of assigning jobs to machines and workers,
                 // where each machine can have a queue of jobs assigned to it, and each worker in the machine will take the jobs in order.
                 // We will use a sorted set for each machine to manage the end times of the workers in that machine,
-                // so we can always assign the next job to the worker that will be free first in that machine.
+                // so we can always assign the next job to the worker that will be idle first in that machine.
                 int machines = UseMachines() ? Machines : Workers;
                 int workersByMachine = UseMachines() ? Workers : 1;
                 List<WorkersTimes> machinesWorkersTimes = Enumerable.Range(0, machines).Select(_ => new WorkersTimes()).ToList();
@@ -195,7 +195,7 @@ namespace WRONJ.Models
             double time = 0, idealTime = 0;
             var jobDist = Distribution(JobTime, JobTimeVolatility, seed);
             var assignmentDist = Distribution(AssignmentTime, AssignmentTimeVolatility, seed + 1);
-            List<int> FWQ = Enumerable.Range(0, (int)TotalWorkers).ToList();
+            List<int> IWQ = Enumerable.Range(0, (int)TotalWorkers).ToList();
             // Time and worker index of all the running workers
             WorkersTimes activeWorkersTime = new();
             // Dictionary to manage the ideal and real worker last times: 
@@ -217,8 +217,8 @@ namespace WRONJ.Models
                     await Task.Delay(ms);
                     waited = true;
                 }
-                FWQ.Add(activeWorker.worker);
-                AddFreeWorker?.Invoke(FWQ);
+                IWQ.Add(activeWorker.worker);
+                AddIdleWorker?.Invoke(IWQ);
                 return waited;
             }
             // When using machines, return the index of the machine (starting with 1)
@@ -238,8 +238,8 @@ namespace WRONJ.Models
                 if (cancelToken.IsCancellationRequested)
                     break;
                 List<int> assignedWorkers = new();
-                int firstAssignedWorker = FWQ[0];
-                int machine = Machine(FWQ[0]);
+                int firstAssignedWorker = IWQ[0];
+                int machine = Machine(IWQ[0]);
                 if (machine == 0)
                 {
                     assignedWorkers.Add(firstAssignedWorker);
@@ -249,7 +249,7 @@ namespace WRONJ.Models
                     if (workersLastTimes.Count < TotalWorkers)
                     {
                         // We are still filling the grid in the first pass
-                        assignedWorkers.AddRange(FWQ.Where(w => w >= firstAssignedWorker && w < Jobs && w < firstAssignedWorker + Workers));
+                        assignedWorkers.AddRange(IWQ.Where(w => w >= firstAssignedWorker && w < Jobs && w < firstAssignedWorker + Workers));
                     }
                     else
                     {
@@ -277,19 +277,19 @@ namespace WRONJ.Models
                     }
                 }
                 double assignmentTime = (assignmentDist == null ? AssignmentTime : assignmentDist.Sample());
-                AssignmentStart?.Invoke(FWQ, assignedWorkers, jobTimes.Max(), assignmentTime);
+                AssignmentStart?.Invoke(IWQ, assignedWorkers, jobTimes.Max(), assignmentTime);
 
-                #region Free all workers that end while assigning the new job
-                double freeWorkerTime = time;
+                #region Idle all workers that end while assigning the new job
+                double idleWorkerTime = time;
                 bool waited = false;
                 while (activeWorkersTime.Count > 0 && activeWorkersTime.First().time < time + assignmentTime)
                 {
-                    waited = await ReleaseWorker(activeWorkersTime.First(), freeWorkerTime);
-                    freeWorkerTime = activeWorkersTime.First().time;
+                    waited = await ReleaseWorker(activeWorkersTime.First(), idleWorkerTime);
+                    idleWorkerTime = activeWorkersTime.First().time;
                     activeWorkersTime.Remove(activeWorkersTime.First());
                 }
                 time += assignmentTime;
-                int ms = (int)((time - freeWorkerTime) * 1000);
+                int ms = (int)((time - idleWorkerTime) * 1000);
                 if (ms > 0 || !waited)
                 {
                     // If ms == 0 but there hasn't been any previous call to await, just make one to ensure
@@ -324,9 +324,9 @@ namespace WRONJ.Models
                     workerTime = ((finishedJobs - TotalWorkers) * workerTime + finishedWorkersLastTimes) / (finishedJobs + assignedWorkers.Count - TotalWorkers);
                 }
 
-                FWQ.RemoveAll(w => assignedWorkers.Contains(w));
-                AssignmentEnd?.Invoke(FWQ, assignedWorkers, workerTime);
-                if (FWQ.Count == 0)
+                IWQ.RemoveAll(w => assignedWorkers.Contains(w));
+                AssignmentEnd?.Invoke(IWQ, assignedWorkers, workerTime);
+                if (IWQ.Count == 0)
                 {
                     await ReleaseWorker(activeWorkersTime.First(), time);
                     time = activeWorkersTime.First().time;

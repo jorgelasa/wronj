@@ -171,41 +171,40 @@ namespace WRONJ.ViewModels
         }
 
 
-        int freeWorkers;
-        public int FreeWorkers
+        int idleWorkers;
+        public int IdleWorkers
         {
-            get { return freeWorkers; }
+            get { return idleWorkers; }
             set
             {
-                if (SetProperty(ref freeWorkers, value))
+                if (SetProperty(ref idleWorkers, value))
                 {
-                    FreeWorkersRate = Model.TotalWorkers > 0 ? (double)freeWorkers / Model.TotalWorkers : 0;
+                    IdleWorkersRate = Model.TotalWorkers > 0 ? (double)idleWorkers / Model.TotalWorkers : 0;
                 }
-                OnPropertyChanged("FreeWorkersRate");
+                OnPropertyChanged("IdleWorkersRate");
             }
         }
-        double freeWorkersRate;
-        public double FreeWorkersRate
+        double idleWorkersRate;
+        public double IdleWorkersRate
         {
-            get { return freeWorkersRate; }
+            get { return idleWorkersRate; }
             set
             {
-                SetProperty(ref freeWorkersRate, value);
+                SetProperty(ref idleWorkersRate, value);
             }
         }
         public void ChangeOutputData()
         {
             JobTimeLimit = Model.JobTimeLimit();
-            WorkersLimit = (int)Math.Round(Model.WorkersLimit());
+            WorkersMachinesLimit = (int)Math.Round(Model.WorkersMachinesLimit());
             IdealTotalTime = Model.TotalTime(true);
             ModelTotalTime = Model.TotalTime(false);
             ModelWorkerTime = Model.WorkerTime();
             IdealCalculatedTotalTime = 0;
-            SimulationTotalTime = 0;
-            SimulationWorkerTime = 0;
-            SimulationMaxJobTime = 0;
+            CalculatedTotalTime = 0;
+			CalculatedWorkerTime = 0;
+			CalculatedMaxJobTime = 0;
             Seed = 1;
-            VariableTimes = AssignmentTimeVolatility > 0 || JobTimeVolatility > 0;
         }
         private int nextJob = 1;
         public int NextJob
@@ -310,7 +309,7 @@ namespace WRONJ.ViewModels
                 SetProperty(ref calculatedMaxJobTime, value);
             }
         }
-        public int WorkersLimit
+        public int WorkersMachinesLimit
         {
             get { return workersLimit; }
             set
@@ -318,15 +317,7 @@ namespace WRONJ.ViewModels
                 SetProperty(ref workersLimit, value);
             }
         }
-        bool variableTimes, showExtraInfo;
-        public bool VariableTimes
-        {
-            get { return variableTimes; }
-            set
-            {
-                SetProperty(ref variableTimes, value);
-            }
-        }
+        bool showExtraInfo;
         public bool ShowExtraInfo
         {
             get { return showExtraInfo; }

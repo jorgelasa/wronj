@@ -21,10 +21,10 @@ public partial class SimulationPage : ContentPage
         if (viewModel.Model.TotalWorkers <= 0)
             return;
         MoveJobQueue();
-        viewModel.FreeWorkers = viewModel.Model.TotalWorkers;
+        viewModel.IdleWorkers = viewModel.Model.TotalWorkers;
         for (int worker = 0; worker < viewModel.Model.TotalWorkers; worker++)
         {
-            fwq.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker)}, worker, 0);
+            iwq.Add(new BoxView { BackgroundColor = viewModel.WorkerColor(worker)}, worker, 0);
         }
         int workersColumns = viewModel.Model.TotalWorkers <= 10 ? viewModel.Model.TotalWorkers : (int)Math.Sqrt(viewModel.Model.TotalWorkers);
         string fontFamily = ((FontImageSource)((Image)jobQueue.Children[0]).Source).FontFamily;
@@ -41,7 +41,7 @@ public partial class SimulationPage : ContentPage
         }
         viewModel.Model.AssignmentStart += AssignmentStart;
         viewModel.Model.AssignmentEnd += AssignmentEnd;
-        viewModel.Model.AddFreeWorker += AddFreeWorker;
+        viewModel.Model.AddIdleWorker += AddIdleWorker;
         cancelTokenSource = new CancellationTokenSource();
         Simulate();
     }
@@ -59,14 +59,14 @@ public partial class SimulationPage : ContentPage
             viewModel.JobsInfo[i].JobNumber = viewModel.NextJob + i + 1;
         }
     }
-    private void RefreshFWQ(List<int> freeWorkers, List<int> workers, bool assigning)
+    private void RefreshIWQ(List<int> idleWorkers, List<int> workers, bool assigning)
     {
         int i = 0;
-        foreach (View view in fwq.Children)
+        foreach (View view in iwq.Children)
         {
-            if (i < freeWorkers.Count)
+            if (i < idleWorkers.Count)
             {
-                view.BackgroundColor = viewModel.WorkerColor(freeWorkers[i], assigning && (workers?.Contains(freeWorkers[i]) ?? false));
+                view.BackgroundColor = viewModel.WorkerColor(idleWorkers[i], assigning && (workers?.Contains(idleWorkers[i]) ?? false));
             }
             else
             {
@@ -92,34 +92,35 @@ public partial class SimulationPage : ContentPage
         }
     }
 
-    /// Remove from the free workers view all the workers assigned
-    private void AssignmentStart(List<int> freeWorkers, List<int> assignedWorkers, double maxJobTime, double assignmentTime)
+    /// Remove from the idle workers view all the workers assigned
+    private void AssignmentStart(List<int> idleWorkers, List<int> assignedWorkers, double maxJobTime, double assignmentTime)
     {
         viewModel.NextJob+= assignedWorkers.Count;
         if (maxJobTime > viewModel.SimulationMaxJobTime)
         {
             viewModel.SimulationMaxJobTime = maxJobTime;
         }
-        viewModel.FreeWorkers = freeWorkers.Count;
-        RefreshFWQ(freeWorkers, assignedWorkers, true);
+        viewModel.IdleWorkers = idleWorkers.Count;
+        RefreshIWQ(idleWorkers, assignedWorkers, true);
     }
-    /// Add to the free workers view a worker that has finished its jobs, and update the image of that worker in its view
-    private void AddFreeWorker(List<int> freeWorkers)
+    /// Add to the idle workers view a worker that has finished its jobs, and update the image of that worker in its view
+    private void AddIdleWorker(List<int> idleWorkers)
     {
-        viewModel.FreeWorkers = freeWorkers.Count;
-        RefreshFWQ(freeWorkers, null, true);
+        viewModel.IdleWorkers = idleWorkers.Count;
+        RefreshIWQ(idleWorkers, null, true);
         
-        var freedView = (Image)activeWorkers.Children[freeWorkers.Last()];
-        freedView.BackgroundColor = Colors.Silver;
-        ((FontImageSource)freedView.Source).Glyph = kIdleWorkerGlyph;
+        var idledView = (Image)activeWorkers.Children[idleWorkers.Last()];
+        idledView.BackgroundColor = Colors.Silver;
+        ((FontImageSource)idledView.Source).Glyph = kIdleWorkerGlyph;
 
     }
     
     /// Assign the jobs from the job queue view to the active workers view 
-    private void AssignmentEnd(List<int> freeWorkers, List<int> assignedWorkers, double workerTime)
+    private void AssignmentEnd(List<int> idleWorkers, List<int> assignedWorkers, double workerTime)
     {
+        viewModel.IdleWorkers = idleWorkers.Count;
         viewModel.SimulationWorkerTime = workerTime;
-        RefreshFWQ(freeWorkers, assignedWorkers, false);
+        RefreshIWQ(idleWorkers, assignedWorkers, false);
         MoveJobQueue();
     }
     protected override void OnDisappearing()
@@ -127,7 +128,7 @@ public partial class SimulationPage : ContentPage
         base.OnDisappearing();
         viewModel.Model.AssignmentStart -= AssignmentStart;
         viewModel.Model.AssignmentEnd -= AssignmentEnd;
-        viewModel.Model.AddFreeWorker -= AddFreeWorker;
+        viewModel.Model.AddIdleWorker -= AddIdleWorker;
         cancelTokenSource?.Cancel();
     }
 

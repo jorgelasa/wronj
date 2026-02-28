@@ -4,6 +4,31 @@
              Title="Model Data"
              SizeChanged="OnPageSizeChanged"
              x:Class="WRONJ.Views.ItemsPage">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <ControlTemplate x:Key="LimitLabelTemplate">
+                <HorizontalStackLayout Spacing="1">
+                    <Label Text="(Limit: " Style="{StaticResource Title3}">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding Source={RelativeSource TemplatedParent}, Path BindingContext.WorkersMachinesLimit}" Value="0">
+                                <Setter Property="IsVisible" Value="False" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                    <Label HorizontalOptions="End" 
+                           Text="{Binding WorkersMachinesLimit, Converter={StaticResource intToString}}"
+                           Style="{StaticResource Title3}"/>
+                    <Label Text=")" Style="{StaticResource Title3}">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding WorkersMachinesLimit}" Value="0">
+                                <Setter Property="IsVisible" Value="False" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </HorizontalStackLayout>
+            </ControlTemplate>
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <ScrollView>
         <Grid x:Name="itemsGrid">
             <Grid.RowDefinitions>
@@ -43,29 +68,24 @@
 
                     <HorizontalStackLayout Spacing="1" Grid.Row="2">
                         <Label Text="Workers" Style="{StaticResource Title3}"/>
-                        <Label Text=" per machine " IsVisible="{Binding MachineAssignment}" Style="{StaticResource Title3}"/>
-                        <Label Text=" (WL: ">
-                            <Label.Triggers>
-                                <DataTrigger TargetType="Label" Binding="{Binding WorkersLimit}" Value="0">
+                        <Label Text="per machine " IsVisible="{Binding MachineAssignment}" Style="{StaticResource Title3}"/>
+                        <ContentView ControlTemplate="{StaticResource LimitLabelTemplate}">
+                            <ContentView.Triggers>
+                                <DataTrigger TargetType="ContentView" Binding="{Binding MachineAssignment}" Value="True">
                                     <Setter Property="IsVisible" Value="False" />
                                 </DataTrigger>
-                            </Label.Triggers>
-                        </Label>
-                        <Label HorizontalOptions="End" Text="{Binding WorkersLimit, Converter={StaticResource intToString}}"/>
-                        <Label Text=")">
-                            <Label.Triggers>
-                                <DataTrigger TargetType="Label" Binding="{Binding WorkersLimit}" Value="0">
-                                    <Setter Property="IsVisible" Value="False" />
-                                </DataTrigger>
-                            </Label.Triggers>
-                        </Label>
+                            </ContentView.Triggers>
+                        </ContentView>
                     </HorizontalStackLayout>
+                    
                     <Entry Text="{Binding Workers, Mode=TwoWay, Converter={StaticResource intToString}}"
                            Grid.Row="3"
                            Style="{StaticResource intEntry}"/>
 
-                    <Label Text="Machines" Grid.Row="2" Grid.Column="1" Style="{StaticResource Title3}"
-                            IsVisible="{Binding MachineAssignment}"/>
+                    <HorizontalStackLayout Grid.Row="2" Grid.Column="1" IsVisible="{Binding MachineAssignment}" Spacing="1">
+                        <Label Text="Machines"  Style="{StaticResource Title3}"/>
+                        <ContentView ControlTemplate="{StaticResource LimitLabelTemplate}" />
+                    </HorizontalStackLayout>
                     <Entry Text="{Binding Machines, Mode=TwoWay, Converter={StaticResource intToString}}"
                            IsVisible="{Binding MachineAssignment}"
                            Grid.Column="1"
@@ -102,17 +122,17 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <StackLayout Orientation="Horizontal" Spacing="0">
+                    <StackLayout Orientation="Horizontal" Spacing="1">
                         <Label Text="Average Time" Style="{StaticResource Title3}"/>
-                        <Label Text=" (JTL : ">
+                        <Label Text="(Limit: " Style="{StaticResource Title3}">
                             <Label.Triggers>
-                                <DataTrigger TargetType="Label" Binding="{Binding JobTimeLimit}" Value="0">
+                                <DataTrigger TargetType="Label" Binding="{Binding JobTimeLimit, Converter={StaticResource doubleToString4}}" Value="0">
                                     <Setter Property="IsVisible" Value="False" />
                                 </DataTrigger>
                             </Label.Triggers>
                         </Label>
-                        <Label HorizontalOptions="End" Text="{Binding JobTimeLimit, Converter={StaticResource doubleToString}}"/>
-                        <Label Text=")">
+                        <Label HorizontalOptions="End" Text="{Binding JobTimeLimit, Converter={StaticResource doubleToString4}}" Style="{StaticResource Title3}"/>
+                        <Label Text=")" Style="{StaticResource Title3}">
                             <Label.Triggers>
                                 <DataTrigger TargetType="Label" Binding="{Binding JobTimeLimit}" Value="0">
                                     <Setter Property="IsVisible" Value="False" />
@@ -127,7 +147,7 @@
             </VerticalStackLayout>
 
             <VerticalStackLayout Padding="10" Spacing="10"  x:Name="outputData">
-                <Button Text="View Simulation Grid" FontSize="14" Clicked="Simulate_Clicked" FontAttributes="Bold"/>
+                <Button Text="View Grid simulation" FontSize="14" Clicked="Simulate_Clicked" FontAttributes="Bold"/>
                 <Grid ColumnSpacing="10" RowSpacing="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -160,8 +180,7 @@
 
                     </StackLayout>
                     <Button Text="Variable Times" Grid.Row="1" Grid.Column="1" 
-                                FontSize="14" Clicked="Calculate_Clicked" FontAttributes="Bold"
-                                IsEnabled="{Binding VariableTimes}"/>
+                                FontSize="14" Clicked="Calculate_Clicked" FontAttributes="Bold"/>
                     <StackLayout Grid.Row="2" Grid.Column="1" Spacing="10">
                         <Label Text="Ideal Grid Total Time (at = 0)"
                             HorizontalOptions="Start" 
