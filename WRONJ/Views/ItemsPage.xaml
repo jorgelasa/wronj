@@ -10,7 +10,7 @@
                 <HorizontalStackLayout Spacing="1">
                     <Label Text="(Limit: " Style="{StaticResource Title3}">
                         <Label.Triggers>
-                            <DataTrigger TargetType="Label" Binding="{Binding Source={RelativeSource TemplatedParent}, Path BindingContext.WorkersMachinesLimit}" Value="0">
+                            <DataTrigger TargetType="Label" Binding="{Binding Source={RelativeSource TemplatedParent}, Path=BindingContext.WorkersMachinesLimit}" Value="0">
                                 <Setter Property="IsVisible" Value="False" />
                             </DataTrigger>
                         </Label.Triggers>

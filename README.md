@@ -1,8 +1,9 @@
 # Grid simulator and the WRONJ problem
 
-When we are computing a workload in a grid where the [job scheduler](https://en.wikipedia.org/wiki/Job_scheduler) that assigns the workload jobs to idle workers runs in a fixed number of threads of execution, a performance slowdown can occur that we call the **WRONJ (Workers Resting On Next Job)** problem. 
+When we compute a workload on a grid where the [job scheduler](https://en.wikipedia.org/wiki/Job_scheduler) that assigns the workload jobs to idle workers runs on a fixed number of threads of execution, a performance slowdown can occur when the job scheduler is a bottleneck because the assignation tasks queue becomes a [critical path](https://en.wikipedia.org/wiki/Critical_path_method) of the process: 
+we will call this issue the  **WRONJ (Workers at Rest On Next Job)** problem. 
 
-This document is a description of this phenomenon for the simplest grid architecture, where the scheduler runs on a single thread, and the jobs are assigned to a worker individually, but it applies to any other grid where the number of schedule instances don't scale with the number of worker instances: the problem occurs when the job scheduler is a bottleneck because the queue of assignation tasks becomes a [critical path](https://en.wikipedia.org/wiki/Critical_path_method) of the process.
+This document is a description of this phenomenon for the simplest grid architecture, where the scheduler runs on a single thread, and the jobs are assigned to a worker individually, but it can affect any other grid where the number of schedule instances does not scale with the number of worker instances. 
 
 Also, this document is the help guide of the grid simulator application that we will use to illustrate the problem.
 

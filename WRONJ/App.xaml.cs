@@ -8,6 +8,8 @@ namespace WRONJ
         public App()
         {
             InitializeComponent();
+            // Disable  automatic themes (dark/light)
+            Application.Current.UserAppTheme = AppTheme.Light;
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
@@ -20,11 +22,9 @@ namespace WRONJ
             return window;
         }
 
-
         protected override void OnSleep()
         {
             ViewModel?.Model.Save();
         }
-
     }
 }
